@@ -1,7 +1,33 @@
-export default function App() {
+
+import { useRoutes } from 'react-router-dom'
+import HomeAdmin from './pages/admin/adminhome'
+import QuanLiSanPham from './pages/admin/quan_li_san_pham'
+import EditSanPham from './pages/admin/Edit_san_pham'
+
+
+
+function App() {
+  const router=useRoutes([
+    {
+          path: "/admin/home",
+          element: < HomeAdmin/>,
+    },
+    {
+          path: "/admin/quan-li-san-pham",
+          element: < QuanLiSanPham/>,
+    },
+    {
+          path: "/admin/edit-san-pham",
+          element: < EditSanPham/>,
+    },
+    
+
+   ])
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <>
+     {router}
+    </>
   )
 }
+
+export default App
