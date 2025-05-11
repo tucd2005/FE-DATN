@@ -3,6 +3,7 @@ import { useRoutes } from 'react-router-dom'
 import HomeAdmin from './pages/admin/adminhome'
 import QuanLiSanPham from './pages/admin/quan_li_san_pham'
 import EditSanPham from './pages/admin/Edit_san_pham'
+import HomeClient from './pages/client/home'
 
 
 
@@ -19,6 +20,10 @@ function App() {
     {
           path: "/admin/edit-san-pham",
           element: < EditSanPham/>,
+    },
+    {
+          path: "/",
+          element: < HomeClient/>,
     },
     
 
