@@ -3,6 +3,7 @@ import HeaderAdmin from "../../components/admin/HeaderAdmin"
 import LineChart from "../../components/admin/LineChart"
 import SidebarAdmin from "../../components/admin/SidebarAdmin"
 import TablesProduct from "../../components/admin/TableProduct"
+import Tables from '../../components/admin/Table'
 
 
 
@@ -179,7 +180,7 @@ function HomeAdmin() {
   
 </div>
 
- <TablesProduct/>
+ <Tables/>
      </main>
     </>
   )
