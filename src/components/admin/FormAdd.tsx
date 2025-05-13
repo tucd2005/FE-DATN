@@ -1,4 +1,4 @@
-function FormEditSanPham() {
+function FormAddSanPham() {
   return (
     <div className="w-full min-h-screen p-6">
       <div className="w-full h-full">
@@ -6,9 +6,7 @@ function FormEditSanPham() {
           <div className="w-full px-3">
             <div className="relative flex flex-col bg-white shadow-xl rounded-2xl p-6">
               <form className="w-full">
-                <p className="text-sm uppercase text-slate-700 mb-4">
-                  <b>Sản phẩm ID: NQK</b>
-                </p>
+                
                 <div className="flex flex-wrap -mx-3">
                   {/* Tên sản phẩm */}
                   <div className="w-full md:w-6/12 px-3 mb-4">
@@ -19,7 +17,7 @@ function FormEditSanPham() {
                       type="text"
                       id="productName"
                       name="productName"
-                      defaultValue="Áo thun nam"
+    
                       className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
                     />
                   </div>
@@ -33,7 +31,7 @@ function FormEditSanPham() {
                       type="number"
                       id="price"
                       name="price"
-                      defaultValue={100000}
+                    
                       min="0"
                       step="1000"
                       className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
@@ -48,7 +46,7 @@ function FormEditSanPham() {
                     <select
                       id="size"
                       name="size"
-                      defaultValue="m"
+                 
                       className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
                     >
                       <option value="s">S</option>
@@ -67,7 +65,7 @@ function FormEditSanPham() {
                     <select
                       id="category"
                       name="category"
-                      defaultValue="clothing"
+                    
                       className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
                     >
                       <option value="clothing">Quần áo</option>
@@ -98,7 +96,7 @@ function FormEditSanPham() {
                     type="submit"
                     className="px-6 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition"
                   >
-                    Lưu thay đổi
+                   Thêm mới sản phẩm    
                   </button>
                 </div>
               </form>
@@ -110,4 +108,4 @@ function FormEditSanPham() {
   );
 }
 
-export default FormEditSanPham;
+export default FormAddSanPham;
