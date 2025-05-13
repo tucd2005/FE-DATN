@@ -4,6 +4,7 @@ import HomeAdmin from './pages/admin/adminhome'
 import QuanLiSanPham from './pages/admin/quan_li_san_pham'
 import EditSanPham from './pages/admin/Edit_san_pham'
 import HomeClient from './pages/client/home'
+import AddSanPham from './pages/admin/Add_san_pham'
 
 
 
@@ -21,6 +22,12 @@ function App() {
           path: "/admin/edit-san-pham",
           element: < EditSanPham/>,
     },
+    {
+          path: "/admin/add-san-pham",
+          element: < AddSanPham/>,
+    },
+
+
     {
           path: "/",
           element: < HomeClient/>,
