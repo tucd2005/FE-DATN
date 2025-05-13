@@ -69,7 +69,7 @@ const products = [
   }
 ];
 
-const ProductTable = () => {
+const Tables = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(""); // "" là tất cả
   const [currentPage, setCurrentPage] = useState(1);
@@ -108,34 +108,7 @@ const ProductTable = () => {
           <div className="relative flex flex-col min-w-0 mb-6 break-words bg-white shadow-xl rounded-2xl">
             {/* Ô tìm kiếm */}
 
-            <div className="w-full mb-4  p-5 flex items-center justify-between gap-4">
-              <button
-                type="button"
-                className="bg-[rgb(94_114_228)] hover:bg-[rgb(74_94_208)] text-white rounded px-3 py-1"
-              >
-                 <a href="/admin/add-san-pham">Thêm sản phẩm</a>
-              </button>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="border p-2   rounded"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                />
-                <select
-                  className="border p-2 rounded"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="">Tất cả danh mục</option>
-                  <option value="Áo">Áo</option>
-                  <option value="Quần">Quần</option>
-                  <option value="Phụ kiện">Phụ kiện</option>
-                </select>
-              </div>
-
-            </div>
+           
 
             <div className="flex-auto px-0 pt-0 pb-2">
               <div className="p-0 overflow-x-auto">
@@ -242,4 +215,4 @@ const ProductTable = () => {
   );
 };
 
-export default ProductTable;
+export default Tables;
