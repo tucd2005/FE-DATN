@@ -10,57 +10,69 @@ import AddDanhMuc from './pages/admin/add_danh_muc'
 import EditDanhMuc from './pages/admin/edit_danh_muc'
 
 import QuanLiBanner from './pages/admin/quan_li_banner'
+import SignIn from './pages/auth/sign_in'
+import SignUp from './pages/auth/sign_up'
 
 
 
 function App() {
-  const router=useRoutes([
-    {
-          path: "/admin/home",
-          element: < HomeAdmin/>,
-    },
-    {
-          path: "/admin/quan-ly-san-pham",
-          element: < QuanLySanPham/>,
-    },
-    {
-          path: "/admin/quan-ly-banner",
-          element: < QuanLiBanner/>,
-    },
-    {
-          path: "/admin/edit-san-pham",
-          element: < EditSanPham/>,
-    },
-    {
-          path: "/admin/add-san-pham",
-          element: < AddSanPham/>,
-    },
-      {
-          path: "/admin/add-danh-muc",
-          element: < AddDanhMuc/>,
-    },
-    {
-          path: "/admin/quan-ly-danh-muc",
-          element: < QuanLyDanhMuc/>,
-    },
-    {
-          path: "/admin/edit-danh-muc",
-          element: < EditDanhMuc/>,
-    },
+
+      const router = useRoutes([
+            {
+                  path: "/admin/home",
+                  element: < HomeAdmin />,
+            },
+            {
+                  path: "/admin/quan-ly-san-pham",
+                  element: < QuanLySanPham />,
+            },
+            {
+                  path: "/admin/quan-ly-banner",
+                  element: < QuanLiBanner />,
+            },
+            {
+                  path: "/admin/edit-san-pham",
+                  element: < EditSanPham />,
+            },
+            {
+                  path: "/admin/add-san-pham",
+                  element: < AddSanPham />,
+            },
+            {
+                  path: "/admin/add-danh-muc",
+                  element: < AddDanhMuc />,
+            },
+            {
+                  path: "/admin/quan-ly-danh-muc",
+                  element: < QuanLyDanhMuc />,
+            },
+            {
+                  path: "/admin/edit-danh-muc",
+                  element: < EditDanhMuc />,
+            },
+            {
+                  path: "/admin/auth/sign_in",
+                  element: < SignIn />,
+            },
+            {
+                  path: "admin/auth/sign_up",
+                  element: < SignUp />,
+            },
 
 
-    {
-          path: "/",
-          element: < HomeClient/>,
-    },
-    
 
-   ])
-  return (
-    <>
-     {router}
-    </>
-  )
+            {
+                  path: "/",
+                  element: < HomeClient />,
+            },
+
+
+      ])
+      return (
+            <>
+                  {router}
+            </>
+      )
 }
 
 export default App
