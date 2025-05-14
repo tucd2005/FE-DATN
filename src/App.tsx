@@ -4,9 +4,15 @@ import EditSanPham from './pages/admin/Edit_san_pham'
 import HomeClient from './pages/client/home'
 import AddSanPham from './pages/admin/Add_san_pham'
 import QuanLySanPham from './pages/admin/quan_ly_san_pham'
+
 import QuanLyDanhMuc from './pages/admin/quan_ly_danh_muc'
 import AddDanhMuc from './pages/admin/add_danh_muc'
 import EditDanhMuc from './pages/admin/edit_danh_muc'
+
+import QuanLiBanner from './pages/admin/quan_li_banner'
+
+
+
 function App() {
   const router=useRoutes([
     {
@@ -18,6 +24,10 @@ function App() {
           element: < QuanLySanPham/>,
     },
     {
+          path: "/admin/quan-ly-banner",
+          element: < QuanLiBanner/>,
+    },
+    {
           path: "/admin/edit-san-pham",
           element: < EditSanPham/>,
     },
@@ -25,7 +35,7 @@ function App() {
           path: "/admin/add-san-pham",
           element: < AddSanPham/>,
     },
-    {
+      {
           path: "/admin/add-danh-muc",
           element: < AddDanhMuc/>,
     },
