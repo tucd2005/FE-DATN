@@ -36,6 +36,14 @@ const SidebarAdmin = () => {
                             </a>
                         </li>
                         <li className="mt-0.5 w-full">
+                            <a className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/quan-ly-banner">
+                                <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                                    <i className="relative top-0 text-sm leading-normal text-orange-500 ni ni-calendar-grid-58" />
+                                </div>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Quản lý banner</span>
+                            </a>
+                        </li>
+                        <li className="mt-0.5 w-full">
                             <a className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="./pages/billing.html">
                                 <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center fill-current stroke-0 text-center xl:p-2.5">
                                     <i className="relative top-0 text-sm leading-normal text-emerald-500 ni ni-credit-card" />
