@@ -4,8 +4,16 @@ import React, { useEffect, useState } from 'react'
 
 
 const Banner = () => {
+type Banner={
+  title:string,
+  description:string,
+  status:string,
+  link:string,
+  id: number,
+  image: string
 
-  const [banner, setBanner] = useState([])
+}
+  const [banner, setBanner] = useState<Banner[]>([])
   useEffect (() => {
     const fetchBanner = async () => {
       const res = await axios.get(`http://localhost:3000/banner`)
