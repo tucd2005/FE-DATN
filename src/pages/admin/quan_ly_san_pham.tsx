@@ -1,8 +1,8 @@
 import React from 'react'
 
-import HeaderAdmin from "../../components/admin/HeaderAdmin"
-import SidebarAdmin from "../../components/admin/SidebarAdmin"
-import ProductTable from '../../components/admin/TableProduct'
+import HeaderAdmin from "../../components/admin/layouts/HeaderAdmin"
+import SidebarAdmin from "../../components/admin/layouts/SidebarAdmin"
+import ProductTable from '../../components/admin/san_pham/TableProduct'
 
 
 
