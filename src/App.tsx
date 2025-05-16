@@ -12,6 +12,8 @@ import EditDanhMuc from './pages/admin/Edit_danh_muc'
 import QuanLiBanner from './pages/admin/Quan_li_banner'
 import SignIn from './pages/auth/sign_in'
 import SignUp from './pages/auth/sign_up'
+import Thong_bao from './components/admin/thongbao/thong_bao_thanh_cong'
+import Thong_bao_error from './components/admin/thongbao/thong_bao_k_thanh_cong'
 
 
 
@@ -49,6 +51,10 @@ function App() {
             {
                   path: "/admin/edit-danh-muc",
                   element: < EditDanhMuc />,
+            },
+            {
+                  path: "/admin/a",
+                  element: < Thong_bao_error />,
             },
             {
                   path: "/admin/auth/sign_in",
