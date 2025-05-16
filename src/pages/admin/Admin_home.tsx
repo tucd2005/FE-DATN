@@ -1,9 +1,9 @@
 import React from 'react'
-import HeaderAdmin from "../../components/admin/HeaderAdmin"
-import LineChart from "../../components/admin/LineChart"
-import SidebarAdmin from "../../components/admin/SidebarAdmin"
-import TablesProduct from "../../components/admin/TableProduct"
-import Tables from '../../components/admin/Table'
+import HeaderAdmin from "../../components/admin/layouts/HeaderAdmin"
+import LineChart from "../../components/admin/home/LineChart"
+import SidebarAdmin from "../../components/admin/layouts/SidebarAdmin"
+import TablesProduct from "../../components/admin/san_pham/TableProduct"
+import Tables from '../../components/admin/home/Table'
 
 
 

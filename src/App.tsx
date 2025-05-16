@@ -1,17 +1,19 @@
 import { useRoutes } from 'react-router-dom'
-import HomeAdmin from './pages/admin/adminhome'
+import HomeAdmin from './pages/admin/Admin_home'
 import EditSanPham from './pages/admin/Edit_san_pham'
 import HomeClient from './pages/client/home'
 import AddSanPham from './pages/admin/Add_san_pham'
-import QuanLySanPham from './pages/admin/quan_ly_san_pham'
+import QuanLySanPham from './pages/admin/Quan_ly_san_pham'
 
-import QuanLyDanhMuc from './pages/admin/quan_ly_danh_muc'
-import AddDanhMuc from './pages/admin/add_danh_muc'
-import EditDanhMuc from './pages/admin/edit_danh_muc'
+import QuanLyDanhMuc from './pages/admin/Quan_ly_danh_muc'
+import AddDanhMuc from './pages/admin/Add_danh_muc'
+import EditDanhMuc from './pages/admin/Edit_danh_muc'
 
-import QuanLiBanner from './pages/admin/quan_li_banner'
+import QuanLiBanner from './pages/admin/Quan_li_banner'
 import SignIn from './pages/auth/sign_in'
 import SignUp from './pages/auth/sign_up'
+import Thong_bao from './components/admin/thongbao/thong_bao_thanh_cong'
+import Thong_bao_error from './components/admin/thongbao/thong_bao_k_thanh_cong'
 
 
 
@@ -49,6 +51,10 @@ function App() {
             {
                   path: "/admin/edit-danh-muc",
                   element: < EditDanhMuc />,
+            },
+            {
+                  path: "/admin/a",
+                  element: < Thong_bao_error />,
             },
             {
                   path: "/admin/auth/sign_in",

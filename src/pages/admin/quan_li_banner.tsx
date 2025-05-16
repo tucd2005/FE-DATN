@@ -1,7 +1,7 @@
 import React from 'react'
-import SidebarAdmin from '../../components/admin/SidebarAdmin'
-import HeaderAdmin from '../../components/admin/HeaderAdmin'
-import Banner from '../../components/admin/Banner'
+import SidebarAdmin from '../../components/admin/layouts/SidebarAdmin'
+import HeaderAdmin from '../../components/admin/layouts/HeaderAdmin'
+import Banner from '../../components/admin/banner/Banner'
 
 const QuanLiBanner = () => {
   return (
