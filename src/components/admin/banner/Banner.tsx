@@ -19,13 +19,6 @@ type Banner={
       const res = await axios.get(`http://localhost:3000/banner`)
 
       setBanner (res.data)
-      // try {
-      //   return res
-        
-      // } catch (error) {
-        
-      // }
-
     }
     fetchBanner()
   }, [])

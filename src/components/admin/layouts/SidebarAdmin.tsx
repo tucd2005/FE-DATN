@@ -15,7 +15,7 @@ const SidebarAdmin = () => {
                     </a>
                 </div>
                 <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent dark:bg-gradient-to-r dark:from-transparent dark:via-white dark:to-transparent" />
-                <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
+                <div className="items-center block w-auto h-full overflow-y-auto">
                     <ul className="flex flex-col pl-0 mb-0">
                         <li className="mt-0.5 w-full">
                             <a className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/home">
@@ -87,18 +87,25 @@ const SidebarAdmin = () => {
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Sign In</span>
                             </a>
                         </li>
-                        <li className="mt-0.5 w-full">
+                        {/* <li className="mt-0.5 w-full">
                             <a className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="">
                                 <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                                     <i className="relative top-0 text-sm leading-normal text-cyan-500 ni ni-collection" />
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Sign Up</span>
                             </a>
-                        </li>
+                        </li> */}
                     </ul>
                 </div>
-                <div className="mx-4">
-                    {/* load phantom colors for card after: */}
+                
+
+            </aside>
+        </>
+    )
+}
+
+export default SidebarAdmin
+{/* <div className="mx-4">
                     <p className="invisible hidden text-gray-800 text-red-500 text-red-600 text-blue-500 bg-gray-500/30 bg-cyan-500/30 bg-emerald-500/30 bg-orange-500/30 bg-red-500/30 after:bg-gradient-to-tl after:from-zinc-800 after:to-zinc-700 dark:bg-gradient-to-tl dark:from-slate-750 dark:to-gray-850 after:from-blue-700 after:to-cyan-500 after:from-orange-500 after:to-yellow-500 after:from-green-600 after:to-lime-400 after:from-red-600 after:to-orange-600 after:from-slate-600 after:to-slate-300 text-emerald-500 text-cyan-500 text-slate-400" />
                     <div className="relative flex flex-col min-w-0 break-words bg-transparent border-0 shadow-none rounded-2xl bg-clip-border" sidenav-card>
                         <img className="w-1/2 mx-auto" src="../assets/img/illustrations/icon-documentation.svg" alt="sidebar illustrations" />
@@ -110,13 +117,5 @@ const SidebarAdmin = () => {
                         </div>
                     </div>
                     <a href="https://www.creative-tim.com/learning-lab/tailwind/html/quick-start/argon-dashboard/" target="_blank" className="inline-block w-full px-8 py-2 mb-4 text-xs font-bold leading-normal text-center text-white capitalize transition-all ease-in rounded-lg shadow-md bg-slate-700 bg-150 hover:shadow-xs hover:-translate-y-px">Documentation</a>
-                    {/* pro btn  */}
                     <a className="inline-block w-full px-8 py-2 text-xs font-bold leading-normal text-center text-white align-middle transition-all ease-in bg-blue-500 border-0 rounded-lg shadow-md select-none bg-150 bg-x-25 hover:shadow-xs hover:-translate-y-px" href="https://www.creative-tim.com/product/argon-dashboard-pro-tailwind?ref=sidebarfree" target="_blank">Upgrade to pro</a>
-                </div>
-
-            </aside>
-        </>
-    )
-}
-
-export default SidebarAdmin
+                </div> */}
