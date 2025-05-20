@@ -102,7 +102,7 @@ const Tables = () => {
   };
 
   return (
-    <div className="w-full px-6 py-6 mx-auto">
+    <div  className="w-full px-6 py-6 mx-auto">
       <div className="flex flex-wrap -mx-3">
         <div className="w-full max-w-full px-3">
           <div className="relative flex flex-col min-w-0 mb-6 break-words bg-white shadow-xl rounded-2xl">
