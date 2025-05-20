@@ -1,80 +1,27 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
-const products = [
-  {
-    id: 1,
-    name: "Sản phẩm 1",
-    description: "Mô tả sản phẩm",
-    price: "10.000đ",
-    category: "Áo",
-    status: "còn hàng",
-    stock: 30,
-    date: "20/3/2025",
-    image: "../assets/img/team-2.jpg"
-  },
-  {
-    id: 2,
-    name: "Sản phẩm 2",
-    description: "Mô tả khác",
-    price: "15.000đ",
-    category: "Quần",
-    status: "hết hàng",
-    stock: 0,
-    date: "18/4/2025",
-    image: "../assets/img/team-3.jpg"
-  },
-  {
-    id: 3,
-    name: "Sản phẩm 3",
-    description: "Chi tiết mô tả",
-    price: "20.000đ",
-    category: "Áo",
-    status: "còn hàng",
-    stock: 10,
-    date: "01/5/2025",
-    image: "../assets/img/team-2.jpg"
-  },
-  {
-    id: 4,
-    name: "Sản phẩm 4",
-    description: "Thông tin",
-    price: "12.000đ",
-    category: "Phụ kiện",
-    status: "hết hàng",
-    stock: 0,
-    date: "28/4/2025",
-    image: "../assets/img/team-3.jpg"
-  },
-  {
-    id: 5,
-    name: "Sản phẩm 5",
-    description: "Mô tả phụ",
-    price: "18.000đ",
-    category: "Áo",
-    status: "còn hàng",
-    stock: 12,
-    date: "10/5/2025",
-    image: "../assets/img/team-2.jpg"
-  },
-  {
-    id: 6,
-    name: "Sản phẩm 6",
-    description: "Chi tiết khác",
-    price: "25.000đ",
-    category: "Quần",
-    status: "còn hàng",
-    stock: 8,
-    date: "11/5/2025",
-    image: "../assets/img/team-3.jpg"
-  }
-];
 
 const ProductTable = () => {
+  const [products, setProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(""); // "" là tất cả
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  const fetchProducts = async()=> {
+    try {
+      const res = await axios.get("http://localhost:3000/products")
+      setProducts(res.data)
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách sản phẩm:", error);
+    }
+  }; 
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  
   // Lọc theo từ khóa
   const filteredProducts = products.filter((product) => {
     const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase());
