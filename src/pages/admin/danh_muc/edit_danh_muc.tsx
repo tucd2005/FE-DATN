@@ -1,9 +1,9 @@
 import React from 'react'
 
-import HeaderAdmin from "../../components/admin/layouts/HeaderAdmin"
-import SidebarAdmin from "../../components/admin/layouts/SidebarAdmin"
-import ProductTable from '../../components/admin/san_pham/TableProduct'
-import FormEditDanhMuc from '../../components/admin/danh_muc/FormEditDanhMuc'
+import HeaderAdmin from "../../../components/admin/layouts/HeaderAdmin"
+import SidebarAdmin from "../../../components/admin/layouts/SidebarAdmin"
+import ProductTable from '../../../components/admin/san_pham/TableProduct'
+import FormEditDanhMuc from '../../../components/admin/danh_muc/FormEditDanhMuc'
 function EditDanhMuc() {
   return (
     <>

@@ -10,7 +10,7 @@ const products = [
         status: "còn hàng",
         stock: 30,
         date: "20/3/2025",
-        image: "../assets/img/team-2.jpg"
+        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
     },
     {
         id: 2,
@@ -21,7 +21,7 @@ const products = [
         status: "hết hàng",
         stock: 0,
         date: "18/4/2025",
-        image: "../assets/img/team-3.jpg"
+        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
     },
     {
         id: 3,
@@ -32,7 +32,7 @@ const products = [
         status: "còn hàng",
         stock: 10,
         date: "01/5/2025",
-        image: "../assets/img/team-2.jpg"
+        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
     },
     {
         id: 4,
@@ -43,30 +43,10 @@ const products = [
         status: "hết hàng",
         stock: 0,
         date: "28/4/2025",
-        image: "../assets/img/team-3.jpg"
+        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
     },
-    {
-        id: 5,
-        name: "Sản phẩm 5",
-        description: "Mô tả phụ",
-        price: "18.000đ",
-        category: "Áo",
-        status: "còn hàng",
-        stock: 12,
-        date: "10/5/2025",
-        image: "../assets/img/team-2.jpg"
-    },
-    {
-        id: 6,
-        name: "Sản phẩm 6",
-        description: "Chi tiết khác",
-        price: "25.000đ",
-        category: "Quần",
-        status: "còn hàng",
-        stock: 8,
-        date: "11/5/2025",
-        image: "../assets/img/team-3.jpg"
-    }
+   
+
 ];
 
 const TableCategory = () => {
@@ -77,8 +57,8 @@ const TableCategory = () => {
     // Lọc theo từ khóa
     const filteredProducts = products.filter((product) => {
         const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-   
-        return matchesName ;
+
+        return matchesName;
     });
 
     // Tính toán phân trang
@@ -127,53 +107,57 @@ const TableCategory = () => {
 
                         </div>
 
-                
-                                <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
-                                    <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                                        <tr>
-                                        <th className="px-6 py-3 text-left">ID</th>
-                                            <th className="px-6 py-3 text-left">Tên danh mục </th>
-                                            <th className="px-6 py-3 text-left">Mô tả</th>
-                                            <th className="px-6 py-3 text-left">Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {currentItems.map((product,index) => (               
-                                            <tr key={product.id} className="hover:bg-gray-50 transition duration-200">
-                                                <td className="px-6 py-4">{index+1}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center gap-3">
-                                                       
-                                                        <h1 className="font-medium text-sil text-gray-800">{product.name}</h1>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">{product.description}</td>
-                                                <td className="px-6 py-4 space-x-3">
-                                                    <a className="text-red-500 hover:underline cursor-pointer">
-                                                        <i className="far fa-trash-alt mr-1" />
-                                                        Xóa
-                                                    </a>
-                                                    <a
-                                                        href="/admin/edit-danh-muc"
-                                                        className="text-blue-500 hover:underline cursor-pointer"
-                                                    >
-                                                        <i className="fas fa-pencil-alt mr-1" />
-                                                        Sửa
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {currentItems.length === 0 && (
-                                            <tr>
-                                                <td colSpan={3} className="text-center py-4 text-gray-400">
-                                                    Không có sản phẩm nào.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
 
-                        
+                        <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
+                            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th className="px-6 py-3 text-left">ID</th>
+                                    <th className="px-6 py-3 text-left">Tên danh mục </th>
+                                    <th className="px-6 py-3 text-left">ảnh </th>
+                                    <th className="px-6 py-3 text-left">Mô tả</th>
+                                    <th className="px-6 py-3 text-left">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {currentItems.map((product, index) => (
+                                    <tr key={product.id} className="hover:bg-gray-50 transition duration-200">
+                                        <td className="px-6 py-4">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-3">
+
+                                                <h1 className="font-medium text-sil text-gray-800">{product.name}</h1>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                                        </td>
+                                        <td className="px-6 py-4">{product.description}</td>
+                                        <td className="px-6 py-4 space-x-3">
+                                            <a className="text-red-500 hover:underline cursor-pointer">
+                                                <i className="far fa-trash-alt mr-1" />
+                                                Xóa
+                                            </a>
+                                            <a
+                                                href="/admin/edit-danh-muc"
+                                                className="text-blue-500 hover:underline cursor-pointer"
+                                            >
+                                                <i className="fas fa-pencil-alt mr-1" />
+                                                Sửa
+                                            </a>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {currentItems.length === 0 && (
+                                    <tr>
+                                        <td colSpan={3} className="text-center py-4 text-gray-400">
+                                            Không có sản phẩm nào.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+
+
 
                         {/* Phân trang */}
                         <div className="flex justify-center items-center gap-2 py-4">

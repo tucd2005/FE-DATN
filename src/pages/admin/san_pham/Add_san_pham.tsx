@@ -1,8 +1,8 @@
 
 
-import SidebarAdmin from "../../components/admin/layouts/SidebarAdmin"
-import HeaderAdmin from "../../components/admin/layouts/HeaderAdmin"
-import FormAddSanPham from "../../components/admin/san_pham/FormAdd"
+import SidebarAdmin from "../../../components/admin/layouts/SidebarAdmin"
+import HeaderAdmin from "../../../components/admin/layouts/HeaderAdmin"
+import FormAddSanPham from "../../../components/admin/san_pham/FormAdd"
 function AddSanPham() {
   
   return (
