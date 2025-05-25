@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { Table, Input, Button, Space, Popconfirm } from "antd";
+
+const { Search } = Input;
 
 const products = [
     {
@@ -10,7 +13,8 @@ const products = [
         status: "còn hàng",
         stock: 30,
         date: "20/3/2025",
-        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
+        image:
+            "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046",
     },
     {
         id: 2,
@@ -21,7 +25,8 @@ const products = [
         status: "hết hàng",
         stock: 0,
         date: "18/4/2025",
-        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
+        image:
+            "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046",
     },
     {
         id: 3,
@@ -32,7 +37,8 @@ const products = [
         status: "còn hàng",
         stock: 10,
         date: "01/5/2025",
-        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
+        image:
+            "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046",
     },
     {
         id: 4,
@@ -43,144 +49,110 @@ const products = [
         status: "hết hàng",
         stock: 0,
         date: "28/4/2025",
-        image: "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046"
+        image:
+            "https://bizweb.dktcdn.net/100/301/479/files/bo-quan-ao-bong-chuyen-nam-nu-bulbal-lineage-sportsviet-3.jpg?v=1714209692046",
     },
-   
-
 ];
 
 const TableCategory = () => {
-    const [searchTerm, setSearchTerm] = useState(""); // "" là tất cả
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const [searchTerm, setSearchTerm] = useState("");
 
-    // Lọc theo từ khóa
-    const filteredProducts = products.filter((product) => {
-        const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredProducts = products.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-        return matchesName;
-    });
+    const columns = [
+        {
+            title: "ID",
+            key: "index",
+            render: (_: any, __: any, index: number) => index + 1,
+            width: 60,
+        },
+        {
+            title: "Tên danh mục",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a: any, b: any) => a.name.localeCompare(b.name),
+            width: 180,
+        },
+        {
+            title: "Ảnh",
+            dataIndex: "image",
+            key: "image",
+            width: 100,
+            render: (image: string, record: any) => (
+                <img
+                    src={image}
+                    alt={record.name}
+                    style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 6 }}
+                />
+            ),
+        },
+        {
+            title: "Mô tả",
+            dataIndex: "description",
+            key: "description",
+            ellipsis: true,
+        },
+        {
+            title: "Thao tác",
+            key: "actions",
+            width: 160,
+            render: (_: any, record: any) => (
+                <Space size="middle">
+                    <Button
+                        type="primary"
+                        size="small"
 
-    // Tính toán phân trang
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+                        href="/admin/edit-danh-muc"
+                    // Có thể thêm link đúng id nếu cần
+                    >
+                        Sửa
+                    </Button>
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
-    };
+                    <Popconfirm
+                        title="Bạn có chắc muốn xóa?"
+                        okText="Có"
+                        cancelText="Không"
+                        overlayClassName="tailwind-popconfirm"
+                        onConfirm={() => {
+                            alert(`Xóa danh mục có id: ${record.id}`);
+                        }}
+                    >
+                        <Button type="default" danger size="small">
+                            Xóa
+                        </Button>
+                    </Popconfirm>
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) setCurrentPage(currentPage - 1);
-    };
+                </Space>
+            ),
+        },
+    ];
 
     return (
-        <div className="w-full px-6 py-6 mx-auto">
-            <div className="flex flex-wrap -mx-3">
-                <div className="w-full max-w-full px-3">
-                    <div className="relative flex flex-col min-w-0 mb-6 break-words bg-white shadow-xl rounded-2xl">
-                        {/* Ô tìm kiếm */}
+        <div className="w-full px-6 py-6 mx-auto bg-white rounded shadow">
+            <div className="mb-4 flex justify-between items-center">
+                <Button type="primary" style={{ backgroundColor: '#1890ff', color: '#ffffff' }}>
+                    <a href="/admin/add-danh-muc" className="text-white no-underline">
+                        Thêm danh mục
+                    </a>
+                </Button>
 
-                        <div className="w-full mb-4  p-5 flex items-center justify-between gap-4">
-                            <button
-                                type="button"
-                                className="bg-[rgb(94_114_228)] hover:bg-[rgb(74_94_208)] text-white rounded px-3 py-1"
-                            >
-                                <a href="/admin/add-danh-muc">Thêm danh mục</a>
-                            </button>
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder="Tìm kiếm sản phẩm..."
-                                    className="border p-2   rounded"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                />
-
-                            </div>
-
-                        </div>
-
-
-                        <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
-                            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                                <tr>
-                                    <th className="px-6 py-3 text-left">ID</th>
-                                    <th className="px-6 py-3 text-left">Tên danh mục </th>
-                                    <th className="px-6 py-3 text-left">ảnh </th>
-                                    <th className="px-6 py-3 text-left">Mô tả</th>
-                                    <th className="px-6 py-3 text-left">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {currentItems.map((product, index) => (
-                                    <tr key={product.id} className="hover:bg-gray-50 transition duration-200">
-                                        <td className="px-6 py-4">{index + 1}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-3">
-
-                                                <h1 className="font-medium text-sil text-gray-800">{product.name}</h1>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
-                                        </td>
-                                        <td className="px-6 py-4">{product.description}</td>
-                                        <td className="px-6 py-4 space-x-3">
-                                            <a className="text-red-500 hover:underline cursor-pointer">
-                                                <i className="far fa-trash-alt mr-1" />
-                                                Xóa
-                                            </a>
-                                            <a
-                                                href="/admin/edit-danh-muc"
-                                                className="text-blue-500 hover:underline cursor-pointer"
-                                            >
-                                                <i className="fas fa-pencil-alt mr-1" />
-                                                Sửa
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {currentItems.length === 0 && (
-                                    <tr>
-                                        <td colSpan={3} className="text-center py-4 text-gray-400">
-                                            Không có sản phẩm nào.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-
-
-
-                        {/* Phân trang */}
-                        <div className="flex justify-center items-center gap-2 py-4">
-                            <button
-                                onClick={handlePrevPage}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 text-white bg-blue-500 rounded-l disabled:opacity-50"
-                            >
-                                Previous
-                            </button>
-                            <span className="px-4 py-2">{currentPage} / {totalPages}</span>
-                            <button
-                                onClick={handleNextPage}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 text-white bg-blue-500 rounded-r disabled:opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
+                <Search
+                    placeholder="Tìm kiếm sản phẩm..."
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchTerm}
+                    allowClear
+                    style={{ width: 250 }}
+                />
             </div>
+
+            <Table
+                columns={columns}
+                dataSource={filteredProducts}
+                rowKey="id"
+                pagination={{ pageSize: 5 }}
+            />
         </div>
     );
 };

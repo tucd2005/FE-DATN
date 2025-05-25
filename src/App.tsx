@@ -16,6 +16,8 @@ import Thong_bao from './components/admin/thongbao/thong_bao_thanh_cong'
 import Thong_bao_error from './components/admin/thongbao/thong_bao_k_thanh_cong'
 import SizeListPage from './pages/admin/size/size_page'
 import SizeAddPage from './pages/admin/size/add_size'
+import ProductDetailPage from './pages/admin/san_pham/chi_tiet_san_pham'
+import CommentList from './pages/admin/binh_luan/CommentList'
 
 
 
@@ -41,6 +43,14 @@ function App() {
             {
                   path: "/admin/add-san-pham",
                   element: < AddSanPham />,
+            },
+            {
+                  path: "/admin/chi-tiet-san-pham",
+                  element: < ProductDetailPage />,
+            },
+            {
+                  path: "/admin/quan-ly-binh-luan",
+                  element: < CommentList />,
             },
             {
                   path: "/admin/add-danh-muc",

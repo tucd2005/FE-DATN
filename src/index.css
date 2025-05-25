@@ -8,3 +8,12 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  @layer components {
+    .tailwind-popconfirm .ant-btn-primary {
+      @apply bg-blue-500 text-white border-none hover:bg-green-700;
+    }
+  
+    .tailwind-popconfirm .ant-btn-default {
+      @apply text-gray-600 hover:text-gray-800;
+    }
+  }
