@@ -18,6 +18,16 @@ function FormEditDanhMuc() {
                       />
                     </div>
                     <div className="w-full px-3 mb-4">
+                      <label htmlFor="Ảnh danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
+                      Ảnh 
+                      </label>
+                      <input
+                        type="text"
+                        id="text"
+                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div className="w-full px-3 mb-4">
                       <label htmlFor="Tên danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
                      Mô tả
                       </label>
