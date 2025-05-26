@@ -9,7 +9,7 @@ const SidebarAdmin = () => {
                 <div className="h-19">
                     <i className="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden" sidenav-close />
                     <a className="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="" target="_blank">
-                 
+
                         <span className="ml-1 font-semibold transition-all duration-200 ease-nav-brand">SHOP QUẦN ÁO THỂ THAO</span>
                     </a>
                 </div>
@@ -65,6 +65,17 @@ const SidebarAdmin = () => {
                                     <i className="relative top-0 text-sm leading-normal text-pink-500 ni ni-chat-round" />
                                 </div>
                                 <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Quản lý bình luận</span>
+                            </a>
+                        </li>
+                        <li className="mt-0.5 w-full">
+                            <a
+                                className="dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
+                                href="/admin/Voucher"
+                            >
+                                <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                                    <i className="relative top-0 text-sm leading-normal text-green-500 ni ni-tag" />
+                                </div>
+                                <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Quản lý mã giảm giá</span>
                             </a>
                         </li>
                         <li className="mt-0.5 w-full">
