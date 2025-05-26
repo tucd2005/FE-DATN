@@ -16,6 +16,7 @@
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "concurrently": "^9.1.2",
+    "date-fns": "^4.1.0",
     "json-server": "^0.17.4",
     "json-server-auth": "^2.1.0",
     "lucide-react": "^0.510.0",

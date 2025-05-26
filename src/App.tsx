@@ -4,20 +4,19 @@ import EditSanPham from './pages/admin/san_pham/Edit_san_pham'
 import HomeClient from './pages/client/home'
 import AddSanPham from './pages/admin/san_pham/Add_san_pham'
 import QuanLySanPham from './pages/admin/san_pham/quan_ly_san_pham'
-
 import QuanLyDanhMuc from './pages/admin/danh_muc/quan_ly_danh_muc'
 import AddDanhMuc from './pages/admin/danh_muc/add_danh_muc'
 import EditDanhMuc from './pages/admin/danh_muc/edit_danh_muc'
-
-import QuanLiBanner from './pages/admin/Quan_li_banner'
 import SignIn from './pages/auth/sign_in'
 import SignUp from './pages/auth/sign_up'
-import Thong_bao from './components/admin/thongbao/thong_bao_thanh_cong'
 import Thong_bao_error from './components/admin/thongbao/thong_bao_k_thanh_cong'
 import SizeListPage from './pages/admin/size/size_page'
 import SizeAddPage from './pages/admin/size/add_size'
-import ProductDetailPage from './pages/admin/san_pham/chi_tiet_san_pham'
 import CommentList from './pages/admin/binh_luan/CommentList'
+import QuanLiBanner from './pages/admin/quan_li_banner'
+import ProductDetailPage from './pages/admin/san_pham/Chi_tiet_san_pham'
+import VouchersPage from './pages/admin/ma_giam_gia/VouchersPage'
+import VoucherFormPage from './pages/admin/ma_giam_gia/VoucherFormPage'
 
 
 
@@ -72,6 +71,14 @@ function App() {
                   path: "/admin/size/add",
                   element: < SizeAddPage />,
             },
+            {
+                  path: "/admin/Voucher",
+                  element: < VouchersPage />,
+            },
+            {
+                  path: "/admin/Voucher/add",
+                  element: < VoucherFormPage />,
+            },
 
             {
                   path: "/admin/a",
@@ -82,7 +89,7 @@ function App() {
                   element: < SignIn />,
             },
             {
-                  path: "admin/auth/sign_up",
+                  path: "/admin/auth/sign_up",
                   element: < SignUp />,
             },
 
