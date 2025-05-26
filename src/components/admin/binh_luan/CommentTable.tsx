@@ -44,19 +44,19 @@ const CommentTable: React.FC<Props> = ({ data, onToggleStatus }) => {
       dataIndex: 'content',
       key: 'content',
     },
-    {
-      title: 'Trạng thái',
-      key: 'status',
-      render: (_, record) => (
-        <div className="flex items-center space-x-2">
-          <span>{record.status ? 'Hiện' : 'Ẩn'}</span>
-          <Switch
-            checked={record.status}
-            onChange={(checked) => onToggleStatus(record.key, checked)}
-          />
-        </div>
-      ),
-    },
+      {
+        title: 'Trạng thái',
+        key: 'status',
+        render: (_, record) => (
+          <div className="flex items-center space-x-2">
+            <span>{record.status ? 'Hiện' : 'Ẩn'}</span>
+            <Switch
+              checked={record.status}
+              onChange={(checked) => onToggleStatus(record.key, checked)}
+            />
+          </div>
+        ),
+      },
     {
       title: 'Hành động',
       key: 'action',
