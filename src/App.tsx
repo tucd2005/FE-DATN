@@ -18,6 +18,8 @@ import SizeListPage from './pages/admin/size/size_page'
 import SizeAddPage from './pages/admin/size/add_size'
 import ProductDetailPage from './pages/admin/san_pham/chi_tiet_san_pham'
 import CommentList from './pages/admin/binh_luan/CommentList'
+import GiaoDienAdmin from './components/admin_antd/GiaoDienAdmin'
+import Products from './components/admin_antd/Products'
 
 
 
@@ -93,6 +95,8 @@ function App() {
                   element: < HomeClient />,
             },
 
+            {path: "/giaodien", element:<GiaoDienAdmin/>},
+            {path: "/giaodien/products", element:<Products/>}
 
       ])
       return (
