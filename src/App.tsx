@@ -18,6 +18,8 @@ import SizeListPage from './pages/admin/size/size_page'
 import SizeAddPage from './pages/admin/size/add_size'
 import ProductDetailPage from './pages/admin/san_pham/chi_tiet_san_pham'
 import CommentList from './pages/admin/binh_luan/CommentList'
+import NhanVien from './pages/admin/NhanVien'
+
 
 
 
@@ -57,6 +59,10 @@ function App() {
                   element: < AddDanhMuc />,
             },
             {
+                  path: "/admin/nhanvien",
+                  element: <NhanVien />
+            },
+            {
                   path: "/admin/quan-ly-danh-muc",
                   element: < QuanLyDanhMuc />,
             },
@@ -85,9 +91,6 @@ function App() {
                   path: "admin/auth/sign_up",
                   element: < SignUp />,
             },
-
-
-
             {
                   path: "/",
                   element: < HomeClient />,

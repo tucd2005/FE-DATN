@@ -1,62 +1,102 @@
 import React from "react";
 
-const Signup: React.FC = () => {
+const SignUp: React.FC = () => {
     return (
-        <div className="relative z-0 flex flex-col min-w-0 break-words bg-white border-0 shadow-xl rounded-2xl bg-clip-border">
-            <div className="p-6 mb-0 text-center bg-white border-b-0 rounded-t-2xl">
-                <h5>Register</h5>
-            </div>
-
-            <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
-                {/* Facebook */}
-                <div className="w-3/12 max-w-full px-1 ml-auto flex-0">
-                    <a
-                        className="inline-block w-full px-5 py-2.5 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:-translate-y-px leading-pro text-xs ease-in tracking-tight-rem bg-150 bg-x-25 hover:opacity-75"
-                        href="#"
-                    >
-                        <svg
-                            width="24px"
-                            height="32px"
-                            viewBox="0 0 64 64"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <g fill="none" fillRule="evenodd">
-                                <g transform="translate(3, 3)" fillRule="nonzero">
-                                    <circle fill="#3C5A9A" cx="29.5" cy="29.5" r="29.5" />
-                                    <path
-                                        d="M39.1,9.1H32.6c-3.9,0-8.2,1.6-8.2,7.2v5.2h-4.5v7.1h4.6v20.5h8.5V28.8h5.6l0.5-7.0h-6.6v-4.6c0-2.2,1.4-2.6,2.2-2.6H39.1V9.1z"
-                                        fill="#FFFFFF"
-                                    />
-                                </g>
-                            </g>
-                        </svg>
-                    </a>
-                </div>
-
-                {/* Google */}
-                <div className="w-3/12 max-w-full px-1 flex-0">
-                    <a
-                        className="inline-block w-full px-5 py-2.5 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:-translate-y-px leading-pro text-xs ease-in tracking-tight-rem bg-150 bg-x-25 hover:opacity-75"
-                        href="#"
-                    >
-                        {/* Google icon (placeholder) */}
-                        <span className="text-sm">Google</span>
-                    </a>
-                </div>
-
-                {/* Apple */}
-                <div className="w-3/12 max-w-full px-1 mr-auto flex-0">
-                    <a
-                        className="inline-block w-full px-5 py-2.5 mb-4 font-bold text-center text-gray-200 uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:-translate-y-px leading-pro text-xs ease-in tracking-tight-rem bg-150 bg-x-25 hover:opacity-75"
-                        href="#"
-                    >
-                        {/* Apple icon (placeholder) */}
-                        <span className="text-sm">Apple</span>
-                    </a>
+        <div className="m-0 font-sans antialiased font-normal bg-white text-start text-base leading-default text-slate-500">
+            {/* Navbar */}
+            <div className="container sticky top-0 z-sticky">
+                <div className="flex flex-wrap -mx-3">
+                    <div className="w-full max-w-full px-3 flex-0">
+                    </div>
                 </div>
             </div>
+
+            {/* Main Section */}
+            <main className="mt-0 transition-all duration-200 ease-in-out">
+                <section>
+                    <div className="relative flex items-center min-h-screen bg-center bg-cover">
+                        <div className="container z-1">
+                            <div className="flex flex-wrap -mx-3">
+                                <div className="flex flex-col w-full max-w-full px-3 mx-left md:w-7/12 lg:w-5/12 xl:w-4/12">
+                                    <div className="relative flex flex-col border-0 shadow-none lg:py4 rounded-2xl bg-transparent">
+                                        <div className="p-6 pb-0 mb-0">
+                                            <h4 className="font-bold z-20 mt-12 text-white text-5xl">Đăng Ký</h4>
+                                            <p className="mb-0">Tạo tài khoản mới của bạn ngay bây giờ</p>
+                                        </div>
+                                        <div className="flex-auto p-6">
+                                            <form>
+                                                <div className="mb-4">
+                                                    <input type="text" placeholder="Username"
+                                                        className="text-sm block w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-700 placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <input type="email" placeholder="Email"
+                                                        className="text-sm block w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-700 placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <input type="password" placeholder="Password"
+                                                        className="text-sm block w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-700 placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <input type="password" placeholder="Confirm Password"
+                                                        className="text-sm block w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-700 placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" />
+                                                </div>
+                                                <div className="flex items-center pl-12 mb-0.5">
+                                                    <input id="agreeTerms" type="checkbox" className="h-5 w-10 cursor-pointer rounded-10 bg-zinc-700/10 border border-gray-200" />
+                                                    <label htmlFor="agreeTerms" className="ml-2 text-sm text-slate-700">I agree to the Terms and Conditions</label>
+                                                </div>
+                                                <div className="text-center">
+                                                    <button type="submit"
+                                                        className="inline-block w-full px-16 py-3.5 mt-6 font-bold text-white bg-green-500 rounded-lg shadow-md hover:-translate-y-px hover:shadow-xs active:opacity-85 text-sm transition-all">
+                                                        Đăng Ký
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div className="border-t border-black/12.5 p-6 text-center pt-0 px-1 sm:px-6">
+                                            <p className="text-sm">Đã có tài khoản SUDES SPORT? <a href="/admin/auth/sign_in" className="font-semibold bg-clip-text text-transparent bg-gradient-to-tl from-blue-500 to-violet-500">Đăng Nhập</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="absolute top-0 right-0 hidden w-6/12 h-full pr-0 lg:flex">
+                                    <div className="relative flex flex-col justify-center h-full bg-cover px-24 m-4 overflow-hidden bg-[url('https://i.pinimg.com/736x/1c/29/06/1c29064b7243d9ee332fe1a81981d285.jpg')] rounded-xl">
+                                        <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-tl from-green-500 to-blue-500 opacity-60"></span>
+                                        <h4 className="z-20 mt-12 font-bold text-white text-5xl">SUDES SPORT</h4>
+                                        <p className="z-20 text-white">"Thời trang không chỉ là cách bạn mặc, mà là cách bạn khẳng định bản lĩnh. Đừng chỉ chọn quần áo – hãy chọn phong cách sống."</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            {/* Footer */}
+            <footer className="py-12">
+                <div className="container">
+                    <div className="flex flex-wrap -mx-3 justify-center">
+                        <div className="w-full text-center">
+                            <div className="mb-6">
+                                {["Company", "About Us", "Team", "Products", "Blog", "Pricing"].map((item, index) => (
+                                    <a key={index} href="#" className="mx-4 text-slate-400">{item}</a>
+                                ))}
+                            </div>
+                            <div className="mb-6">
+                                {["dribbble", "twitter", "instagram", "pinterest", "github"].map((icon, index) => (
+                                    <a key={index} href="#" className="mr-6 text-slate-400">
+                                        <i className={`fab fa-${icon} text-lg`}></i>
+                                    </a>
+                                ))}
+                            </div>
+                            <p className="text-slate-400">
+                                &copy; {new Date().getFullYear()} Argon Dashboard 2 by Creative Tim.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };
 
-export default Signup;
+export default SignUp;
