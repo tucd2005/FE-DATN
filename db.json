@@ -73,8 +73,7 @@
       "date": "11/5/2025",
       "image": "../assets/img/team-3.jpg"
     }
-  ]
-  ,
+  ],
   "orders": [],
   "vouchers": [
     {
@@ -120,9 +119,7 @@
       "updatedAt": "2025-05-25T17:15:00"
     }
   ],
-  
-
-  "banner" : [
+  "banner": [
     {
       "id": 1,
       "title": "Khuyến mãi hè 2025",
@@ -146,6 +143,44 @@
       "image": "https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1200&q=80",
       "status": "active",
       "link": "/uu-dai-dac-biet"
+    }
+  ],
+  "categories": [
+    {
+      "name": "wwwwwwwww",
+      "description": "wwwww",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYkmD630BmMsQsMumCF-W7e-WbzHgsgppuVg&s",
+      "createdAt": "2025-05-22",
+      "id": 3
+    },
+    {
+      "name": "Kẹo",
+      "description": "sss",
+      "image": "https://www.img.vn/uploads/thuvien/singa-png-20220719150401Tdj1WAJFQr.png",
+      "createdAt": "2025-05-22",
+      "id": 4
+    },
+    {
+      "deleted": true,
+      "id": 5
+    },
+    {
+      "deleted": true,
+      "id": 6
+    },
+    {
+      "name": "viet",
+      "description": "sss",
+      "image": "https://pbs.twimg.com/profile_images/1701878932176351232/AlNU3WTK_400x400.jpg",
+      "createdAt": "2025-05-24",
+      "id": 7
+    },
+    {
+      "name": "quần dài  ",
+      "description": "quần dài  ",
+      "image": "https://product.hstatic.net/200000690725/product/avt_web_1150_x_1475_px__3592e7567bb24ab4bf2f4e467b2e48d3_master.png",
+      "createdAt": "2025-05-27",
+      "id": 8
     }
   ]
 }

@@ -1,62 +1,82 @@
-function FormEditDanhMuc() {
-    return (
-      <div className="w-full min-h-screen p-6">
-        <div className="w-full h-full">
-          <div className="flex flex-wrap -mx-3">
-            <div className="w-full px-3">
-              <div className="relative flex flex-col bg-white shadow-xl rounded-2xl p-6">
-                <form className="w-full">
-                    {/*  */}
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Tên danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                      Tên danh mục 
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Ảnh danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                      Ảnh 
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Tên danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                     Mô tả
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
+import { Form, Input, Button } from "antd";
+import { useEffect, useState } from "react";
 
-              
-  
-                  {/* Nút Submit */}
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition"
-                    >
-                    Sửa Danh mục   
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+type Props = {
+  onFinish: (values: any) => void;
+  onCancel: () => void;
+  initialValues?: any;
+};
+
+export default function EditCategoryForm({ onFinish, onCancel, initialValues }: Props) {
+  const [form] = Form.useForm();
+  const [imagePreview, setImagePreview] = useState<string>("");
+
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues);
+      setImagePreview(initialValues.image || "");
+    }
+  }, [initialValues]);
+
+const handleSubmit = (values: any) => {
+  // Khi edit giữ nguyên createdAt ban đầu nếu có
+  if (initialValues?.createdAt) {
+    values.createdAt = initialValues.createdAt;
   }
-  
-  export default FormEditDanhMuc;
-  
+  onFinish(values);
+  form.resetFields();
+  setImagePreview("");
+};
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImagePreview(e.target.value);
+  };
+
+  return (
+    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form.Item
+        label="Tên danh mục"
+        name="name"
+        rules={[{ required: true, message: "Vui lòng nhập tên danh mục!" }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        label="Mô tả"
+        name="description"
+        rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        label="Link hình ảnh"
+        name="image"
+        rules={[{ required: true, message: "Vui lòng nhập link hình ảnh!" }]}
+      >
+        <Input onChange={handleImageChange} />
+      </Form.Item>
+
+      {imagePreview && (
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">Xem trước hình ảnh:</p>
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-40 h-40 object-cover border rounded shadow"
+          />
+        </div>
+      )}
+
+      <Form.Item>
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel}>Hủy</Button>
+          <Button type="primary" htmlType="submit">
+            Cập nhật
+          </Button>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+}
