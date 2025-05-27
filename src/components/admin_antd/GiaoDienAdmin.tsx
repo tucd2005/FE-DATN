@@ -19,13 +19,13 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { key: '1', icon: <UserOutlined />, label: 'Tài khoản Admin', path: '/admin/dashboard' },
-  { key: '2', icon: <VideoCameraOutlined />, label: 'Dashboard', path: '/admin/dashboard' },
+  { key: '1', icon: <UserOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
+  { key: '2', icon: <VideoCameraOutlined />, label: 'Dashboard', path: '/giaodien/trang-chu' },
   { key: '3', icon: <UploadOutlined />, label: 'Quản lí sản phẩm', path: '/giaodien/products' },
-  { key: '4', icon: <UploadOutlined />, label: 'Quản lí danh mục', path: '/admin/categories' },
-  { key: '5', icon: <UploadOutlined />, label: 'Quản lí biến thể', path: '/admin/variants' },
-  { key: '6', icon: <UploadOutlined />, label: 'Quản lí tài khoản', path: '/admin/users' },
-  { key: '7', icon: <UploadOutlined />, label: 'Quản lí banner', path: '/admin/banners' },
+  { key: '4', icon: <UploadOutlined />, label: 'Quản lí danh mục', path: '/giaodien/categories' },
+  { key: '5', icon: <UploadOutlined />, label: 'Quản lí biến thể', path: '/giaodien/variants' },
+  { key: '6', icon: <UploadOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/users' },
+  { key: '7', icon: <UploadOutlined />, label: 'Quản lí banner', path: '/giaodien/banners' },
 ];
 
 // Component chính cho giao diện admin với sidebar và content
