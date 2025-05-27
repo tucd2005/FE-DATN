@@ -3,10 +3,15 @@ import { useNavigate, useLocation, Outlet } from 'react-router-dom'; // Thêm Ou
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
+  AppstoreOutlined,
+  DashboardOutlined,
+  ShoppingOutlined,
+  TagsOutlined,
+  BranchesOutlined,
+  TeamOutlined,
+  PictureOutlined,
 } from '@ant-design/icons';
+
 import { Button, Layout, Menu, theme } from 'antd';
 
 const { Header, Sider, Content } = Layout;
@@ -19,13 +24,13 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { key: '1', icon: <UserOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
-  { key: '2', icon: <VideoCameraOutlined />, label: 'Dashboard', path: '/giaodien/trang-chu' },
-  { key: '3', icon: <UploadOutlined />, label: 'Quản lí sản phẩm', path: '/giaodien/products' },
-  { key: '4', icon: <UploadOutlined />, label: 'Quản lí danh mục', path: '/giaodien/categories' },
-  { key: '5', icon: <UploadOutlined />, label: 'Quản lí biến thể', path: '/giaodien/variants' },
-  { key: '6', icon: <UploadOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/users' },
-  { key: '7', icon: <UploadOutlined />, label: 'Quản lí banner', path: '/giaodien/banners' },
+  { key: '1', icon: <AppstoreOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
+  { key: '2', icon: <DashboardOutlined />, label: 'Dashboard', path: '/giaodien/trang-chu' },
+  { key: '3', icon: <ShoppingOutlined />, label: 'Quản lí sản phẩm', path: '/giaodien/products' },
+  { key: '4', icon: <TagsOutlined />, label: 'Quản lí danh mục', path: '/giaodien/categories' },
+  { key: '5', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/giaodien/variants' },
+  { key: '6', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/users' },
+  { key: '7', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/giaodien/banners' },
 ];
 
 // Component chính cho giao diện admin với sidebar và content
