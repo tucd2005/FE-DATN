@@ -1,19 +1,5 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide { 
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  @layer components {
-    .tailwind-popconfirm .ant-btn-primary {
-      @apply bg-blue-500 text-white border-none hover:bg-blue-700;
-    }
-  
-    .tailwind-popconfirm .ant-btn-default {
-      @apply text-gray-600 hover:text-gray-800;
-    }
-  }
+
+ 

@@ -5,7 +5,7 @@ import HomeClient from './pages/client/home'
 import AddSanPham from './pages/admin/san_pham/Add_san_pham'
 import QuanLySanPham from './pages/admin/san_pham/quan_ly_san_pham'
 import QuanLyDanhMuc from './pages/admin/danh_muc/quan_ly_danh_muc'
-import AddDanhMuc from './pages/admin/danh_muc/add_danh_muc'
+
 import EditDanhMuc from './pages/admin/danh_muc/edit_danh_muc'
 import SignIn from './pages/auth/sign_in'
 import SignUp from './pages/auth/sign_up'
@@ -51,10 +51,7 @@ function App() {
                   path: "/admin/quan-ly-binh-luan",
                   element: < CommentList />,
             },
-            {
-                  path: "/admin/add-danh-muc",
-                  element: < AddDanhMuc />,
-            },
+          
             {
                   path: "/admin/quan-ly-danh-muc",
                   element: < QuanLyDanhMuc />,

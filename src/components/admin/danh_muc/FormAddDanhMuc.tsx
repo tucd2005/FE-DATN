@@ -1,66 +1,78 @@
-function FormAddDanhMuc() {
-    return (
-      <div className="w-full min-h-screen p-6">
-        <div className="w-full h-full">
-          <div className="flex flex-wrap -mx-3">
-            <div className="w-full px-3">
-              <div className="relative flex flex-col bg-white shadow-xl rounded-2xl p-6">
-                <form className="w-full">
-                  
-             
-                
-  
-                    {/*  */}
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Tên danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                      Tên danh mục 
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Ảnh danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                      Ảnh 
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="w-full px-3 mb-4">
-                      <label htmlFor="Tên danh mục  " className="block text-xs font-bold mb-2 text-slate-700">
-                     Mô tả
-                      </label>
-                      <input
-                        type="text"
-                        id="text"
-                        name="text"className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
+import { Form, Input, Button } from "antd";
+import { useState } from "react";
+import dayjs from "dayjs";
+import type { CategoryFormValues } from "../../../types/categorys/category";
 
-              
-  
-                  {/* Nút Submit */}
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition"
-                    >
-                     Thêm mới Danh mục   
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+
+type Props = {
+  onFinish: (values: CategoryFormValues) => void;
+  onCancel: () => void;
+};
+
+export default function AddCategoryForm({ onFinish, onCancel }: Props) {
+  const [form] = Form.useForm<CategoryFormValues>();
+  const [imagePreview, setImagePreview] = useState<string>("");
+
+  const handleSubmit = (values: CategoryFormValues) => {
+    const formattedValues = {
+      ...values,
+      createdAt: dayjs().format("YYYY-MM-DD"),
+    };
+    onFinish(formattedValues);
+    form.resetFields();
+    setImagePreview("");
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setImagePreview(url);
+  };
+
+  return (
+    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form.Item
+        label="Tên danh mục"
+        name="name"
+        rules={[{ required: true, message: "Vui lòng nhập tên danh mục!" }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        label="Mô tả"
+        name="description"
+        rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        label="Link hình ảnh"
+        name="image"
+        rules={[{ required: true, message: "Vui lòng nhập link hình ảnh!" }]}
+      >
+        <Input onChange={handleImageChange} />
+      </Form.Item>
+
+      {imagePreview && (
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">Xem trước hình ảnh:</p>
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-40 h-40 object-cover border rounded shadow"
+          />
         </div>
-      </div>
-    );
-  }
-  
-  export default FormAddDanhMuc;
-  
+      )}
+
+      <Form.Item>
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel}>Hủy</Button>
+          <Button type="primary" htmlType="submit">
+            Thêm mới
+          </Button>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+}
