@@ -1,125 +1,163 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from 'react';
 
-const NhanVien: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  joinDate: string;
+  updatedAt: string;
+}
 
-  const [data, setData] = useState([
-    { name: "Võ Trường", gender: "Nam", dob: "15/03/2000", address: "Thông Tin Bảo Mật", role: "Admin" },
-    // Bạn có thể thêm nhiều dữ liệu nhân viên ở đây
-  ]);
-
-  const totalPages = useMemo(() => data.length / itemsPerPage, [data.length, itemsPerPage]);
-
-  const handlePrev = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNext = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handlePageClick = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const filteredData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+const Nhanvien: React.FC = () => {
+  const employees: Employee[] = [
+    {
+      id: 1,
+      name: 'Nguyễn Văn A',
+      email: 'nguyenvana@example.com',
+      role: 'Nhân viên bán hàng',
+      isActive: true,
+      joinDate: '03/31/2025, 12:00 AM',
+      updatedAt: '04/03/2025, 9:01 PM',
+    },
+  ];
 
   return (
-    <div>
-      <nav className="navbar navbar-default navbar-fixed-top">
-        <div className="container-fluid">
-          <div className="navbar-header">
-            <button type="button" className="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-              <i className="fas fa-bars"></i>
-            </button>
-            <a className="navbar-brand" href="#">
-              <i className="fa fa-user-circle"></i> QUẢN LÝ NHÂN VIÊN
+    <div className="flex min-h-screen font-sans antialiased">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-100 text-gray-700 p-4 flex flex-col">
+        <div className="text-blue-600 font-bold text-lg mb-6">SHOP QUẦN ÁO THỂ THAO</div>
+        <nav className="space-y-2">
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-blue-500">🏠</span>
+            <span>home</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-orange-500">📦</span>
+            <span>Quản lý sản phẩm</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-orange-500">📜</span>
+            <span>Quản lý banner</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-orange-500">📋</span>
+            <span>Quản lý danh mục</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded bg-gray-200">
+            <span className="text-pink-500">👤</span>
+            <span>Quản lý tài khoản nhân viên</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-purple-500">💬</span>
+            <span>Quản lý bình luận</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-green-500">💳</span>
+            <span>Billing</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-red-500">⚙️</span>
+            <span>RTL</span>
+          </a>
+        </nav>
+        <div className="mt-auto">
+          <div className="text-gray-500 font-semibold mt-8 mb-2">ACCOUNT PAGES</div>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-gray-500">👤</span>
+            <span>Profile</span>
+          </a>
+          <a href="#" className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200">
+            <span className="text-orange-500">🔒</span>
+            <span>Sign In</span>
+          </a>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-blue-600 text-white p-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">ADMIN</h1>
+            <h2 className="text-lg">DANH SÁCH TÀI KHOẢN NHÂN VIÊN</h2>
+          </div>
+          <div className="flex items-center space-x-4">
+            <input
+              type="text"
+              placeholder="Type here..."
+              className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+            <a href="#" className="text-white hover:underline">
+              SIGN IN
             </a>
           </div>
-          <div className="collapse navbar-collapse" id="myNavbar">
-            <ul className="nav navbar-nav navbar-right">
-              <li className="active"><a href="#">NHÂN VIÊN</a></li>
-              <li><a href="#">ĐIỂM DANH</a></li>
-              <li><a href="#">TIỀN LƯƠNG</a></li>
-              <li><a href="#">LỊCH CÔNG TÁC</a></li>
-              <li><a href="#">BÁO CÁO</a></li>
-              <li><a href="#">SỰ KIỆN</a></li>
-              <li><a href="#"><b>Tài Khoản</b><span className="caret"></span></a>
-                <ul className="dropdown">
-                  <li><a href="/index.html"><b>Đăng xuất <i className="fas fa-sign-out-alt"></i></b></a></li>
-                </ul>
-              </li>
-            </ul>
+        </header>
+
+        {/* Employee Table */}
+        <div className="p-6">
+          <div className="flex justify-end mb-4">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center space-x-2">
+              <span>+</span>
+              <span>Thêm tài khoản nhân viên</span>
+            </button>
           </div>
-        </div>
-      </nav>
-
-      <div className="container-fluid al">
-        <div id="clock"></div><br />
-        <p className="timkiemnhanvien"><b>TÌM KIẾM NHÂN VIÊN:</b></p><br />
-        <input type="text" placeholder="Nhập tên nhân viên cần tìm..." />
-        <i className="fa fa-search"></i><br /><br />
-        <b>CHỨC NĂNG CHÍNH:</b><br />
-        <button className="nv btn add-new" type="button" title="Thêm Nhân Viên"><i className="fas fa-user-plus"></i></button>
-        <button className="nv" type="button" title="Lọc Dữ Liệu"><i className="fa fa-filter"></i></button>
-        <button className="nv xuat" title="Xuất File"><i className="fas fa-file-import"></i></button>
-        <button className="nv cog" title="Cài Đặt"><i className="fas fa-cogs"></i></button>
-
-        <table className="table table-bordered" id="myTable">
-          <thead>
-            <tr>
-              <th>Tên Nhân Viên</th>
-              <th>Giới Tính</th>
-              <th>Ngày Sinh</th>
-              <th>Địa Chỉ</th>
-              <th>Chức Vụ</th>
-              <th>Tính Năng</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((row, index) => (
-              <tr key={index}>
-                <td>{row.name}</td>
-                <td>{row.gender}</td>
-                <td>{row.dob}</td>
-                <td>{row.address}</td>
-                <td>{row.role}</td>
-                <td>
-                  <a className="add" title="Lưu Lại"><i className="fa fa-floppy-o"></i></a>
-                  <a className="edit" title="Sửa"><i className="fa fa-pencil"></i></a>
-                  <a className="delete" title="Xóa"><i className="fa fa-trash-o"></i></a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div id="pageNavPosition" className="text-right">
-          <span onClick={handlePrev} className="pg-normal">&#171;</span> |
-          {[...Array(totalPages)].map((_, index) => (
-            <span
-              key={index}
-              onClick={() => handlePageClick(index + 1)}
-              className={currentPage === index + 1 ? "pg-selected" : "pg-normal"}
-            >
-              {index + 1}
-            </span>
-          ))} |
-          <span onClick={handleNext} className="pg-normal">&#187;</span>
-        </div>
-      </div>
-
-      <div className="container-fluid end">
-        <div className="row text-center">
-          <div className="col-lg-12 link">
-            <i className="fab fa-facebook-f"></i>
-            <i className="fab fa-instagram"></i>
-            <i className="fab fa-youtube"></i>
-            <i className="fab fa-google"></i>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-gray-700 text-sm">
+                  <th className="p-3 text-left">#</th>
+                  <th className="p-3 text-left">Tên nhân viên</th>
+                  <th className="p-3 text-left">Email</th>
+                  <th className="p-3 text-left">Vai trò</th>
+                  <th className="p-3 text-left">Trạng thái hoạt động</th>
+                  <th className="p-3 text-left">Ngày tham gia</th>
+                  <th className="p-3 text-left">Ngày cập nhật</th>
+                  <th className="p-3 text-left">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((employee, index) => (
+                  <tr key={employee.id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">{index + 1}</td>
+                    <td className="p-3">{employee.name}</td>
+                    <td className="p-3">{employee.email}</td>
+                    <td className="p-3">{employee.role}</td>
+                    <td className="p-3">
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-sm ${employee.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                          {employee.isActive ? 'Hiển' : 'Ẩn'}
+                        </span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={employee.isActive}
+                            onChange={() => { }}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-all duration-200"></div>
+                          <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                        </label>
+                      </div>
+                    </td>
+                    <td className="p-3">{employee.joinDate}</td>
+                    <td className="p-3">{employee.updatedAt}</td>
+                    <td className="p-3 flex space-x-2">
+                      <button className="text-blue-600 hover:underline">Sửa</button>
+                      <button className="text-red-600 hover:underline">Xóa</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="col-lg-12">
-            2019 CopyRight Phần mềm quản lý | Design by <a href="#">TruongBinIT</a>
+
+          {/* Pagination */}
+          <div className="flex justify-center mt-6">
+            <div className="flex space-x-2">
+              <button className="px-3 py-1 border rounded-lg text-gray-600 hover:bg-gray-100">1</button>
+            </div>
           </div>
         </div>
       </div>
@@ -127,4 +165,4 @@ const NhanVien: React.FC = () => {
   );
 };
 
-export default NhanVien;
+export default Nhanvien;

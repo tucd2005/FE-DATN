@@ -19,6 +19,7 @@ import SizeAddPage from './pages/admin/size/add_size'
 import ProductDetailPage from './pages/admin/san_pham/chi_tiet_san_pham'
 import CommentList from './pages/admin/binh_luan/CommentList'
 import NhanVien from './pages/admin/NhanVien'
+import Color from './pages/admin/Color'
 
 
 
@@ -37,6 +38,10 @@ function App() {
             {
                   path: "/admin/quan-ly-banner",
                   element: < QuanLiBanner />,
+            },
+            {
+                  path: "/admin/color",
+                  element: < Color />,
             },
             {
                   path: "/admin/edit-san-pham",
