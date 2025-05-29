@@ -25,17 +25,16 @@ interface MenuItem {
 
 // 🛠️ Sửa lại key trùng nhau và cập nhật path đúng
 const menuItems: MenuItem[] = [
-  { key: '1', icon: <AppstoreOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
+  // { key: '1', icon: <AppstoreOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
   { key: '2', icon: <DashboardOutlined />, label: 'Dashboard', path: '/giaodien/trang-chu' },
   { key: '3', icon: <ShoppingOutlined />, label: 'Quản lí sản phẩm', path: '/giaodien/products' },
-  { key: '4', icon: <TagsOutlined />, label: 'Quản lí danh mục', path: '/giaodien/categories' },
-  { key: '5', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/giaodien/variants' },
-  { key: '6', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/users' },
-  { key: '7', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/giaodien/banners' },
-  { key: '8', icon: <PictureOutlined />, label: 'Quản lí mã giảm giá', path: '/giaodien/vouchers' },
-  { key: '9', icon: <PictureOutlined />, label: 'Quản lí đơn hàng', path: '/giaodien/orders' },
-  { key: '10', icon: <PictureOutlined />, label: 'Quản lí kích thước', path: '/giaodien/sizes' },
-  { key: '11', icon: <PictureOutlined />, label: 'Quản lí bình luận', path: '/giaodien/comments' },
+  { key: '4', icon: <TagsOutlined />, label: 'Quản lí danh mục', path: '/giaodien/trang-danhmuc' },
+  { key: '5', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/giaodien/trang-binhluan' },
+  { key: '6', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/trang-danhmuc' },
+  { key: '7', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/giaodien/trang-kichthuoc' },
+  { key: '8', icon: <PictureOutlined />, label: 'Quản lí mã giảm giá', path: '/giaodien/trang-banner' },
+  { key: '9', icon: <PictureOutlined />, label: 'Quản lí đơn hàng', path: '/giaodien/trang-donhang' },
+  { key: '10', icon: <PictureOutlined />, label: 'Quản lí kích thước', path: '/giaodien/trang-magiamgia' },
 ];
 
 const GiaoDienAdmin: React.FC = () => {
@@ -56,7 +55,7 @@ const GiaoDienAdmin: React.FC = () => {
   };
 
   return (
-    <Layout className="h-screen overflow-hidden"> {/* 🧱 Layout cố định, không cuộn */}
+    <Layout className="h-screen overflow-hidden"> {/* Layout cố định, không cuộn */}
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="h-16 bg-gray-800" />
         <Menu
@@ -80,7 +79,7 @@ const GiaoDienAdmin: React.FC = () => {
           />
         </Header>
 
-        {/* ✅ Chỉ phần nội dung cuộn */}
+        {/* Chỉ phần nội dung cuộn */}
         <Content style={{ padding: 0 }}>
           <div
             style={{

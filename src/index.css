@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+  
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -13,7 +14,7 @@
       @apply bg-blue-500 text-white border-none hover:bg-green-700;
     }
   
-    .tailwind-popconfirm .ant-btn-default {
+    /* .tailwind-popconfirm .ant-btn-default {
       @apply text-gray-600 hover:text-gray-800;
-    }
+    } */
   }
