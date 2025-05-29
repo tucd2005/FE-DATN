@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom'; // Thêm Outlet
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -23,6 +23,7 @@ interface MenuItem {
   path: string;
 }
 
+// 🛠️ Sửa lại key trùng nhau và cập nhật path đúng
 const menuItems: MenuItem[] = [
   { key: '1', icon: <AppstoreOutlined />, label: 'Tài khoản Admin', path: '/giaodien' },
   { key: '2', icon: <DashboardOutlined />, label: 'Dashboard', path: '/giaodien/trang-chu' },
@@ -31,21 +32,22 @@ const menuItems: MenuItem[] = [
   { key: '5', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/giaodien/variants' },
   { key: '6', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/giaodien/users' },
   { key: '7', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/giaodien/banners' },
+  { key: '8', icon: <PictureOutlined />, label: 'Quản lí mã giảm giá', path: '/giaodien/vouchers' },
+  { key: '9', icon: <PictureOutlined />, label: 'Quản lí đơn hàng', path: '/giaodien/orders' },
+  { key: '10', icon: <PictureOutlined />, label: 'Quản lí kích thước', path: '/giaodien/sizes' },
+  { key: '11', icon: <PictureOutlined />, label: 'Quản lí bình luận', path: '/giaodien/comments' },
 ];
 
-// Component chính cho giao diện admin với sidebar và content
 const GiaoDienAdmin: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Để đồng bộ menu với route
+  const location = useLocation();
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
 
-  // Đồng bộ menu với route hiện tại
   const selectedKey = menuItems.find(item => item.path === location.pathname)?.key || '1';
 
-  // Xử lý click menu để điều hướng
   const handleMenuClick = ({ key }: { key: string }) => {
     const selectedItem = menuItems.find(item => item.key === key);
     if (selectedItem?.path) {
@@ -54,9 +56,9 @@ const GiaoDienAdmin: React.FC = () => {
   };
 
   return (
-    <Layout className="min-h-screen">
+    <Layout className="h-screen overflow-hidden"> {/* 🧱 Layout cố định, không cuộn */}
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="h-16 bg-gray-800" /> {/* Logo placeholder */}
+        <div className="h-16 bg-gray-800" />
         <Menu
           theme="dark"
           mode="inline"
@@ -66,7 +68,10 @@ const GiaoDienAdmin: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          style={{ padding: 0, background: colorBgContainer }}
+          className="h-16 flex items-center"
+        >
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -74,9 +79,18 @@ const GiaoDienAdmin: React.FC = () => {
             className="text-lg w-16 h-16"
           />
         </Header>
-        <Content className="m-6 p-6 min-h-[280px] bg-white rounded-lg">
-          {/* Render các route con tại đây */}
-          <Outlet />
+
+        {/* ✅ Chỉ phần nội dung cuộn */}
+        <Content style={{ padding: 0 }}>
+          <div
+            style={{
+              height: 'calc(100vh - 64px)', // trừ chiều cao Header
+              overflow: 'auto',             // chỉ cuộn ở đây
+            }}
+            className="p-6 bg-white rounded-lg"
+          >
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

@@ -1,17 +1,4 @@
-// import React from 'react'
-
-// const TrangChuAdmin = () => {
-//   return (
-//     <div>TrangChuAdmin</div>
-//   )
-// }
-
-// export default TrangChuAdmin
-
-// TrangChuAdmin.jsx
-import React from "react";
-import { Table, Card, Row, Col } from "antd";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Table, Card, Row, Col } from "antd";import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 
 const fakeData = [
