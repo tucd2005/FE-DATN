@@ -21,7 +21,7 @@ const Qlidanhmuc = () => {
     <>
       <div className="flex justify-end p-3">
         <Button
-          className="bg-blue-600 text-white"
+          // className="bg-blue-600 text-white"
           type="primary"
           onClick={showModal} // 👉 Bắt sự kiện mở modal
         >
