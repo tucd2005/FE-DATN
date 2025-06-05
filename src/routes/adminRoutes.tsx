@@ -1,28 +1,24 @@
-// // src/router/adminRoutes.tsx
-// import HomeAdmin from '../pages/admin/adminhome'
-// import QuanLiSanPham from '../pages/admin/quan_li_san_pham'
-// import EditSanPham from '../pages/admin/Edit_san_pham'
-// import AddSanPham from '../pages/admin/Add_san_pham'
-// import { Children } from 'react';
+import LayoutAdmin from "../layouts/LayoutAdmin";
+import QuanLyDanhMuc from "../pages/admin/danh_muc copy/QuanLyDanhMuc";
+import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
+import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
+import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
+import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
+import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
 
-// const adminRoutes = [
-//   {
-//     path: "/admin/home",
 
-//     element: <HomeAdmin />,
-//   },
-//   {
-//     path: "/admin/quan-li-san-pham",
-//     element: <QuanLiSanPham />,
-//   },
-//   {
-//     path: "/admin/edit-san-pham",
-//     element: <EditSanPham />,
-//   },
-//   {
-//     path: "/admin/add-san-pham",
-//     element: <AddSanPham />,
-//   },
-// ];
 
-// export default adminRoutes;
+export const adminRouter = {
+  path: "/admin",
+  element: <LayoutAdmin />,
+  children: [
+    { index: true, element: <TrangChuAdmin /> },
+    { path: "danh-muc", element: <QuanLyDanhMuc /> },
+    { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
+    { path: "don-hang", element: <QuanLyDonHang /> },
+    { path: "kich-thuoc", element: <QuanLyKichThuoc /> },
+    { path: "mau-sac", element: <QuanLyMauSac /> },
+
+
+  ],
+};
