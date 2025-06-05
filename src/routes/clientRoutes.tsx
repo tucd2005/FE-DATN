@@ -1,11 +1,11 @@
-// // src/router/clientRoutes.tsx
-// import HomeClient from '../pages/client/home'
+// // src/routers/clientRoutes.tsx
+// import { Outlet } from "react-router-dom";
+// import HomeClient from "../pages/client/home";
 
-// const clientRoutes = [
-//   {
-//     path: "/",
-//     element: <HomeClient />,
-//   },
-// ];
-
-// export default clientRoutes;
+// export const clientRouter = {
+//   path: "/",
+//   element: <Outlet />, // Có thể thay bằng <ClientLayout /> nếu có
+//   children: [
+//     { index: true, element: <HomeClient /> }, // tương đương path: "/"
+//   ],
+// };

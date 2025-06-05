@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../../components/admin/layouts/HeaderAdmin';
 import SidebarAdmin from '../../../components/admin/layouts/SidebarAdmin';
 import VoucherTable from '../../../components/admin/ma_giam_gia/VoucherTable';
-import type { Voucher } from '../../../types/voucher/voucher';
+import type { Voucher } from '../../../src/types/voucher/voucher';
 
 const mockData: Voucher[] = [
   {
@@ -32,11 +32,11 @@ const VouchersPage = () => {
       <main className="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-68 rounded-xl">
         <HeaderAdmin />
         <div className="min-h-screen p-6 dark:bg-slate-900">
-        <h1 
-            className="mb-4 text-2xl font-bold text-white dark:text-gray-800" 
-        
+          <h1
+            className="mb-4 text-2xl font-bold text-white dark:text-gray-800"
+
           >DANH SÁCH MÃ GIẢM GIÁ</h1>
-       
+
           <VoucherTable
             data={mockData}
             onEdit={(voucher) => navigate(`/admin/vouchers/edit/${voucher.id}`)}
