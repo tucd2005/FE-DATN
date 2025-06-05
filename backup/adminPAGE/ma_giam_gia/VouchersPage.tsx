@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../../components/admin/layouts/HeaderAdmin';
 import SidebarAdmin from '../../../components/admin/layouts/SidebarAdmin';
 import VoucherTable from '../../../components/admin/ma_giam_gia/VoucherTable';
-import type { Voucher } from '../../../src/types/voucher/voucher';
+import type { Voucher } from '../../../src/types/voucher';
 
 const mockData: Voucher[] = [
   {
