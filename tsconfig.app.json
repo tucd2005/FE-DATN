@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "backup/adminPAGE/binh_luan", "backup/adminPAGE/assets", "backup/adminPAGE/danh_muc", "backup/adminPAGE/size", "backup/adminPAGE/Admin_home.tsx", "backup/adminPAGE/ma_giam_gia", "backup/adminPAGE/san_pham", "backup/adminPAGE/quan_li_banner.tsx", "backup/homeClient"]
+  "include": ["src", "backup/adminPAGE/binh_luan", "backup/adminPAGE/assets", "backup/adminPAGE/danh_muc", "backup/adminPAGE/size", "backup/adminPAGE/Admin_home.tsx", "backup/adminPAGE/ma_giam_gia", "backup/adminPAGE/san_pham", "backup/adminPAGE/quan_li_banner.tsx", "backup/homeClient", "backup/client"]
 }

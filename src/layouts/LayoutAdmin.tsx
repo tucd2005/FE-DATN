@@ -28,7 +28,7 @@ const menuItems: MenuItem[] = [
   { key: '1', icon: <DashboardOutlined />, label: 'Dashboard', path: '/admin' },
   { key: '2', icon: <AppstoreOutlined />, label: 'Quản lí danh mục', path: '/admin/danh-muc' },
   { key: '3', icon: <TagsOutlined />, label: 'Quản lí sản phẩm', path: '/admin/san-pham' },
-  { key: '4', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/admin/binh-luan' },
+  { key: '4', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/admin/bien-the' },
   { key: '5', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/admin/tai-khoan' },
   { key: '6', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/admin/banner' },
   { key: '7', icon: <GiftOutlined />, label: 'Quản lí mã giảm giá', path: '/admin/ma-giam-gia' },
