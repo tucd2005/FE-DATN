@@ -29,11 +29,9 @@ const QuanLySanPham: React.FC = () => {
   
   return(
     <div>
-      <div>
+      <div className='flex justify-between'>
         <h3 className='text-3xl'>Quản lí sản phẩm</h3>
-      </div>
-
-      <div className='flex justify-end'>
+      
 
       <Button type='primary'>
         <Link to={"add"}>Them san pham</Link>
