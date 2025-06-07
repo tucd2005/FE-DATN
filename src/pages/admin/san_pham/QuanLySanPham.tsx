@@ -29,7 +29,9 @@ const QuanLySanPham: React.FC = () => {
   
   return(
     <div>
-      <div className='flex justify-between'>
+      <div className='bg-white p-4 rounded shadow'>
+
+      <div className='flex justify-between '>
         <h3 className='text-3xl'>Quản lí sản phẩm</h3>
       
 
@@ -49,6 +51,12 @@ const QuanLySanPham: React.FC = () => {
           title: "Tên sản phẩm",
           dataIndex: "name",
           key: "name"
+        },
+        {
+          title: "Ảnh sản phẩm",
+          dataIndex: "image",
+          key: "image",
+          render: (image) => <img src={image} alt='anh san pham' className='w-20 h-20 object-cover'/>
         },
         
         {
@@ -95,6 +103,7 @@ const QuanLySanPham: React.FC = () => {
       ]}>
 
       </Table>
+      </div>
     </div>
   )
 };
