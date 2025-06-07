@@ -47,7 +47,9 @@ const LayoutAdmin: React.FC = () => {
   } = theme.useToken();
 
   const selectedKey =
-    menuItems.find((item) => location.pathname.startsWith(item.path))?.key || '2';
+     menuItems 
+    .filter((item) => location.pathname.startsWith(item.path))
+    .sort((a,b) => b.path.length - a.path.length) [0]?.key || '1';
 
   const handleMenuClick = ({ key }: { key: string }) => {
     const selectedItem = menuItems.find((item) => item.key === key);
