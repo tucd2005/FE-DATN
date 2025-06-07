@@ -1,4 +1,4 @@
-import { Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import React from 'react';
 
 const fakeData = [
@@ -35,7 +35,7 @@ const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id' },
   { title: 'Tên', dataIndex: 'ten', key: 'ten' },
   { title: 'Mô tả', dataIndex: 'mo_ta', key: 'mo_ta' },
-  { title: 'Slug', dataIndex: 'slug', key: 'slug' },
+
   { title: 'Ngày tạo', dataIndex: 'ngay_tao', key: 'ngay_tao' },
   { title: 'Ngày cập nhật', dataIndex: 'ngay_cap_nhat', key: 'ngay_cap_nhat' },
   {
@@ -49,12 +49,32 @@ const columns = [
         <Tag color="red">Tạm ngừng</Tag>
       ),
   },
+  {
+    title: 'Hành động',
+    key: 'actions',
+    render: (_: any,) => (
+      <Space>
+        {/* Có thể thêm nút Sửa ở đây */}
+        <Popconfirm title="Bạn có chắc muốn xoá?" >
+          <Button danger>Xoá mềm </Button>
+        </Popconfirm>
+      </Space>
+    ),
+  },
 ];
 
 const QuanLyKichThuoc = () => {
   return (
     <div style={{ padding: 20 }}>
-      <h2>Quản lý kích thước</h2>
+      
+      <h2 className="text-2xl font-semibold">Quản lý kích thước</h2>
+
+      <div className="flex justify-end p-3">
+        <Button type="primary" >
+          Thêm danh mục
+        </Button>
+      </div>
+
       <Table columns={columns} dataSource={fakeData} rowKey="id" />
     </div>
   );
