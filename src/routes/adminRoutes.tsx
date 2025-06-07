@@ -8,6 +8,7 @@ import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
 import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
 import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
 import AddSanPham from "../pages/admin/san_pham/AddSanPham";
+import DetailSanPham from "../pages/admin/san_pham/DetailSanPham";
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
 import QuanLyTaiKhoan from "../pages/admin/tai_khoan/QuanLyTaiKhoan";
 import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
@@ -29,6 +30,7 @@ export const adminRouter = {
    // Route quản lý sản phẩm
    { path: "san-pham", element: <QuanLySanPham /> }, 
    { path: "san-pham/add", element: <AddSanPham /> }, 
+   { path: "san-pham/detail", element: <DetailSanPham /> }, 
    // Route quản lý banner
    { path: "banner", element: <QuanLyBanner /> }, 
 
