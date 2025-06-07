@@ -1,168 +1,102 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, InputNumber, Modal, Space, Table, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Form, Input, InputNumber, message, Modal, Space, Table, Tag } from 'antd';
+import axios from 'axios';
+import { Popconfirm } from 'antd';
+import { Link } from 'react-router-dom';
+import type { Product } from '../../../types/product.type';
 
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
-
-const initialData: DataType[] = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-];
 
 const QuanLySanPham: React.FC = () => {
-  const [data, setData] = useState<DataType[]>(initialData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [product, setProducts] = useState<Product[]>([])
+  useEffect(() => {
+    const fetchProduct = async() => {
+      const res = await axios.get(`http://localhost:3000/products`)
+      setProducts(res.data)
+    }
+    fetchProduct()
+  }, [])
 
-  const showModal = () => {
-    setIsModalOpen(true);
+
+  const removeProduct = async (id: number) => {
+   try {
+    const res = await axios.delete(`http://localhost:3000/products/${id}`)
+    message.success("xoa san pham thanh cong")
+    setProducts(prev => prev.filter((item) => item.id !== id))
+   } catch (error) {
+    console.error("co loi khi xoa san pham", error);
+   }
   };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    form.resetFields();
-  };
-
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      const newProduct: DataType = {
-        key: Date.now().toString(),
-        name: values.name,
-        age: values.age,
-        address: values.address,
-        tags: values.tags ? values.tags.split(',').map((tag: string) => tag.trim()) : [],
-      };
-      setData((prev) => [...prev, newProduct]);
-      setIsModalOpen(false);
-      form.resetFields();
-    });
-  };
-
-  return (
+  
+  return(
     <div>
-      {/* Nút Thêm sản phẩm */}
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={showModal}>
-          Thêm sản phẩm
-        </Button>
+      <div className='flex justify-between'>
+        <h3 className='text-3xl'>Quản lí sản phẩm</h3>
+      
+
+      <Button type='primary'>
+        <Link to={"add"}>Them san pham</Link>
+
+      </Button>
       </div>
+      <Table dataSource={product} 
+      columns={[
+        {
+          title: "Id",
+          dataIndex: "id",
+          key: "id"
+        },
+        {
+          title: "Tên sản phẩm",
+          dataIndex: "name",
+          key: "name"
+        },
+        
+        {
+          title: "Giá",
+          dataIndex: "price",
+          key: "price"
+        },
+        {
+          title: "Danh mục",
+          dataIndex: "category",
+          key: "category"
+        },
+        {
+          title: "Trạng thái",
+          dataIndex: "status",
+          key: "status"
+        },
+        {
+          title: "Thao tác",
+          render: (_, item: {id: number}) => {
+            return(
 
-      {/* Modal Thêm sản phẩm */}
-      <Modal
-        title="Thêm sản phẩm mới"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText="Thêm"
-        cancelText="Hủy"
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Tên"
-            name="name"
-            rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
-          >
-            <Input />
-          </Form.Item>
+              <div>
+                <Space>
 
-          <Form.Item
-            label="Tuổi"
-            name="age"
-            rules={[{ required: true, message: 'Vui lòng nhập tuổi!' }]}
-          >
-            <InputNumber style={{ width: '100%' }} />
-          </Form.Item>
 
-          <Form.Item
-            label="Địa chỉ"
-            name="address"
-            rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
-          >
-            <Input />
-          </Form.Item>
+              <Button>sua</Button>
+              <Button>Chi tiet</Button>
 
-          <Form.Item label="Tags (phân cách bằng dấu phẩy)" name="tags">
-            <Input placeholder="ví dụ: cool, smart" />
-          </Form.Item>
-        </Form>
-      </Modal>
+              <Popconfirm 
+                title= "ban co muon xoa khong"
+               onConfirm={() => removeProduct(item.id)}
+               okText= "  Xoa"
+               cancelText = "Huy"
+                >
+                <Button danger>Xoas</Button>
+              </Popconfirm>
+                  </Space>
 
-      {/* Bảng hiển thị sản phẩm */}
-      <Table<DataType>
-        dataSource={data}
-        columns={[
-          {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
-          },
-          {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
-          },
-          {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
-          },
-          {
-            title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (_, { tags }) => (
-              <>
-                {tags.map((tag) => {
-                  let color = tag.length > 5 ? 'geekblue' : 'green';
-                  if (tag === 'loser') color = 'volcano';
-                  return (
-                    <Tag color={color} key={tag}>
-                      {tag.toUpperCase()}
-                    </Tag>
-                  );
-                })}
-              </>
-            ),
-          },
-          {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-              <Space size="middle">
-                <a>Invite {record.name}</a>
-                <a>Delete</a>
-              </Space>
-            ),
-          },
-        ]}
-      />
+            </div>
+        )
+          }
+        },
+      ]}>
+
+      </Table>
     </div>
-  );
+  )
 };
 
 export default QuanLySanPham;
