@@ -1,11 +1,11 @@
 // src/routers/index.tsx
 import { createBrowserRouter } from "react-router-dom";
-// import { clientRouter } from "./clientRoutes";
+ import { clientRouter } from "./clientRoutes";
 import { adminRouter } from "./adminRoutes";
 // import NotFoundPage from "../pages/NotFoundPage";
 
 export const router = createBrowserRouter([
-  // clientRouter,
+  clientRouter,
   adminRouter,
   // {
   //   path: "*",
