@@ -9,8 +9,8 @@ import Sidebar from "./components/sidebar";
 export default function ChiTietSanPham() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      <Navbar />
+      {/* <Header /> */}
+      {/* <Navbar /> */}
       <div className="container mx-auto px-4 py-6">
         <Breadcrumb />
         <h1 className="text-3xl font-bold mb-6">Products</h1>
@@ -24,7 +24,7 @@ export default function ChiTietSanPham() {
           </div>
         </div>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }
