@@ -1,7 +1,7 @@
 // src/routers/clientRoutes.tsx
 import { Outlet } from "react-router-dom";
-import ChiTietSanPham from "../pages/client/chi_tiet_san_pham/chi_tiet_san_pham";
 import ProductdetailsPage from "../pages/client/details_san_pham/san_pham_detais_page";
+import ChiTietSanPham from "../pages/client/san_pham/chi_tiet_san_pham";
 
 
 export const clientRouter = {
