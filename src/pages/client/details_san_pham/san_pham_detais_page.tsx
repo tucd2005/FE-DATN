@@ -82,12 +82,24 @@ export default function ProductdetailsPage() {
           <ProductImages mainImage={productImages.main} thumbnails={productImages.thumbnails} alt={productData.name} />
           <ProductDetails {...productData} />
         </div>
-        <div>
-             <ProductTabs {...productTabsData} />
-        <RelatedProducts products={relatedProducts} />
-        <NewsletterSignup />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            <ProductTabs {...productTabsData} />
+            <RelatedProducts products={relatedProducts} />
+          </div>
 
+          <div className="hidden lg:flex justify-center">
+            <div className="sticky top-8">
+              <img
+                src="Screenshot 2025-06-12 203404.png"
+                alt="Banner"
+                className="w-80  object-cover"
+                style={{ maxHeight: 1200 }}
+              />
+            </div>
+          </div>
         </div>
+        <NewsletterSignup />
        
       </main>
 
