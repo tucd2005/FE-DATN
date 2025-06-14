@@ -52,7 +52,7 @@ const Header = () => {
             <a href="" className='flex items-center gap-2'>
               <FaBars /> Browse Categories
             </a>
-            <a href="">Products</a>
+            <a href="san-pham">Products</a>
             <a href="">Blog</a>
             <a href="">Contact</a>
           </div>
