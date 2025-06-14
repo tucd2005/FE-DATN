@@ -75,7 +75,7 @@ export default function ProductdetailsPage() {
           <div className="hidden lg:flex justify-center">
             <div className="sticky top-8">
               <img
-                src="Screenshot 2025-06-12 203404.png"
+                src="/Screenshot 2025-06-12 203404.png"
                 alt="Banner"
                 className="w-80 object-cover"
                 style={{ maxHeight: 1200 }}
