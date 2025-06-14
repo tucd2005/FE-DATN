@@ -10,6 +10,6 @@ export const clientRouter = {
   children: [
     { index: true, element: <ChiTietSanPham /> }, 
     { path: "san-pham", element: <ChiTietSanPham /> }, 
-    { path: "chi-tiet-san-pham", element: <ProductdetailsPage /> }, 
+    { path: "product-detail/:id", element: <ProductdetailsPage /> }, 
   ],
 };

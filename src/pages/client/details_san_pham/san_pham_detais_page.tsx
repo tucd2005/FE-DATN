@@ -1,18 +1,13 @@
 "use client"
 
-
 import { Footer } from "./components/footer"
 import { NewsletterSignup } from "./components/newsletter-signup"
-import { ProductDetails } from "./components/product-details"
+import ProductDetails from "./components/product-details"
 import { ProductImages } from "./components/product-images"
 import { ProductTabs } from "./components/product-tabs"
 import { RelatedProducts } from "./components/related-products"
 
-
-
 export default function ProductdetailsPage() {
- 
-
   const productImages = {
     main: "/placeholder.svg?height=600&width=600",
     thumbnails: [
@@ -21,21 +16,6 @@ export default function ProductdetailsPage() {
       "/placeholder.svg?height=150&width=150",
       "/placeholder.svg?height=150&width=150",
     ],
-  }
-
-  const productData = {
-    category: "APPAREL",
-    name: "Coco X Nad Sport Sweatshirt",
-    price: 224.9,
-    description:
-      "The Coco x Nad Sport Sweatshirt is a stylish and versatile addition to any wardrobe. Made from high-quality fabric, it offers comfort and functionality for active individuals. The sweatshirt features a modern silhouette with a relaxed fit and ribbed cuffs.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "black", value: "#000000" },
-      { name: "red", value: "#DC2626" },
-      { name: "white", value: "#FFFFFF" },
-    ],
-    stock: 125,
   }
 
   const productTabsData = {
@@ -76,12 +56,16 @@ export default function ProductdetailsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      
-      <main className="max-w-7xl mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <ProductImages mainImage={productImages.main} thumbnails={productImages.thumbnails} alt={productData.name} />
-          <ProductDetails {...productData} />
+      <main className="w-4/5 mx-auto py-8 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 ">
+          <ProductImages
+            mainImage={productImages.main}
+            thumbnails={productImages.thumbnails}
+            alt="Product Image"
+          />
+          <ProductDetails /> 
         </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2 flex flex-col gap-8">
             <ProductTabs {...productTabsData} />
@@ -93,14 +77,14 @@ export default function ProductdetailsPage() {
               <img
                 src="Screenshot 2025-06-12 203404.png"
                 alt="Banner"
-                className="w-80  object-cover"
+                className="w-80 object-cover"
                 style={{ maxHeight: 1200 }}
               />
             </div>
           </div>
         </div>
+
         <NewsletterSignup />
-       
       </main>
 
       <Footer />
