@@ -11,7 +11,7 @@
     "id": 2,
     "name": "Sản phẩm 2",
     "description": "Mô tả khác",
-    "price": "15.000đ",
+    "price": 122,
     "category": "Quần",
     "status": "hết hàng",
     "stock": 0,
@@ -50,8 +50,9 @@
     "stock": 8,
     "date": "11/5/2025",
     "image": "https://ben.com.vn/tin-tuc/wp-content/uploads/2022/10/chelsea.webp"
-  }
+  } 
 ],
+
 
   "orders": [],
   "vouchers": [
