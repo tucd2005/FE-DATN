@@ -1,5 +1,3 @@
-import React from 'react'
-import adminRoutes from '../../routers/adminRouter';
 
 const Footer = () => {
   return (
