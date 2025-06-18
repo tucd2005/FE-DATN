@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Badge, Button, Card, Form, Input, InputNumber, Space, Switch, Tooltip, Upload, Typography, Select, DatePicker, Tag, message } from "antd";
 import { CheckOutlined, PictureOutlined, PlusOutlined, SaveOutlined, StarOutlined, StarFilled, DeleteOutlined, AppstoreOutlined, SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
+
 const { Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -495,7 +496,6 @@ const AddSanPham = () => {
               </Button>
             </Card>
 
-
           </div>
 
           {/* Right Column */}
@@ -654,46 +654,44 @@ const AddSanPham = () => {
               </div>
             </Card>
 
-            {/* <Card title="Thẻ tag" className="shadow-sm border-none">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag) => (
-                        <Tag
-                          key={tag}
-                          closable
-                          onClose={() => handleTagClose(tag)}
-                          className="mb-2 bg-gray-100 text-gray-800 rounded-md"
-                        >
-                          {tag}
-                        </Tag>
-                      ))}
-                    </div>
-                    {inputTagVisible ? (
-                      <Input
-                        ref={inputTagRef}
-                        type="text"
-                        size="small"
-                        value={inputTagValue}
-                        onChange={handleTagInputChange}
-                        onBlur={handleTagInputConfirm}
-                        onPressEnter={handleTagInputConfirm}
-                        className="w-32 rounded-md"
-                      />
-                    ) : (
-                      <Button
-                        type="dashed"
-                        onClick={showTagInput}
-                        icon={<PlusOutlined />}
-                        size="small"
-                        className="hover:bg-gray-100 rounded-md"
-                      >
-                        Thêm tag
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-                 */}
-
+            <Card title="Thẻ tag" className="shadow-sm border-none">
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Tag
+                      key={tag}
+                      closable
+                      onClose={() => handleTagClose(tag)}
+                      className="mb-2 bg-gray-100 text-gray-800 rounded-md"
+                    >
+                      {tag}
+                    </Tag>
+                  ))}
+                </div>
+                {inputTagVisible ? (
+                  <Input
+                    ref={inputTagRef}
+                    type="text"
+                    size="small"
+                    value={inputTagValue}
+                    onChange={handleTagInputChange}
+                    onBlur={handleTagInputConfirm}
+                    onPressEnter={handleTagInputConfirm}
+                    className="w-32 rounded-md"
+                  />
+                ) : (
+                  <Button
+                    type="dashed"
+                    onClick={showTagInput}
+                    icon={<PlusOutlined />}
+                    size="small"
+                    className="hover:bg-gray-100 rounded-md"
+                  >
+                    Thêm tag
+                  </Button>
+                )}
+              </div>
+            </Card>
 
           </div>
         </div>
