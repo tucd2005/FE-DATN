@@ -2,7 +2,7 @@ import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 
 
 
 const api = axios.create({
-    baseURL: "https://chu-duc-tu-server.onrender.com/",
+    baseURL: "http://localhost:3000",
     headers: {
         "Content-Type": "application/json"
     },

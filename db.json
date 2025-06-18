@@ -4,56 +4,72 @@
       "email": "test@example.com",
       "password": "123456",
       "id": 1
+    },
+    {
+      "username": "chu duc tu ",
+      "email": "ductu205@gmail.com",
+      "password": "123456",
+      "id": 2
+    },
+    {
+      "username": "admin",
+      "email": "ductu2005@gmail.com",
+      "password": "12345678",
+      "id": 3
+    },
+    {
+      "username": "chu duc tu ",
+      "email": "admin@gmail.com",
+      "password": "1234567",
+      "id": 4
     }
   ],
   "products": [
-  {
-    "id": 2,
-    "name": "Sản phẩm 2",
-    "description": "Mô tả khác",
-    "price": 122,
-    "category": "Quần",
-    "status": "hết hàng",
-    "stock": 0,
-    "date": "18/4/2025",
-    "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-1-25-10-30-41.jpg"
-  },
-  {
-    "id": 4,
-    "name": "Sản phẩm 4",
-    "description": "Thông tin",
-    "price": "12.000đ",
-    "category": "Phụ kiện",
-    "status": "hết hàng",
-    "stock": 0,
-    "date": "28/4/2025",
-    "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-4-25-10-31-43.jpg"
-  },
-  {
-    "id": 5,
-    "name": "Sản phẩm 5",
-    "description": "Mô tả phụ",
-    "price": "18.000đ",
-    "category": "Áo",
-    "status": "còn hàng",
-    "stock": 12,
-    "date": "10/5/2025",
-    "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-5-25-10-32-10.jpg"
-  },
-  {
-    "id": 6,
-    "name": "Sản phẩm 6",
-    "description": "Chi tiết khác",
-    "price": "25.000đ",
-    "category": "Quần",
-    "status": "còn hàng",
-    "stock": 8,
-    "date": "11/5/2025",
-    "image": "https://ben.com.vn/tin-tuc/wp-content/uploads/2022/10/chelsea.webp"
-  } 
-],
-
-
+    {
+      "id": 2,
+      "name": "Sản phẩm 2",
+      "description": "Mô tả khác",
+      "price": 122,
+      "category": "Quần",
+      "status": "hết hàng",
+      "stock": 0,
+      "date": "18/4/2025",
+      "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-1-25-10-30-41.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Sản phẩm 4",
+      "description": "Thông tin",
+      "price": "12.000đ",
+      "category": "Phụ kiện",
+      "status": "hết hàng",
+      "stock": 0,
+      "date": "28/4/2025",
+      "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-4-25-10-31-43.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Sản phẩm 5",
+      "description": "Mô tả phụ",
+      "price": "18.000đ",
+      "category": "Áo",
+      "status": "còn hàng",
+      "stock": 12,
+      "date": "10/5/2025",
+      "image": "https://inkythuatso.com/uploads/thumbnails/800/2022/05/hinh-nen-dien-thoai-doi-bong-chelsea-5-25-10-32-10.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Sản phẩm 6",
+      "description": "Chi tiết khác",
+      "price": "25.000đ",
+      "category": "Quần",
+      "status": "còn hàng",
+      "stock": 8,
+      "date": "11/5/2025",
+      "image": "https://ben.com.vn/tin-tuc/wp-content/uploads/2022/10/chelsea.webp"
+    }
+  ],
   "orders": [],
   "vouchers": [
     {
