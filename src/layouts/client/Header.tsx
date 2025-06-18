@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { FaBars, FaCartShopping, FaMagnifyingGlass, FaPhone } from 'react-icons/fa6'
-import AuthModal from '../../components/authModal/AuthModal';
+import AuthModal from '../../pages/client/authModal/AuthModal';
 
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,36 +34,36 @@ const Header = () => {
 
           </div>
           <div className='flex items-center'>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className='border-r border-gray-300 pr-3 text-gray-500 hover:text-black'
-          >
-            SIGN IN
-          </button>
-          <a href="#" className='pl-3'><FaCartShopping /></a>
-        </div>
-      {/* </header> */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className='border-r border-gray-300 pr-3 text-gray-500 hover:text-black'
+            >
+              SIGN IN
+            </button>
+            <a href="#" className='pl-3'><FaCartShopping /></a>
+          </div>
+          {/* </header> */}
 
-      <AuthModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+          <AuthModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
         <section>
-        <div className='bg-black py-5 px-32 flex justify-between'>
-          <div className='text-white flex items-center gap-20 '>
-            <a href="" className='flex items-center gap-2'>
-              <FaBars /> Browse Categories
-            </a>
-            <a href="san-pham">Products</a>
-            <a href="">Blog</a>
-            <a href="">Contact</a>
-          </div>
+          <div className='bg-black py-5 px-32 flex justify-between'>
+            <div className='text-white flex items-center gap-20 '>
+              <a href="" className='flex items-center gap-2'>
+                <FaBars /> Browse Categories
+              </a>
+              <a href="san-pham">Products</a>
+              <a href="">Blog</a>
+              <a href="">Contact</a>
+            </div>
 
-          <div className='text-white flex items-center flex items-center gap-3'>
-            <FaPhone />
-            Customer Care: 0333140287
-          </div>
+            <div className='text-white flex items-center flex items-center gap-3'>
+              <FaPhone />
+              Customer Care: 0333140287
+            </div>
 
-        </div>
-      </section>
+          </div>
+        </section>
       </header>
     </>
   )

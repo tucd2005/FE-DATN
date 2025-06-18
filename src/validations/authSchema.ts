@@ -18,3 +18,7 @@ export const registerSchema = z.object({
 		message: "Mat khau khong khop",
 		path: ["confirmPassword"],
 	});
+
+	export type LoginSchema = z.infer<typeof loginSchema>
+	export type RegisterSchema = z.infer<typeof registerSchema>
+	

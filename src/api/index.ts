@@ -3,19 +3,18 @@ import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 
 
 const api = axios.create({
     baseURL: "http://localhost:3000",
-    headers: {
-        "Content-Type": "application/json"
-    },
+    // ! đoạn này khôgn lên cho vào vì khi upload ảnh thì không nhận được 
+    // headers: {
+    //     "Content-Type": "application/json"
+    // },
 });
 
 api.interceptors.request.use(
-    function (config: InternalAxiosRequestConfig)  {  // khi ở Axios v1.x trở lên thì yêu cầu dùng InternalAxiosRequestConfig 
-        // console.log(config);
+    function (config: InternalAxiosRequestConfig)  {  // * khi ở Axios v1.x trở lên thì yêu cầu dùng InternalAxiosRequestConfig 
         const accessToken = localStorage.getItem("accessToken")
         if(accessToken && config.headers){
             config.headers.Authorization = `Bearer ${accessToken}`
         }
-        // console.log(config);
         return config;
     },
     function (error) {

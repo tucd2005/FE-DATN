@@ -1,6 +1,7 @@
 import api from ".";
+import type { ILoginPayload, IRegisterPayload } from "../types/auth";
 
-export const loginApi = (data) => api.post(`/login`,data);
-export const registerApi = (data) => api.post(`/register`, data);
-export const getProfile = (userId) => api.get(`/users/${userId}`)
+export const loginApi = (data: ILoginPayload) => api.post(`/users`,data);
+export const registerApi = (data: IRegisterPayload) => api.post(`/users`, data);
+export const getProfile = (userId: string) => api.get(`/users/${userId}`)
 

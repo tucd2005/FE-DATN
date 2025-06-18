@@ -1,42 +1,37 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { registerSchema } from '../../validations/authSchema';
+import { registerApi } from '../../../api/authApi';
+import { message } from 'antd';
+import { registerSchema, type RegisterSchema } from '../../../validations/authSchema';
 
-type FormData = z.infer<typeof registerSchema>; // ✅ Lấy kiểu từ zod
+type RegisterProps = { setTab: (tab: string) => void }
+const Register = ({ setTab }: RegisterProps) => {
 
-const Register = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormData>({
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(registerSchema),
   });
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data:RegisterSchema) => {
     try {
-      const { username, email, password } = data;
-
-      const res = await axios.post('http://localhost:3000/users', {
-        username,
-        email,
-        password,
-      });
-
-      if (res.status === 200 || res.status === 201) {
-        toast.success('Register successfully!');
-        reset();
-      } else {
-        toast.error('Register failed. Please try again.');
+      const payLoad = {username: data.username,
+        password: data.password,
+        email: data.email
       }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.response?.data?.message || 'Something went wrong!');
+      const res = await registerApi(payLoad);
+      console.log(res);
+      reset();
+      setTab('login') // ! cái này dùng để chuyển trag từ 
+      message.success("Register successfully!");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data || "Register failed!");
+      reset();
     }
   };
 

@@ -41,7 +41,7 @@ const AuthModal = ({ open, onClose }) => {
         </button>
       </div>
 
-      {tab === 'login' ? <Login /> : <Register />}
+      {tab === 'login' ? <Login /> : <Register setTab={setTab} />}
     </Modal>
   );
 };

@@ -1,6 +1,7 @@
-import React from 'react'
-import { FaBars, FaPhone } from 'react-icons/fa6'
-import banner from '../../assets/PSG.jpg';
+
+
+import anhcogaichay from '../../assets/anhcogaichay.webp';
+import bannerSport from '../../assets/banner.webp';
 import logoChel from '../../assets/logo-chelsea.jpg';
 import { ArrowRight, Lock, Package, Truck } from 'lucide-react';
 
@@ -12,7 +13,7 @@ const HomeClient = () => {
       {/* banner */}
       <section>
       <img 
-  src="https://videos.openai.com/vg-assets/assets%2Ftask_01jxh5eg2sedwsgtrf2q9mjtmv%2F1749701656_img_0.webp?st=2025-06-12T03%3A06%3A25Z&se=2025-06-18T04%3A06%3A25Z&sks=b&skt=2025-06-12T03%3A06%3A25Z&ske=2025-06-18T04%3A06%3A25Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=T%2FkMPh%2BFia2ugFuIbsLSs5leDlnjNFM5%2Bh0GNInWLEk%3D&az=oaivgprodscus" 
+  src={bannerSport}
   alt="Ảnh" 
   className="w-full h-[800px] rounded-xl object-cover shadow-md"
 />
@@ -130,7 +131,7 @@ const HomeClient = () => {
 <section className="w-full px-32 py-5 bg-gray-100">
   <div className="w-full h-[700px]">
     <img
-      src="https://videos.openai.com/vg-assets/assets%2Ftask_01jxh6ntwdf06shhy1mev1244b%2F1749702928_img_0.webp?st=2025-06-12T03%3A06%3A27Z&se=2025-06-18T04%3A06%3A27Z&sks=b&skt=2025-06-12T03%3A06%3A27Z&ske=2025-06-18T04%3A06%3A27Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=xh2xbeuuV32uMiHlbItOCjlymwHSvAnV95YdWUV8o9M%3D&az=oaivgprodscus"
+      src={anhcogaichay}
       alt="Cô gái chạy trên biển"
       className="w-full h-full "
     />
