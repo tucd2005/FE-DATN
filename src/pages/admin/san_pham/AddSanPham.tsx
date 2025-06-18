@@ -522,41 +522,7 @@ import React, { useState, useRef } from "react";
                   </Button>
                 </Card>
 
-                <Card
-                  title={
-                    <span>
-                      <SearchOutlined className="mr-2 text-orange-600" />
-                      SEO
-                    </span>
-                  }
-                  className="shadow-sm border-none"
-                >
-                  <Form.Item label="Tiêu đề SEO" name="seoTitle">
-                    <Input placeholder="Tiêu đề tối ưu cho SEO" className="rounded-md" />
-                  </Form.Item>
-                  <Form.Item
-                    label="Mô tả SEO"
-                    name="seoDescription"
-                    tooltip="Tối đa 160 ký tự để hiển thị tốt trên Google"
-                  >
-                    <TextArea
-                      rows={3}
-                      placeholder="Mô tả ngắn gọn cho công cụ tìm kiếm"
-                      showCount
-                      maxLength={160}
-                      className="rounded-md"
-                    />
-                  </Form.Item>
-                  <Form.Item label="Từ khóa SEO" name="seoKeywords">
-                    <Input placeholder="từ khóa 1, từ khóa 2, từ khóa 3" className="rounded-md" />
-                  </Form.Item>
-                  <Form.Item label="URL Slug" name="urlSlug">
-                    <Input placeholder="san-pham-moi" className="rounded-md" />
-                  </Form.Item>
-                  <Form.Item label="Canonical URL" name="canonicalUrl">
-                    <Input placeholder="https://example.com/san-pham-moi" className="rounded-md" />
-                  </Form.Item>
-                </Card>
+               
               </div>
 
               {/* Right Column */}
@@ -715,7 +681,7 @@ import React, { useState, useRef } from "react";
                   </div>
                 </Card>
 
-                <Card title="Thẻ tag" className="shadow-sm border-none">
+                {/* <Card title="Thẻ tag" className="shadow-sm border-none">
                   <div className="space-y-4">
                     <div className="flex flex-wrap gap-2">
                       {tags.map((tag) => (
@@ -753,58 +719,9 @@ import React, { useState, useRef } from "react";
                     )}
                   </div>
                 </Card>
+                 */}
 
-                <Card title="Thông tin vận chuyển" className="shadow-sm border-none">
-                  <Form.Item label="Cân nặng (kg)" name="weight">
-                    <InputNumber className="w-full rounded-md" step={0.1} min={0} placeholder="0.0" />
-                  </Form.Item>
-                  <div>
-                    <Text className="text-sm font-medium">Kích thước (cm)</Text>
-                    <div className="grid grid-cols-3 gap-2 mt-2">
-                      <Form.Item name={["dimensions", "length"]} noStyle>
-                        <InputNumber className="w-full rounded-md" placeholder="Dài" />
-                      </Form.Item>
-                      <Form.Item name={["dimensions", "width"]} noStyle>
-                        <InputNumber className="w-full rounded-md" placeholder="Rộng" />
-                      </Form.Item>
-                      <Form.Item name={["dimensions", "height"]} noStyle>
-                        <InputNumber className="w-full rounded-md" placeholder="Cao" />
-                      </Form.Item>
-                    </div>
-                  </div>
-                  <Form.Item label="Miễn phí vận chuyển" name="freeShipping" valuePropName="checked">
-                    <Switch className="bg-gray-200" />
-                  </Form.Item>
-                  <Form.Item label="Phương thức vận chuyển" name="shippingMethods">
-                    <Select mode="multiple" placeholder="Chọn phương thức vận chuyển" className="rounded-md">
-                      <Option value="standard">Vận chuyển tiêu chuẩn</Option>
-                      <Option value="express">Vận chuyển nhanh</Option>
-                      <Option value="pickup">Nhận tại cửa hàng</Option>
-                    </Select>
-                  </Form.Item>
-                </Card>
-
-                <Card title="Thuế" className="shadow-sm border-none">
-                  <Form.Item label="Tính thuế" name="isTaxable" valuePropName="checked">
-                    <Switch className="bg-gray-200" />
-                  </Form.Item>
-                  <Form.Item
-                    noStyle
-                    shouldUpdate={(prev, curr) => prev.isTaxable !== curr.isTaxable}
-                  >
-                    {({ getFieldValue }) =>
-                      getFieldValue("isTaxable") && (
-                        <Form.Item label="Loại thuế" name="taxClass">
-                          <Select placeholder="Chọn loại thuế" className="rounded-md">
-                            <Option value="standard">Thuế tiêu chuẩn</Option>
-                            <Option value="reduced">Thuế giảm</Option>
-                            <Option value="exempt">Miễn thuế</Option>
-                          </Select>
-                        </Form.Item>
-                      )
-                    }
-                  </Form.Item>
-                </Card>
+                
               </div>
             </div>
 
