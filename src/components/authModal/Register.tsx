@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Register = () => {
+  
   return (
     <form className="flex flex-col gap-4">
       <input
