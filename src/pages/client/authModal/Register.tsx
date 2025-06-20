@@ -2,35 +2,43 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { registerApi } from '../../../api/authApi';
+import { registerApi, sendOtpApi } from '../../../api/authApi';
 import { message } from 'antd';
 import { registerSchema, type RegisterSchema } from '../../../validations/authSchema';
 
-type RegisterProps = { setTab: (tab: string) => void }
-const Register = ({ setTab }: RegisterProps) => {
+type RegisterProps = {
+  setTab: (tab: string) => void;
+  onSuccess: (email: string) => void;
+};
 
+const Register = ({ setTab, onSuccess }: RegisterProps) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
   });
-  const onSubmit = async (data:RegisterSchema) => {
+
+  const onSubmit = async (data: RegisterSchema) => {
     try {
-      const payLoad = {username: data.username,
+      const payLoad = {
+        name: data.name,
         password: data.password,
-        email: data.email
-      }
+        email: data.email,
+        password_confirmation: data.password_confirmation,
+      };
+
       const res = await registerApi(payLoad);
-      console.log(res);
-      reset();
-      setTab('login') // ! cái này dùng để chuyển trag từ 
+      await sendOtpApi({ email: data.email });
+
       message.success("Register successfully!");
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response.data || "Register failed!");
+      onSuccess(data.email); // ✅ gửi email về AuthModal
+      setTab("verify");       // ✅ chuyển sang form verify
+      reset();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Register failed!");
       reset();
     }
   };
@@ -42,13 +50,11 @@ const Register = ({ setTab }: RegisterProps) => {
     >
       <input
         type="text"
-        placeholder="Username"
-        {...register('username')}
+        placeholder="name"
+        {...register('name')}
         className="p-3 border rounded focus:outline-none focus:border-blue-500"
       />
-      {errors.username && (
-        <p className="text-red-500 text-sm">{errors.username.message}</p>
-      )}
+      {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
 
       <input
         type="email"
@@ -56,9 +62,7 @@ const Register = ({ setTab }: RegisterProps) => {
         {...register('email')}
         className="p-3 border rounded focus:outline-none focus:border-blue-500"
       />
-      {errors.email && (
-        <p className="text-red-500 text-sm">{errors.email.message}</p>
-      )}
+      {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
       <input
         type="password"
@@ -66,18 +70,16 @@ const Register = ({ setTab }: RegisterProps) => {
         {...register('password')}
         className="p-3 border rounded focus:outline-none focus:border-blue-500"
       />
-      {errors.password && (
-        <p className="text-red-500 text-sm">{errors.password.message}</p>
-      )}
+      {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
 
       <input
         type="password"
         placeholder="Confirm Password"
-        {...register('confirmPassword')}
+        {...register('password_confirmation')}
         className="p-3 border rounded focus:outline-none focus:border-blue-500"
       />
-      {errors.confirmPassword && (
-        <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+      {errors.password_confirmation && (
+        <p className="text-red-500 text-sm">{errors.password_confirmation.message}</p>
       )}
 
       <button

@@ -3,7 +3,7 @@ export interface ILoginPayload {
     email: string
 }
  export interface  IRegisterPayload extends ILoginPayload{
-    username : string;
-   
+    name : string;
+    password_confirmation: string
  }
 
