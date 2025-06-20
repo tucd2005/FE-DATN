@@ -42,7 +42,7 @@ const columns = [
     title: 'Trạng thái',
     dataIndex: 'trang_thai',
     key: 'trang_thai',
-    render: (trang_thai) =>
+    render: (trang_thai:string) =>
       trang_thai === 'Đang hoạt động' ? (
         <Tag color="green">Đang hoạt động</Tag>
       ) : (
