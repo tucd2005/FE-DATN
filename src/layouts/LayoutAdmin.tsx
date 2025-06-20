@@ -11,31 +11,14 @@ import {
   PictureOutlined,
   GiftOutlined,
   ShoppingCartOutlined,
-  ExpandOutlined, // Replaced ResizeOutlined with ExpandOutlined
+  ExpandOutlined,
+  UserOutlined,
+  BgColorsOutlined,
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 
 const { Header, Sider, Content } = Layout;
-
-interface MenuItem {
-  key: string;
-  icon: React.ReactNode;
-  label: string;
-  path: string;
-}
-
-const menuItems: MenuItem[] = [
-  { key: '1', icon: <DashboardOutlined />, label: 'Dashboard', path: '/admin' },
-  { key: '2', icon: <AppstoreOutlined />, label: 'Quản lí danh mục', path: '/admin/danh-muc' },
-  { key: '3', icon: <TagsOutlined />, label: 'Quản lí sản phẩm', path: '/admin/san-pham' },
-  { key: '4', icon: <BranchesOutlined />, label: 'Quản lí biến thể', path: '/admin/bien-the' },
-  { key: '5', icon: <TeamOutlined />, label: 'Quản lí tài khoản', path: '/admin/tai-khoan' },
-  { key: '6', icon: <PictureOutlined />, label: 'Quản lí banner', path: '/admin/banner' },
-  { key: '7', icon: <GiftOutlined />, label: 'Quản lí mã giảm giá', path: '/admin/ma-giam-gia' },
-  { key: '8', icon: <ShoppingCartOutlined />, label: 'Quản lí đơn hàng', path: '/admin/don-hang' },
-  { key: '9', icon: <ExpandOutlined />, label: 'Quản lí kích thước', path: '/admin/kich-thuoc' }, // Updated icon
-  { key: '10', icon: <ExpandOutlined />, label: 'Quản lí màu sắc', path: '/admin/mau-sac' }, // Updated icon
-];
+const { SubMenu } = Menu;
 
 const LayoutAdmin: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -46,16 +29,10 @@ const LayoutAdmin: React.FC = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const selectedKey =
-     menuItems 
-    .filter((item) => location.pathname.startsWith(item.path))
-    .sort((a,b) => b.path.length - a.path.length) [0]?.key || '1';
+  const selectedKey = location.pathname;
 
   const handleMenuClick = ({ key }: { key: string }) => {
-    const selectedItem = menuItems.find((item) => item.key === key);
-    if (selectedItem?.path) {
-      navigate(selectedItem.path);
-    }
+    navigate(key); // key chính là path
   };
 
   return (
@@ -66,15 +43,44 @@ const LayoutAdmin: React.FC = () => {
           theme="dark"
           mode="inline"
           selectedKeys={[selectedKey]}
-          items={menuItems}
           onClick={handleMenuClick}
-        />
-      </Sider>
-      <Layout>
-        <Header
-          style={{ padding: 0, background: colorBgContainer }}
-          className="h-16 flex items-center"
         >
+          <Menu.Item key="/admin" icon={<DashboardOutlined />}>
+            Dashboard
+          </Menu.Item>
+          <Menu.Item key="/admin/danh-muc" icon={<AppstoreOutlined />}>
+            Quản lí danh mục
+          </Menu.Item>
+          <Menu.Item key="/admin/san-pham" icon={<TagsOutlined />}>
+            Quản lí sản phẩm
+          </Menu.Item>
+         
+
+          <SubMenu key="account" icon={<UserOutlined />} title="Tài khoản">
+            <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
+            <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
+          </SubMenu>
+
+          <Menu.Item key="/admin/banner" icon={<PictureOutlined />}>
+            Quản lí banner
+          </Menu.Item>
+          <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined />}>
+            Quản lí mã giảm giá
+          </Menu.Item>
+          <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined />}>
+            Quản lí đơn hàng
+          </Menu.Item>
+          <Menu.Item key="/admin/kich-thuoc" icon={<ExpandOutlined />}>
+            Quản lí kích thước
+          </Menu.Item>
+          <Menu.Item key="/admin/mau-sac" icon={<BgColorsOutlined />}>
+  Quản lí màu sắc
+</Menu.Item>
+        </Menu>
+      </Sider>
+
+      <Layout>
+        <Header style={{ padding: 0, background: colorBgContainer }} className="h-16 flex items-center">
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -82,6 +88,7 @@ const LayoutAdmin: React.FC = () => {
             className="text-lg w-16 h-16"
           />
         </Header>
+
         <Content style={{ padding: 0 }}>
           <div
             style={{

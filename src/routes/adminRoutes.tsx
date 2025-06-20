@@ -1,6 +1,5 @@
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import QuanLyBanner from "../pages/admin/banner/QuanLyBanner";
-import QuanLyBienThe from "../pages/admin/bien_the/QuanLyBienThe";
 import CommentList from "../pages/admin/Binh_luan/listbinhluan";
 import QuanLyDanhMuc from "../pages/admin/danh_muc/QuanLyDanhMuc";
 import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
@@ -10,7 +9,8 @@ import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
 import AddSanPham from "../pages/admin/san_pham/AddSanPham";
 import DetailSanPham from "../pages/admin/san_pham/DetailSanPham";
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
-import QuanLyTaiKhoan from "../pages/admin/tai_khoan/QuanLyTaiKhoan";
+import ListAccountAdminPage from "../pages/admin/tai_khoan/ListAdminAccount";
+import ListAccountUsePage from "../pages/admin/tai_khoan/ListUserAccountPage";
 import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
 
 
@@ -26,7 +26,8 @@ export const adminRouter = {
    { path: "danh-muc", element: <QuanLyDanhMuc /> }, 
 
    // Route quản lý tài khoản người dùng
-   { path: "tai-khoan", element: <QuanLyTaiKhoan /> }, 
+   { path: "account_admin", element: <ListAccountAdminPage /> }, 
+   { path: "account_user", element: <ListAccountUsePage /> }, 
    // Route quản lý sản phẩm
    { path: "san-pham", element: <QuanLySanPham /> }, 
    { path: "san-pham/add", element: <AddSanPham /> }, 
@@ -35,8 +36,7 @@ export const adminRouter = {
    { path: "banner", element: <QuanLyBanner /> }, 
 
    // Route quản lý biến thể sản phẩm
-   { path: "bien-the", element: <QuanLyBienThe /> }, 
-
+  
    // Route quản lý mã giảm giá
    { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
 
