@@ -1,7 +1,7 @@
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import QuanLyBanner from "../pages/admin/banner/QuanLyBanner";
 import QuanLyBienThe from "../pages/admin/bien_the/QuanLyBienThe";
-import CommentList from "../pages/admin/Binh_luan/listbinhluan";
+// import CommentList from "../pages/admin/Binh_luan/listbinhluan";
 import QuanLyDanhMuc from "../pages/admin/danh_muc/QuanLyDanhMuc";
 import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
 import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
@@ -12,14 +12,30 @@ import DetailSanPham from "../pages/admin/san_pham/DetailSanPham";
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
 import QuanLyTaiKhoan from "../pages/admin/tai_khoan/QuanLyTaiKhoan";
 import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
+import AdminLogin from "../pages/admin/auth/AdminLogin";
+import PrivateRoute from "../components/PrivateRoute";
 
 
 
 export const adminRouter = {
   path: "/admin",
-  element: <LayoutAdmin />,
+
   children: [
-   // Route mặc định khi truy cập /admin
+    {
+      path: "login",
+      element: <AdminLogin />,
+    },
+
+  {
+    path: "",
+    element: (
+      <PrivateRoute>
+      <LayoutAdmin />,
+    
+    </PrivateRoute>
+    ), 
+    children: [
+      // Route mặc định khi truy cập /admin
    { index: true, element: <TrangChuAdmin /> },
 
    // Route quản lý danh mục sản phẩm
@@ -48,6 +64,8 @@ export const adminRouter = {
    // Route quản lý màu sắc
    { path: "mau-sac", element: <QuanLyMauSac /> },
    // Route quản lý bình luận
-   { path: "binh-luan", element: <CommentList /> },
- ],
+   //  { path: "binh-luan", element: <CommentList /> },
+  ],
+}
+]
 };
