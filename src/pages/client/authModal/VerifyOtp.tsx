@@ -4,7 +4,7 @@ import { message } from "antd";
 
 export default function VerifyOtp({ email, setTab, onClose }: {
    email: string;
-    setTab: (tab: string) => void ;
+    setTab: (tab: "login" | "register" | "verify") => void
     onClose: ()=> void;
   })
  {
