@@ -252,19 +252,19 @@ const HomeClient = () => {
               title: 'The Ultimate Guide to Choosing the Right Sportswear for Your Workout',
               author: 'Michael Davis',
               date: '2 FEB',
-              img: 'https://i.ibb.co/hWNjsyF/yoga.jpg',
+              img: 'https://deathrattlesports.com/wp-content/uploads/2024/09/dau-la-mon-the-thao-pho-bien-nhat-o-anh.jpg',
             },
             {
               title: 'Mastering Your Sports Nutrition: Essential Tips for Optimal Performance',
               author: 'Sarah Thompson',
               date: '15 APR',
-              img: 'https://i.ibb.co/7NKT4X1/food.jpg',
+              img: 'https://deathrattlesports.com/wp-content/uploads/2024/09/dau-la-mon-the-thao-pho-bien-nhat-o-anh.jpg',
             },
             {
               title: 'Staying Motivated: Strategies to Overcome Challenges in Your Fitness Journey',
               author: 'Emily Wilson',
               date: '18 SEP',
-              img: 'https://i.ibb.co/xC3KPRW/hiking.jpg',
+              img: 'https://deathrattlesports.com/wp-content/uploads/2024/09/dau-la-mon-the-thao-pho-bien-nhat-o-anh.jpg',
             },
           ].map((item, idx) => (
             <div key={idx} className="bg-white rounded-lg overflow-hidden shadow">

@@ -20,7 +20,7 @@ import { Button, Layout, Menu, theme } from 'antd';
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 
-const LayoutAdmin: React.FC = () => {
+const LayoutAdmin = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
