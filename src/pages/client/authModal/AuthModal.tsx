@@ -34,30 +34,28 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
         <div className="flex justify-center mb-6 space-x-4">
           <button
             onClick={() => setTab('login')}
-            className={`px-5 py-2 rounded-full transition duration-300 ${
-              tab === 'login'
+            className={`px-5 py-2 rounded-full transition duration-300 ${tab === 'login'
                 ? 'bg-blue-600 text-white shadow'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+              }`}
           >
             Login
           </button>
           <button
             onClick={() => setTab('register')}
-            className={`px-5 py-2 rounded-full transition duration-300 ${
-              tab === 'register'
+            className={`px-5 py-2 rounded-full transition duration-300 ${tab === 'register'
                 ? 'bg-blue-600 text-white shadow'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+              }`}
           >
             Register
           </button>
         </div>
       )}
 
-      {tab === 'login' && <Login />}
+      {tab === 'login' && <Login setTab={setTab} setEmail={setEmailToVerify} />}
       {tab === 'register' && <Register setTab={setTab} onSuccess={handleRegisterSuccess} />}
-      {tab === 'verify' && <VerifyOtp email={emailToVerify} />}
+      {tab === 'verify' && <VerifyOtp setTab={setTab} email={emailToVerify} onClose={onClose}/>}
     </Modal>
   );
 };

@@ -1,66 +1,75 @@
-import React, { useState } from "react";
 import { message } from "antd";
-import { loginApi } from "../../../api/authApi"; // 👈 thay bằng đúng path của bạn
+import { loginApi } from "../../../api/authClientApi"; // 👈 thay bằng đúng path của bạn
+import { useForm } from "react-hook-form";
+import { loginSchema, type LoginSchema } from "../../../validations/authSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+type LoginProps = {
+  setTab: (tab: "login" | "register" | "verify") => void;
+  setEmail: (email: string) => void;
+};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+const Login = ({ setTab, setEmail }: LoginProps) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting},
+  } = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema)
+  });
 
-  const handleSubmit = async () => {
+  const onSubmit = async (data: LoginSchema) => {
     try {
-      setIsSubmitting(true);
-      const res = await loginApi(formData); // 👈 API gọi lên BE
-      console.log(res);
-      
-      if (res.data?.access_token) {
-        localStorage.setItem("accessToken", res.data.access_token);
-        message.success("Đăng nhập thành công!");
-        // chuyển hướng hoặc gọi setTab("home") nếu cần
+      const res = await loginApi(data);
+      if (res.data?.status === "need_verification"){
+        message.info("Tài khoản chưa xác minh. Vui lòng nhập mã OTP.")
+        setEmail(data.email);
+        setTab("verify")
+        return;
       }
-    } catch (err: any) {
-      message.error(err.response?.data?.message || "Lỗi đăng nhập");
-    } finally {
-      setIsSubmitting(false);
+
+      if(res.data?.access_token){
+        localStorage.setItem("accessToken", res.data.access_token);
+        message.success("Đăng nhập thành công");
+      }
+    } catch (err) {
+      message.error(err?.response?.data?.message || "Lỗi đăng nhập")
     }
-  };
+  }
 
   return (
     <form
-      onSubmit={e => {
-        e.preventDefault();
-        handleSubmit();
-      }}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        className="p-3 border rounded focus:outline-none focus:border-blue-500"
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Mật khẩu"
-        value={formData.password}
-        onChange={handleChange}
-        className="p-3 border rounded focus:outline-none focus:border-blue-500"
-        required
-      />
+      <div>
+        <input
+          type="email"
+          placeholder="Email"
+          {...register("email")}
+          className="p-3 border rounded w-full"
+        />
+        {errors.email && (
+          <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div>
+        <input
+          type="password"
+          placeholder="Mật khẩu"
+          {...register("password")}
+          className="p-3 border rounded w-full"
+        />
+        {errors.password && (
+          <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+        )}
+      </div>
+
       <button
         type="submit"
-        className="bg-blue-600 text-white py-3 rounded font-semibold hover:bg-blue-700 transition duration-300 disabled:opacity-50"
         disabled={isSubmitting}
+        className="bg-blue-600 text-white py-3 rounded font-semibold hover:bg-blue-700 transition duration-300 disabled:opacity-50"
       >
         {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
       </button>

@@ -8,7 +8,7 @@ export const registerApi = (data: IRegisterPayload) => api.post(`/auth/register`
 // * gửi mã opt cho gmail 
 
 export const sendOtpApi = (data: { email: string }) =>
-    api.post("/auth/send-otp", data);
+  api.post("/auth/send-otp", data);
   
   export const verifyOtpApi = (data: { email: string; otp: string }) =>
     api.post("/auth/verify-otp", data);

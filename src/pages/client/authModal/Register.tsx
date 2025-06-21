@@ -2,14 +2,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { registerApi, sendOtpApi } from '../../../api/authApi';
+import { registerApi } from '../../../api/authClientApi';
 import { message } from 'antd';
 import { registerSchema, type RegisterSchema } from '../../../validations/authSchema';
 
 type RegisterProps = {
-  setTab: (tab: string) => void;
+  setTab: (tab: "login" | "register" | "verify") => void
   onSuccess: (email: string) => void;
-};
+}
 
 const Register = ({ setTab, onSuccess }: RegisterProps) => {
   const {
@@ -23,19 +23,9 @@ const Register = ({ setTab, onSuccess }: RegisterProps) => {
 
   const onSubmit = async (data: RegisterSchema) => {
     try {
-      const payLoad = {
-        name: data.name,
-        password: data.password,
-        email: data.email,
-        password_confirmation: data.password_confirmation,
-      };
-
-      const res = await registerApi(payLoad);
-      await sendOtpApi({ email: data.email });
-
+      await registerApi(data);
       message.success("Register successfully!");
-      onSuccess(data.email); // ✅ gửi email về AuthModal
-      setTab("verify");       // ✅ chuyển sang form verify
+      setTab("login")
       reset();
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Register failed!");
