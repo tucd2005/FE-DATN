@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getProducts, productService, type GetProductsParams } from "../../providers/productservice"
+import { getProducts, productService, type GetProductsParams } from "../../services/productservice"
 
 
 export const useProducts = (params?: GetProductsParams) => {
