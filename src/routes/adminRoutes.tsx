@@ -6,14 +6,17 @@ import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
 import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
 import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
 import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
-import AddSanPham from "../pages/admin/san_pham/AddSanPham";
-import DetailSanPham from "../pages/admin/san_pham/DetailSanPham";
+
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
 import ListAccountAdminPage from "../pages/admin/tai_khoan/ListAdminAccount";
 import ListAccountUsePage from "../pages/admin/tai_khoan/ListUserAccountPage";
 import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
 import AdminLogin from "../pages/admin/auth/AdminLogin";
-import PrivateRoute from "../components/PrivateRoute";
+
+import ProductDetailPage from "../pages/admin/san_pham/DetailSanPham";
+import AddProduct from "../pages/admin/san_pham/AddSanPham";
+import TrashProductList from "../pages/admin/san_pham/sanPhamDaXoa";
+import AttributeList from "../pages/admin/thuoc_tinh/AttributeList";
 // import QuanLyBienThe from './../pages/admin/bien_the/QuanLyBienThe';
 
 export const adminRouter = {
@@ -38,8 +41,10 @@ export const adminRouter = {
 
         // Sản phẩm
         { path: "san-pham", element: <QuanLySanPham /> },
-        { path: "san-pham/add", element: <AddSanPham /> },
-        { path: "san-pham/detail", element: <DetailSanPham /> },
+        { path: "san-pham/chi-tiet/:id", element: <ProductDetailPage /> },
+        { path: "san-pham/them-san-pham", element: <AddProduct /> },
+         { path:"/admin/san-pham/thung-rac",element:<TrashProductList /> },
+   
 
         // Danh mục, biến thể, banner...
         { path: "danh-muc", element: <QuanLyDanhMuc /> },
@@ -51,6 +56,8 @@ export const adminRouter = {
         { path: "don-hang", element: <QuanLyDonHang /> },
         { path: "kich-thuoc", element: <QuanLyKichThuoc /> },
         { path: "mau-sac", element: <QuanLyMauSac /> },
+
+        { path: "thuoc-tinh", element: <AttributeList /> },
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },

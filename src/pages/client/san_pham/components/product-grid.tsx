@@ -1,5 +1,5 @@
 import { Heart, Share2 } from "lucide-react"
-import { useProducts } from "../../../../hooks/client/useproduct"
+import { useProducts } from "../../../../hooks/useproduct"
 import { Link } from "react-router-dom"
 
 
