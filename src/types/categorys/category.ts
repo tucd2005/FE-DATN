@@ -1,6 +1,6 @@
-export interface CategoryFormValues  {
-    name: string;
-    description: string;
-    image: string;
-    createdAt?: string;
+export interface Category  {
+  id: number
+  ten: string
+  mo_ta?: string
+  image?: string
   };
