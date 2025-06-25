@@ -13,7 +13,7 @@ import {
 import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import type { UploadFile } from 'antd/es/upload/interface'
-import { useList as useCategoryList } from '../../../hooks/useCategory'
+import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { useList as useAttributeList } from '../../../hooks/useAttribute'
 import { useCreateProduct } from '../../../hooks/useproduct'
 import type { Category } from '../../../types/categorys/category'
@@ -212,16 +212,16 @@ const AddProduct: React.FC = () => {
                 control={control}
                 name={`variants.${variantIndex}.hinh_anh`}
                 render={({ field }) => (
-                    <Upload
-                      listType="picture"
-                      fileList={field.value as UploadFile[]}
-                      beforeUpload={() => false}
-                      multiple
-                      maxCount={1}
-                      onChange={({ fileList }) => field.onChange(fileList)}
-                    >
-                      <Button icon={<UploadOutlined />}>Tải ảnh</Button>
-                    </Upload>
+                  <Upload
+                    listType="picture"
+                    fileList={field.value as UploadFile[]}
+                    beforeUpload={() => false}
+                    multiple
+                    maxCount={1}
+                    onChange={({ fileList }) => field.onChange(fileList)}
+                  >
+                    <Button icon={<UploadOutlined />}>Tải ảnh</Button>
+                  </Upload>
                 )}
               />
             </Form.Item>

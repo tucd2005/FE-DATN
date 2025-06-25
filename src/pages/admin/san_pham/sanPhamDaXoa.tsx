@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table, Button, Tag, Image, Popconfirm } from 'antd'
 import { useTrashedProducts, useRestoreProduct, useForceDeleteProduct } from '../../../hooks/useproduct'
-import { useList as useCategoryList } from '../../../hooks/useCategory'
+import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { formatCurrency } from '../../../utils/formatCurrency'
 import type { Category } from '../../../types/categorys/category'
 
@@ -17,7 +17,7 @@ const TrashProductList = () => {
     const cat = categories.find((c: Category) => c.id === id)
     return cat?.ten || 'Không rõ'
   }
-  console.log('🚮 Sản phẩm đã xoá:', products)  
+  console.log('🚮 Sản phẩm đã xoá:', products)
 
   return (
     <div className="bg-white p-4 rounded shadow">
@@ -63,7 +63,7 @@ const TrashProductList = () => {
               ) : (
                 <Tag color="default">Không KM</Tag>
               ),
-          }, 
+          },
           {
             title: 'SL',
             dataIndex: 'so_luong',
@@ -108,7 +108,7 @@ const TrashProductList = () => {
               </Popconfirm>
             ),
           }
-          
+
         ]}
       />
     </div>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip } from 'antd'
 import { Link } from 'react-router-dom'
 import { useDeleteProduct, useProducts } from '../../../hooks/useproduct'
-import { useList } from '../../../hooks/useCategory'
+import { useListCategory } from '../../../hooks/useCategory'
 import type { Category } from '../../../types/categorys/category'
 
 const formatCurrency = (value?: string | number) => {
@@ -14,7 +14,7 @@ const formatCurrency = (value?: string | number) => {
 const ProductList: React.FC = () => {
   const deleteProduct = useDeleteProduct()
   const { data: products, isLoading } = useProducts()
-  const { data: categories = [] } = useList()
+  const { data: categories = [] } = useListCategory()
 
   const getCategoryName = (id: number): string => {
     const found = categories.find((cat: Category) => cat.id === id)
@@ -141,7 +141,7 @@ const ProductList: React.FC = () => {
     <div className="bg-white p-4 rounded shadow">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-2xl font-bold text-gray-800">
-           Quản lý sản phẩm
+          Quản lý sản phẩm
         </h3>
 
         <div className="flex flex-wrap gap-2">
@@ -152,7 +152,7 @@ const ProductList: React.FC = () => {
           </Link>
           <Link to="/admin/san-pham/thung-rac">
             <Button type="default" danger className="font-semibold">
-               Thùng rác
+              Thùng rác
             </Button>
           </Link>
         </div>
