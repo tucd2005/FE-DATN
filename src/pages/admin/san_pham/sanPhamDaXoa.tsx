@@ -34,11 +34,14 @@ const TrashProductList = () => {
           {
             title: 'Ảnh',
             dataIndex: 'hinh_anh',
-            render: (img: string[] | string | null) => {
+            width: 100,
+            align: 'center' as const,
+            render: (img: string | null) => {
               let src = '/placeholder.png'
-              if (Array.isArray(img) && img.length > 0) src = img[0]
-              else if (typeof img === 'string' && img !== '') src = img
-              return <Image src={src} width={60} />
+              if (img) {
+                src = img.startsWith('http') ? img : `http://127.0.0.1:8000/storage/${img}`
+              }
+              return <Image src={src} width={60} height={60} />
             },
           },
           {
