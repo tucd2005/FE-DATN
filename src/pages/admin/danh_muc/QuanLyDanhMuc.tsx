@@ -7,7 +7,7 @@ import {
 
 export default function CategoryList() {
   const navigate = useNavigate();
-  const { data, isLoading } = useListCategory();
+  const { data: categories, isLoading } = useListCategory();
   const { mutate: deleteCategory } = useDeleteCategory();
 
   const columns = [
@@ -49,18 +49,16 @@ export default function CategoryList() {
     <div className="p-4 bg-white">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Danh sách danh mục</h2>
-        <Button type="primary" onClick={() => navigate("/admin/danh-muc-add")}>Thêm danh mục</Button>
+        <Button type="primary" onClick={() => navigate("/admin/danh-muc-add")}>
+          Thêm danh mục
+        </Button>
       </div>
       <Table
         loading={isLoading}
         rowKey="id"
         columns={columns}
-        dataSource={data?.data?.data || []}
-        pagination={{
-          total: data?.data?.total || 0,
-          pageSize: data?.data?.per_page || 10,
-          current: data?.data?.current_page || 1,
-        }}
+        dataSource={categories || []}
+        pagination={false} // ✅ Nếu muốn có phân trang từ server, cần sửa thêm phần hook
       />
     </div>
   );

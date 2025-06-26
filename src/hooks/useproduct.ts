@@ -25,12 +25,12 @@ export const useProductDetail = (id: number) => {
     return useMutation({
       mutationFn: (data: FormData) => productadd.create(data),
       onSuccess: () => {
-        toast.success('Thêm sản phẩm thành công');
+    
         queryClient.invalidateQueries({ queryKey: ['products'] });
       },
       onError: (error: any) => {
         console.error('Lỗi khi thêm sản phẩm:', error.response?.data || error.message);
-        toast.error('Thêm sản phẩm thất bại!');
+     
       }
     });
   };
@@ -41,7 +41,7 @@ export const useProductDetail = (id: number) => {
     return useMutation({
       mutationFn: (id: number) => productdelete.softDelete(id),
       onSuccess: () => {
-        toast.success('🗑️ Đã xoá sản phẩm (xoá mềm, có thể khôi phục trong Thùng rác)')
+         toast.success('🗑️ Đã xoá sản phẩm (xoá mềm, có thể khôi phục trong Thùng rác)')
         queryClient.invalidateQueries({ queryKey: ['products'] })
       },
       onError: () => {
@@ -55,11 +55,11 @@ export const useProductDetail = (id: number) => {
     return useMutation({
       mutationFn: (id: number) => productdelete.forceDelete(id),
       onSuccess: () => {
-        toast.success('🗑️ Đã xoá vĩnh viễn sản phẩm')
+         toast.success('🗑️ Đã xoá vĩnh viễn sản phẩm')
         queryClient.invalidateQueries({ queryKey: ['products', 'trashed'] })
       },
       onError: () => {
-        toast.error('❌ Xoá thất bại')
+        toast.error(' Xoá thất bại')
       },
     })
   }
@@ -82,11 +82,11 @@ export const useProductDetail = (id: number) => {
     return useMutation({
       mutationFn: (id: number) => producttrash.restore(id),
       onSuccess: () => {
-        toast.success('✅ Khôi phục sản phẩm thành công');
+         toast.success(' Khôi phục sản phẩm thành công');
         queryClient.invalidateQueries({ queryKey: ['products', 'trashed'] });
       },
       onError: () => {
-        toast.error('❌ Khôi phục thất bại');
+         toast.error(' Khôi phục thất bại');
       }
     });
   };

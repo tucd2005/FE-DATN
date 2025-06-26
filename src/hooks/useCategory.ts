@@ -19,7 +19,10 @@ export const useListCategory = (params?: {
 }) => {
   return useQuery({
     queryKey: [RESOURCE, params],
-    queryFn: () => getListCategory({ resource: RESOURCE, params }),
+    queryFn: async () => {
+      const res = await getListCategory({ resource: RESOURCE, params });
+      return res.data.data; // 👈 chỉ trả về mảng danh mục
+    },
   });
 };
 

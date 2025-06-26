@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table, Button, Tag, Image, Popconfirm } from 'antd'
 import { useTrashedProducts, useRestoreProduct, useForceDeleteProduct } from '../../../hooks/useproduct'
-import { useList as useCategoryList } from '../../../hooks/useCategory'
+import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { formatCurrency } from '../../../utils/formatCurrency'
 import type { Category } from '../../../types/categorys/category'
 

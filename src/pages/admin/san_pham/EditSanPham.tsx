@@ -13,7 +13,7 @@ import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/i
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { useParams, useNavigate } from 'react-router-dom'
 import type { UploadFile } from 'antd/es/upload/interface'
-import { useList as useCategoryList } from '../../../hooks/useCategory'
+import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { useList as useAttributeList } from '../../../hooks/useAttribute'
 import { useProductDetail, useUpdateProduct } from '../../../hooks/useproduct'
 import type { Category } from '../../../types/categorys/category'
@@ -204,16 +204,7 @@ formData.append(`variants[${index}][attributes][${attrIndex}][gia_tri]`, attr.gi
       <Form.Item label="Tên sản phẩm">
         <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
-
-      <Form.Item label="Giá">
-        <Controller name="gia" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
-
-      <Form.Item label="Giá khuyến mãi">
-        <Controller name="gia_khuyen_mai" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
-
-      <Form.Item label="Số lượng">
+      <Form.Item label="Tổng Số lượng">
         <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 

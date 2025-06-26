@@ -13,7 +13,7 @@ import {
 import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import type { UploadFile } from 'antd/es/upload/interface'
-import { useList as useCategoryList } from '../../../hooks/useCategory'
+import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { useList as useAttributeList } from '../../../hooks/useAttribute'
 import { useCreateProduct } from '../../../hooks/useproduct'
 import type { Category } from '../../../types/categorys/category'
@@ -95,10 +95,10 @@ const AddProduct: React.FC = () => {
     })
 
     createProduct.mutate(formData, {
-      onSuccess: () => message.success('✅ Thêm sản phẩm thành công!'),
+      onSuccess: () => message.success(' Thêm sản phẩm thành công!'),
       onError: (err) => {
-        console.error('❌ Lỗi gửi form:', err.response?.data)
-        message.error('❌ Thêm sản phẩm thất bại!')
+        console.error(' Lỗi gửi form:', err.response?.data)
+        message.error(' Thêm sản phẩm thất bại!')
       }
     })
   }
@@ -111,15 +111,8 @@ const AddProduct: React.FC = () => {
         <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
-      <Form.Item label="Giá">
-        <Controller name="gia" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
 
-      <Form.Item label="Giá khuyến mãi">
-        <Controller name="gia_khuyen_mai" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
-
-      <Form.Item label="Số lượng">
+      <Form.Item label="Tổng Số lượng ">
         <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
