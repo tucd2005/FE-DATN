@@ -31,3 +31,11 @@
     list: () => instanceAxios.get('/admin/products/trash'), // ✅ sửa đúng route
     restore: (id: number) => instanceAxios.patch(`/admin/products/restore/${id}`),
   };
+  
+  export const productupdate = {
+    update: async (id: number, data: FormData) => {
+      data.append('_method', 'PUT') // ✅ Thêm _method
+      const res = await instanceAxios.post(`/admin/products/${id}`, data) // ✅ Gửi bằng POST
+      return res.data?.data
+    }
+  }

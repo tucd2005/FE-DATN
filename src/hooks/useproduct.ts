@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { productService, productadd, productdelete, productdetails, producttrash } from '../services/productservice'
+import { productService, productadd, productdelete, productdetails, producttrash, productupdate } from '../services/productservice'
 import type { Product, ProductInput } from '../types/product.type'
 import { toast } from 'react-toastify'
 
@@ -90,5 +90,22 @@ export const useProductDetail = (id: number) => {
       }
     });
   };
+
+
+  export const useUpdateProduct = () => {
+    const queryClient = useQueryClient();
+  
+    return useMutation({
+      mutationFn: ({ id, data }: { id: number; data: FormData }) => productupdate.update(id, data),
+      onSuccess: () => {
+        toast.success('Cập nhật sản phẩm thành công');
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+      },
+      onError: (error: any) => {
+        console.error('Lỗi khi cập nhật sản phẩm:', error.response?.data || error.message);
+        toast.error('Cập nhật sản phẩm thất bại!');
+      }
+    });
+  }
   
 

@@ -20,13 +20,8 @@ import type { Category } from '../../../types/categorys/category'
 
 const { TextArea } = Input
 
-type Attribute = {
-  id: number
-  ten: string
-}
-
 type AttributeValue = {
-  ten: string
+  thuoc_tinh_id: number
   gia_tri: string
 }
 
@@ -57,7 +52,6 @@ const AddProduct: React.FC = () => {
   const {
     control,
     handleSubmit,
-    register,
   } = useForm<FormData>({
     defaultValues: {
       gia_khuyen_mai: '',
@@ -72,38 +66,34 @@ const AddProduct: React.FC = () => {
 
   const onSubmit = (data: FormData) => {
     const formData = new FormData()
-  
+
     formData.append('ten', data.ten)
     formData.append('gia', data.gia)
     formData.append('gia_khuyen_mai', data.gia_khuyen_mai || '0')
     formData.append('so_luong', String(data.so_luong))
     formData.append('mo_ta', data.mo_ta ?? '')
     formData.append('danh_muc_id', String(data.danh_muc_id))
-  
-    // ✅ Ảnh sản phẩm chính (chỉ lấy file đầu tiên, đúng với Laravel `nullable|image`)
+
     if (data.hinh_anh?.[0]?.originFileObj instanceof File) {
       formData.append('hinh_anh', data.hinh_anh[0].originFileObj)
     }
-  
-    // ✅ Biến thể
+
     data.variants.forEach((variant, index) => {
       formData.append(`variants[${index}][gia]`, String(variant.gia))
       formData.append(`variants[${index}][gia_khuyen_mai]`, String(variant.gia_khuyen_mai || 0))
       formData.append(`variants[${index}][so_luong]`, String(variant.so_luong))
-  
-      // ✅ Ảnh biến thể (đúng tên Laravel mong đợi là "image")
-      const file = variant.hinh_anh?.[0];
+
+      const file = variant.hinh_anh?.[0]
       if (file?.originFileObj instanceof File) {
-        formData.append(`variants[${index}][image]`, file.originFileObj)
+        formData.append(`variants[${index}][hinh_anh]`, file.originFileObj)
       }
-  
-      // ✅ Thuộc tính → Laravel dùng `attributes` chứ không phải `thuoc_tinh`
+
       variant.thuoc_tinh.forEach((attr, attrIndex) => {
-        formData.append(`variants[${index}][attributes][${attrIndex}][thuoc_tinh_id]`, String(attributes[attrIndex]?.id || 0))
+        formData.append(`variants[${index}][attributes][${attrIndex}][thuoc_tinh_id]`, String(attr.thuoc_tinh_id))
         formData.append(`variants[${index}][attributes][${attrIndex}][gia_tri]`, attr.gia_tri)
       })
     })
-  
+
     createProduct.mutate(formData, {
       onSuccess: () => message.success('✅ Thêm sản phẩm thành công!'),
       onError: (err) => {
@@ -129,7 +119,9 @@ const AddProduct: React.FC = () => {
         <Controller name="gia_khuyen_mai" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
-
+      <Form.Item label="Số lượng">
+        <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
+      </Form.Item>
 
       <Form.Item label="Mô tả">
         <Controller name="mo_ta" control={control} render={({ field }) => <TextArea rows={4} {...field} />} />
@@ -140,7 +132,7 @@ const AddProduct: React.FC = () => {
           name="danh_muc_id"
           control={control}
           render={({ field }) => (
-            <Select {...field} placeholder="Chọn danh mục" onChange={field.onChange}>
+            <Select {...field} placeholder="Chọn danh mục">
               {categories.map((cat: Category) => (
                 <Select.Option key={cat.id} value={cat.id}>{cat.ten}</Select.Option>
               ))}
@@ -159,8 +151,9 @@ const AddProduct: React.FC = () => {
               fileList={field.value as UploadFile[]}
               beforeUpload={() => false}
               onChange={({ fileList }) => field.onChange(fileList)}
+              maxCount={1}
             >
-              {(field.value?.length ?? 0) >= 5 ? null : (
+              {(!field.value || field.value.length < 1) && (
                 <div>
                   <UploadOutlined />
                   <div style={{ marginTop: 8 }}>Tải ảnh</div>
@@ -183,7 +176,7 @@ const AddProduct: React.FC = () => {
                 gia_khuyen_mai: 0,
                 hinh_anh: [],
                 thuoc_tinh: attributes.map((attr) => ({
-                  ten: attr.ten,
+                  thuoc_tinh_id: attr.id,
                   gia_tri: '',
                 })),
               })
@@ -202,26 +195,25 @@ const AddProduct: React.FC = () => {
             <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" {...field} />} />
 
             <Form.Item label="Ảnh biến thể">
-  <Controller
-    control={control}
-    name={`variants.${variantIndex}.hinh_anh`}
-    render={({ field: { value = [], onChange } }) => (
-      <Upload
-        listType="picture"
-        fileList={value}
-        beforeUpload={() => false}
-        maxCount={1}
-        onChange={({ fileList }) => {
-          // ✅ Chỉ nhận file thật sự (có originFileObj)
-          const validList = fileList.filter(file => !!file.originFileObj)
-          onChange(validList)
-        }}
-      >
-        <Button icon={<UploadOutlined />}>Tải ảnh</Button>
-      </Upload>
-    )}
-  />
-</Form.Item>
+              <Controller
+                control={control}
+                name={`variants.${variantIndex}.hinh_anh`}
+                render={({ field: { value = [], onChange } }) => (
+                  <Upload
+                    listType="picture"
+                    fileList={value}
+                    beforeUpload={() => false}
+                    maxCount={1}
+                    onChange={({ fileList }) => {
+                      const validList = fileList.filter(file => !!file.originFileObj)
+                      onChange(validList)
+                    }}
+                  >
+                    <Button icon={<UploadOutlined />}>Tải ảnh</Button>
+                  </Upload>
+                )}
+              />
+            </Form.Item>
 
             <div className="grid grid-cols-2 gap-4">
               {attributes.map((attr, attrIndex) => (

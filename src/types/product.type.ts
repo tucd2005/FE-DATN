@@ -9,7 +9,20 @@ export interface Product {
   danh_muc_id: number
   created_at: string
   updated_at: string
+  variants: Variant[]
   
+  }
+  export interface Variant {
+    id: number
+    so_luong: number
+    gia: string
+    gia_khuyen_mai: string
+    hinh_anh: string | null
+    thuoc_tinh: AttributeValue[]
+  }
+  export interface AttributeValue {
+    ten: string
+    gia_tri: string
   }
   export interface VariantInput {
     so_luong: number

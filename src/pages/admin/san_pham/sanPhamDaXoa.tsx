@@ -44,29 +44,7 @@ const TrashProductList = () => {
               return <Image src={src} width={60} height={60} />
             },
           },
-          {
-            title: 'Giá',
-            dataIndex: 'gia',
-            width: 110,
-            align: 'right',
-            render: (value: string) => (
-              <span className="text-green-600 font-semibold">
-                {formatCurrency(value)}
-              </span>
-            ),
-          },
-          {
-            title: 'KM',
-            dataIndex: 'gia_khuyen_mai',
-            width: 110,
-            align: 'right',
-            render: (value: string) =>
-              value && value !== '0' ? (
-                <Tag color="volcano">{formatCurrency(value)}</Tag>
-              ) : (
-                <Tag color="default">Không KM</Tag>
-              ),
-          }, 
+        
           {
             title: 'SL',
             dataIndex: 'so_luong',

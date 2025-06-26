@@ -82,7 +82,7 @@ const ProductList: React.FC = () => {
       width: 200,
       render: (_: any, record: any) => (
         <Space size="small">
-          <Link to={`/admin/san-pham/edit/${record.id}`}>
+          <Link to={`/admin/san-pham/sua-san-pham/${record.id}`}>
             <Button size="small" type="default" style={{ color: '#1890ff', borderColor: '#1890ff' }}>
               Sửa
             </Button>
