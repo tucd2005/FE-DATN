@@ -20,7 +20,7 @@
     "chart.js": "^4.5.0",
     "concurrently": "^9.1.2",
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.16.0",
+    "framer-motion": "^12.19.1",
     "json-server": "^0.17.4",
     "json-server-auth": "^2.1.0",
     "lucide-react": "^0.510.0",
@@ -32,6 +32,7 @@
     "react-router-dom": "^6.23.0",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
+    "swiper": "^11.2.8",
     "zod": "^3.25.67"
   },
   "devDependencies": {
