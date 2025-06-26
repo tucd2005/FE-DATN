@@ -1,49 +1,56 @@
-
 import { useState } from "react"
-import { Form, Input, Button, Checkbox, Alert, Card, Typography, Divider } from "antd"
+import { Form, Input, Button, Alert, Card, Typography } from "antd"
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons"
+import instanceAxios from "../../../utils/axios"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { loginSchema } from "../../../validations/authSchema"
+import { useNavigate } from "react-router-dom"
 
 const { Title, Text } = Typography
 
 interface LoginFormValues {
-  username: string
+  email: string
   password: string
 }
 
 export default function AdminLogin() {
-  const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
+  const nav = useNavigate()
 
-  const onFinish = async (values: LoginFormValues) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema)
+  })
+
+  const onError = (error: FieldErrors) => {
+    console.log(error)
+  }
+
+  const onSubmit = async (values: LoginFormValues) => {
     setLoading(true)
     setError(null)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Mock validation - replace with actual authentication logic
-      if (values.username === "admin" && values.password === "admin123") {
-        console.log("Login successful:", values)
-        // Redirect to admin dashboard
-        alert("Đăng nhập thành công!")
-      } else {
-        setError("Tên đăng nhập hoặc mật khẩu không chính xác")
+      const { data } = await instanceAxios.post("/auth/login", values);
+      console.log(data, values)
+      if (data.access_token) {
+        setLoading(false)
+        localStorage.setItem("token", data.access_token)
+        nav("/admin")
       }
-    } catch (err) {
-      setError("Đã xảy ra lỗi. Vui lòng thử lại.")
-    } finally {
-      setLoading(false)
+      // localStorage.setItem("user", JSON.stringify(data.user))
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.")
     }
   }
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo)
-  }
-
   return (
-    <div className=" relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         {/* Floating Circles */}
@@ -94,78 +101,73 @@ export default function AdminLogin() {
               />
             )}
 
-            <Form
-              form={form}
-              name="admin-login"
-              onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
-              layout="vertical"
-              size="large"
-              className="space-y-4"
-            >
-              <Form.Item
-                name="username"
-                label={<span className="text-gray-700 font-semibold">Tên đăng nhập</span>}
-                rules={[
-                  { required: true, message: "Vui lòng nhập tên đăng nhập!" },
-                  { min: 3, message: "Tên đăng nhập phải có ít nhất 3 ký tự!" },
-                ]}
-              >
+            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
+              {/* <div>
+                <label className="text-gray-700 font-semibold">Tên đăng nhập</label>
                 <Input
+                  {...register("email")}
                   prefix={<UserOutlined className="text-gray-400" />}
                   placeholder="Nhập tên đăng nhập"
                   className="rounded-xl h-14 border-gray-200 hover:border-blue-400 focus:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200"
                 />
-              </Form.Item>
+                {errors.email && (
+                  <Text type="danger">{errors.email.message}</Text>
+                )}
+              </div> */}
 
-              <Form.Item
-                name="password"
-                label={<span className="text-gray-700 font-semibold">Mật khẩu</span>}
-                rules={[
-                  { required: true, message: "Vui lòng nhập mật khẩu!" },
-                  { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-                ]}
-              >
-                <Input.Password
+              <input type="email" autoComplete="off" {...register("email")} />
+              {errors.email && (
+                <Text type="danger">{errors.email.message}</Text>
+              )}
+
+              <div>
+                <label className="text-gray-700 font-semibold">Mật khẩu</label>
+                {/* <Input.Password
+                  {...register("password")}
                   prefix={<LockOutlined className="text-gray-400" />}
                   placeholder="Nhập mật khẩu"
                   className="rounded-xl h-14 border-gray-200 hover:border-blue-400 focus:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200"
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
-              </Form.Item>
+                {errors.password && (
+                  <Text type="danger">{errors.password.message}</Text>
+                )} */}
+                <input type="password" autoComplete="off" {...register("password")} />
+                {errors.password && (
+                  <Text type="danger">{errors.password.message}</Text>
+                )}
+              </div>
 
               <div className="flex items-center justify-between mb-6">
-              
                 <Button
                   type="link"
                   className="!p-0 !h-auto text-blue-600 hover:text-blue-700 font-medium"
-                  onClick={() => alert("Chức năng quên mật khẩu sẽ được triển khai sau")}
+                  onClick={() =>
+                    alert("Chức năng quên mật khẩu sẽ được triển khai sau")
+                  }
                 >
                   Quên mật khẩu?
                 </Button>
               </div>
 
-              <Form.Item className="!mb-0">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 rounded-xl font-semibold text-base shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
-                >
-                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-                </Button>
-              </Form.Item>
-            </Form>
-         
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 rounded-xl font-semibold text-base shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+              >
+                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+              </Button>
+            </form>
           </Card>
-
-          {/* Footer */}
-          
         </div>
       </div>
 
       {/* Custom Styles */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);
@@ -235,7 +237,8 @@ export default function AdminLogin() {
             linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
           background-size: 50px 50px;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   )
 }

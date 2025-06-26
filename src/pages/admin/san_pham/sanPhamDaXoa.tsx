@@ -97,3 +97,4 @@ const TrashProductList = () => {
 }
 
 export default TrashProductList
+

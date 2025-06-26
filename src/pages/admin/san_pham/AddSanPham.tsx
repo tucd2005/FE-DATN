@@ -244,3 +244,4 @@ const AddProduct: React.FC = () => {
 }
 
 export default AddProduct
+

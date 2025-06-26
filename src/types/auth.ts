@@ -1,3 +1,6 @@
+
+
+
 export interface ILoginPayload {
     password: string;
     email: string
@@ -6,4 +9,5 @@ export interface ILoginPayload {
     name : string;
     password_confirmation: string
  }
+
 
