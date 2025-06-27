@@ -13,7 +13,7 @@ const formatCurrency = (value?: string | number) => {
 
 const ProductList: React.FC = () => {
   const deleteProduct = useDeleteProduct()
-  const { data: products, isLoading } = useProducts()
+  const { data: products, isLoading, isFetching } = useProducts()
   const { data: categories = [] } = useListCategory()
 
   const getCategoryName = (id: number): string => {
@@ -111,7 +111,6 @@ const ProductList: React.FC = () => {
     <div className="bg-white p-4 rounded shadow">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h3 className="text-2xl font-bold text-gray-800">Quản lý sản phẩm</h3>
-
         <div className="flex flex-wrap gap-2">
           <Link to="them-san-pham">
             <Button type="primary" className="font-semibold">Thêm sản phẩm</Button>
@@ -127,13 +126,17 @@ const ProductList: React.FC = () => {
           <Spin size="large" tip={<span className="text-gray-700 font-semibold text-lg">Đang tải sản phẩm...</span>} />
         </div>
       ) : (
-        <Table
-          dataSource={products ?? []}
-          rowKey="id"
-          pagination={{ pageSize: 10 }}
-          scroll={{ x: '1000px' }}
-          columns={columns}
-        />
+        <Spin spinning={isFetching} tip="Đang cập nhật sản phẩm...">
+          <div className="transition-opacity duration-500 opacity-100">
+            <Table
+              dataSource={products ?? []}
+              rowKey="id"
+              pagination={{ pageSize: 10 }}
+              scroll={{ x: '1000px' }}
+              columns={columns}
+            />
+          </div>
+        </Spin>
       )}
     </div>
   )
