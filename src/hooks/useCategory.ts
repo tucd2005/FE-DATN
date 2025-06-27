@@ -9,6 +9,7 @@ import {
   restoreCategory,
   updateCategory,
 } from "../services/categoryService";
+import instanceAxios from "../utils/axios";
 
 const RESOURCE = "admin/category";
 
@@ -29,8 +30,11 @@ export const useListCategory = (params?: {
 // Lấy 1 danh mục theo ID
 export const useOneCategory = (id: string | number) => {
   return useQuery({
-    queryKey: [RESOURCE, id],
-    queryFn: () => getOneCategory({ resource: RESOURCE, id }),
+    queryKey: ["RESOURCE", id],
+    queryFn: async () => {
+      const res = await instanceAxios.get(`admin/category/${id}`);
+      return res.data.data;
+    },
     enabled: !!id,
   });
 };

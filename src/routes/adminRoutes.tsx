@@ -20,6 +20,7 @@ import AttributeList from "../pages/admin/thuoc_tinh/AttributeList";
 import EditProduct from "../pages/admin/san_pham/EditSanPham";
 import PrivateRoute from "../components/PrivateRoute";
 import AddDanhMuc from "../pages/admin/danh_muc/AddDanhMuc";
+import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
 // import QuanLyBienThe from './../pages/admin/bien_the/QuanLyBienThe';
 
 export const adminRouter = {
@@ -50,8 +51,8 @@ export const adminRouter = {
         { path: "san-pham/them-san-pham", element: <AddProduct /> },
 
         { path: "san-pham/sua-san-pham/:id", element: <EditProduct /> },
-         { path:"/admin/san-pham/thung-rac",element:<TrashProductList /> },
-   
+        { path: "/admin/san-pham/thung-rac", element: <TrashProductList /> },
+
 
         { path: "/admin/san-pham/thung-rac", element: <TrashProductList /> },
 
@@ -60,7 +61,7 @@ export const adminRouter = {
         // Danh mục, biến thể, banner...
         { path: "danh-muc", element: <QuanLyDanhMuc /> },
         { path: "danh-muc-add", element: <AddDanhMuc /> },
-        { path: "danh-muc-edit/:id", element: <AddDanhMuc /> },
+        { path: "danh-muc-edit/:id", element: <EditDanhMuc /> },
 
 
 
