@@ -21,6 +21,7 @@ import EditProduct from "../pages/admin/san_pham/EditSanPham";
 import PrivateRoute from "../components/PrivateRoute";
 import AddDanhMuc from "../pages/admin/danh_muc/AddDanhMuc";
 import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
+import AttributeAddPage from "../pages/admin/thuoc_tinh/AttributeAddPage";
 // import QuanLyBienThe from './../pages/admin/bien_the/QuanLyBienThe';
 
 export const adminRouter = {
@@ -75,6 +76,7 @@ export const adminRouter = {
         { path: "mau-sac", element: <QuanLyMauSac /> },
 
         { path: "thuoc-tinh", element: <AttributeList /> },
+        { path: "thuoc-tinh/add", element: <AttributeAddPage /> },
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },
