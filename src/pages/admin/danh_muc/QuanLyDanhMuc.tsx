@@ -1,9 +1,11 @@
 import { Table, Button, Popconfirm, Space, Image } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import {
   useDeleteCategory,
   useListCategory,
 } from "../../../hooks/useCategory";
+import { Category } from "../../../types/categories/category";
 
 export default function CategoryList() {
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ export default function CategoryList() {
     },
     {
       title: "Hành động",
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: Category) => (
         <Space>
           <Button onClick={() => navigate(`/admin/danh-muc-detail/${record.id}`)}>
             Xem
@@ -49,9 +51,18 @@ export default function CategoryList() {
     <div className="p-4 bg-white">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Danh sách danh mục</h2>
-        <Button type="primary" onClick={() => navigate("/admin/danh-muc-add")}>
-          Thêm danh mục
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => navigate("/admin/danh-muc-thung-rac")}
+            className="bg-orange-500 hover:bg-orange-600 border-orange-500 text-white"
+          >
+            Thùng rác
+          </Button>
+          <Button type="primary" onClick={() => navigate("/admin/danh-muc-add")}>
+            Thêm danh mục
+          </Button>
+        </div>
       </div>
       <Table
         loading={isLoading}

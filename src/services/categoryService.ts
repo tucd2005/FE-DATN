@@ -82,3 +82,11 @@ export const forceDeleteCategory = async ({
   const res = await instanceAxios.delete(`/${resource}/${id}/force`);
   return res.data.message || "Xoá vĩnh viễn thành công";
 };
+
+// Service cho danh mục đã xóa
+export const categoryTrash = {
+  list: () => instanceAxios.get("/admin/category/trash/list"),
+  restore: (id: number) => instanceAxios.post(`/admin/category/restore/${id}`),
+  forceDelete: (id: number) =>
+    instanceAxios.delete(`/admin/category/force-delete/${id}`),
+};

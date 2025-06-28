@@ -2,6 +2,7 @@ import LayoutAdmin from "../layouts/LayoutAdmin";
 import QuanLyBanner from "../pages/admin/banner/QuanLyBanner";
 // import CommentList from "../pages/admin/Binh_luan/listbinhluan";
 import QuanLyDanhMuc from "../pages/admin/danh_muc/QuanLyDanhMuc";
+import DanhMucDaXoa from "../pages/admin/danh_muc/DanhMucDaXoa";
 import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
 import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
 import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
@@ -65,6 +66,7 @@ export const adminRouter = {
         { path: "danh-muc-add", element: <AddDanhMuc /> },
         { path: "danh-muc-edit/:id", element: <EditDanhMuc /> },
         { path: "danh-muc-detail/:id", element: <DetailDanhMuc /> },
+        { path: "danh-muc-thung-rac", element: <DanhMucDaXoa /> },
 
 
 

@@ -8,6 +8,7 @@ import {
   getOneCategory,
   restoreCategory,
   updateCategory,
+  categoryTrash,
 } from "../services/categoryService";
 import instanceAxios from "../utils/axios";
 
@@ -120,6 +121,50 @@ export const useForceDeleteCategory = () => {
     },
     onError: () => {
       message.error("Xoá vĩnh viễn thất bại");
+    },
+  });
+};
+
+// Lấy danh sách danh mục đã xóa
+export const useTrashedCategories = () => {
+  return useQuery({
+    queryKey: ["categories", "trashed"],
+    queryFn: async () => {
+      const res = await categoryTrash.list();
+      return res.data?.data ?? [];
+    },
+  });
+};
+
+// Khôi phục danh mục từ thùng rác
+export const useRestoreCategoryFromTrash = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => categoryTrash.restore(id),
+    onSuccess: () => {
+      message.success("Khôi phục danh mục thành công");
+      queryClient.invalidateQueries({ queryKey: ["categories", "trashed"] });
+      queryClient.invalidateQueries({ queryKey: [RESOURCE] });
+    },
+    onError: () => {
+      message.error("Khôi phục danh mục thất bại");
+    },
+  });
+};
+
+// Xóa vĩnh viễn danh mục từ thùng rác
+export const useForceDeleteCategoryFromTrash = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => categoryTrash.forceDelete(id),
+    onSuccess: () => {
+      message.success("Xóa vĩnh viễn danh mục thành công");
+      queryClient.invalidateQueries({ queryKey: ["categories", "trashed"] });
+    },
+    onError: () => {
+      message.error("Xóa vĩnh viễn danh mục thất bại");
     },
   });
 };
