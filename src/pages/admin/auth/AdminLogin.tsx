@@ -101,19 +101,50 @@ export default function AdminLogin() {
               />
             )}
 
-            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
-
-
-              <input type="email" autoComplete="off" {...register("email")} />
-              {errors.email && (
-                <Text type="danger">{errors.email.message}</Text>
-              )}
+            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <UserOutlined className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    autoComplete="off"
+                    {...register("email")}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm placeholder-gray-400 text-gray-700 font-medium"
+                    placeholder="Nhập email của bạn"
+                  />
+                </div>
+                {errors.email && (
+                  <Text type="danger" className="text-sm mt-1 block">
+                    {errors.email.message}
+                  </Text>
+                )}
+              </div>
 
               <div>
-                <label className="text-gray-700 font-semibold">Mật khẩu</label>
-                <input type="password" autoComplete="off" {...register("password")} />
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                  Mật khẩu
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <LockOutlined className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="password"
+                    autoComplete="off"
+                    {...register("password")}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm placeholder-gray-400 text-gray-700 font-medium"
+                    placeholder="Nhập mật khẩu của bạn"
+                  />
+                </div>
                 {errors.password && (
-                  <Text type="danger">{errors.password.message}</Text>
+                  <Text type="danger" className="text-sm mt-1 block">
+                    {errors.password.message}
+                  </Text>
                 )}
               </div>
 
