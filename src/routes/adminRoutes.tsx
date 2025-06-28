@@ -24,7 +24,7 @@ import AddDanhMuc from "../pages/admin/danh_muc/AddDanhMuc";
 import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
 import AttributeAddPage from "../pages/admin/thuoc_tinh/AttributeAddPage";
 import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
-// import QuanLyBienThe from './../pages/admin/bien_the/QuanLyBienThe';
+import QuanLyBienThe from '../pages/admin/bien_the/QuanLyBienThe';
 
 export const adminRouter = {
   path: "/admin",
@@ -46,31 +46,26 @@ export const adminRouter = {
         // Tài khoản
         { path: "account_admin", element: <ListAccountAdminPage /> },
         { path: "account_user", element: <ListAccountUsePage /> },
-        { path: "tai-khoan", element: <ListAccountUsePage /> }, // hoặc xoá nếu không dùng
 
         // Sản phẩm
         { path: "san-pham", element: <QuanLySanPham /> },
         { path: "san-pham/chi-tiet/:id", element: <ProductDetailPage /> },
         { path: "san-pham/them-san-pham", element: <AddProduct /> },
-
         { path: "san-pham/sua-san-pham/:id", element: <EditProduct /> },
-        { path: "/admin/san-pham/thung-rac", element: <TrashProductList /> },
+        { path: "san-pham/thung-rac", element: <TrashProductList /> },
 
-
-        { path: "/admin/san-pham/thung-rac", element: <TrashProductList /> },
-
-
-
-        // Danh mục, biến thể, banner...
+        // Danh mục
         { path: "danh-muc", element: <QuanLyDanhMuc /> },
         { path: "danh-muc-add", element: <AddDanhMuc /> },
         { path: "danh-muc-edit/:id", element: <EditDanhMuc /> },
         { path: "danh-muc-detail/:id", element: <DetailDanhMuc /> },
         { path: "danh-muc-thung-rac", element: <DanhMucDaXoa /> },
 
+        // Biến thể
+        { path: "bien-the", element: <QuanLyBienThe /> },
+        { path: "bien-the/:productId", element: <QuanLyBienThe /> },
 
-
-        // { path: "bien-the", element: <QuanLyBienThe /> },
+        // Banner
         { path: "banner", element: <QuanLyBanner /> },
 
         // Các thuộc tính khác
@@ -79,6 +74,7 @@ export const adminRouter = {
         { path: "kich-thuoc", element: <QuanLyKichThuoc /> },
         { path: "mau-sac", element: <QuanLyMauSac /> },
 
+        // Thuộc tính
         { path: "thuoc-tinh", element: <AttributeList /> },
         { path: "thuoc-tinh/add", element: <AttributeAddPage /> },
 

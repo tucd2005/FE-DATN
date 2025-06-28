@@ -41,12 +41,16 @@ const ClientLayout = () => {
                   Liên hệ
                 </a>
                 <div className="flex items-center space-x-2">
-                  <button className="relative p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
+                  <Link
+                    to="/gio-hang"
+                    className="relative p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+                  >
                     <ShoppingCart className="w-5 h-5" />
                     <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       2
                     </span>
-                  </button>
+                  </Link>
+
                   <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
                     <User className="w-5 h-5" />
                   </button>
@@ -56,7 +60,7 @@ const ClientLayout = () => {
           </div>
         </header>
 
-        <main >
+        <main className="min-h-screen">
           <Outlet />
         </main>
 

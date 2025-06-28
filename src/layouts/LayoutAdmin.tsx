@@ -12,6 +12,7 @@ import {
   ExpandOutlined,
   UserOutlined,
   BgColorsOutlined,
+  BranchesOutlined,
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import './LayoutAdmin.css'; // Có thể dùng nếu cần chỉnh global CSS
@@ -63,6 +64,9 @@ const LayoutAdmin = () => {
           </Menu.Item>
           <Menu.Item key="/admin/san-pham" icon={<TagsOutlined />}>
             <span className="menu-text">Quản lí sản phẩm</span>
+          </Menu.Item>
+          <Menu.Item key="/admin/bien-the" icon={<BranchesOutlined />}>
+            <span className="menu-text">Quản lí biến thể</span>
           </Menu.Item>
           <SubMenu key="account" icon={<UserOutlined />} title={<span className="menu-text">Tài khoản</span>}>
             <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
