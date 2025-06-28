@@ -28,7 +28,7 @@ export default function CategoryList() {
       title: "Hành động",
       render: (_: any, record: any) => (
         <Space>
-          <Button onClick={() => navigate(`/admin/category/detail/${record.id}`)}>
+          <Button onClick={() => navigate(`/admin/danh-muc-detail/${record.id}`)}>
             Xem
           </Button>
           <Button onClick={() => navigate(`/admin/danh-muc-edit/${record.id}`)}>

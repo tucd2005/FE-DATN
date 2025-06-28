@@ -36,7 +36,14 @@ const LayoutAdmin = () => {
 
   return (
     <Layout className="h-screen">
-      <Sider trigger={null} collapsible collapsed={collapsed} className="shadow-md">
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        className="shadow-md"
+        width={250}
+        collapsedWidth={80}
+      >
         <div className="h-16 flex items-center justify-center bg-gray-900 text-white font-bold text-lg">
           {collapsed ? 'A' : 'Admin'}
         </div>
@@ -46,34 +53,38 @@ const LayoutAdmin = () => {
           selectedKeys={[selectedKey]}
           onClick={handleMenuClick}
           style={{ fontSize: 16 }}
+          className="custom-sidebar-menu"
         >
           <Menu.Item key="/admin" icon={<DashboardOutlined />}>
-            Dashboard
+            <span className="menu-text">Dashboard</span>
           </Menu.Item>
           <Menu.Item key="/admin/danh-muc" icon={<AppstoreOutlined />}>
-            Quản lí danh mục
+            <span className="menu-text">Quản lí danh mục</span>
           </Menu.Item>
           <Menu.Item key="/admin/san-pham" icon={<TagsOutlined />}>
-            Quản lí sản phẩm
+            <span className="menu-text">Quản lí sản phẩm</span>
           </Menu.Item>
-          <SubMenu key="account" icon={<UserOutlined />} title="Tài khoản">
+          <SubMenu key="account" icon={<UserOutlined />} title={<span className="menu-text">Tài khoản</span>}>
             <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
             <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
           </SubMenu>
           <Menu.Item key="/admin/banner" icon={<PictureOutlined />}>
-            Quản lí banner
+            <span className="menu-text">Quản lí banner</span>
           </Menu.Item>
           <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined />}>
-            Quản lí mã giảm giá
+            <span className="menu-text">Quản lí mã giảm giá</span>
           </Menu.Item>
           <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined />}>
-            Quản lí đơn hàng
+            <span className="menu-text">Quản lí đơn hàng</span>
           </Menu.Item>
           <Menu.Item key="/admin/kich-thuoc" icon={<ExpandOutlined />}>
-            Quản lí kích thước
+            <span className="menu-text">Quản lí kích thước</span>
           </Menu.Item>
           <Menu.Item key="/admin/mau-sac" icon={<BgColorsOutlined />}>
-            Quản lí màu sắc
+            <span className="menu-text">Quản lí màu sắc</span>
+          </Menu.Item>
+          <Menu.Item key="/admin/thuoc-tinh" icon={<BgColorsOutlined />}>
+            <span className="menu-text">Quản lí thuộc tính</span>
           </Menu.Item>
         </Menu>
       </Sider>

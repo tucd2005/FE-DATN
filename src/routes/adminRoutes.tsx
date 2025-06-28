@@ -22,6 +22,7 @@ import PrivateRoute from "../components/PrivateRoute";
 import AddDanhMuc from "../pages/admin/danh_muc/AddDanhMuc";
 import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
 import AttributeAddPage from "../pages/admin/thuoc_tinh/AttributeAddPage";
+import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
 // import QuanLyBienThe from './../pages/admin/bien_the/QuanLyBienThe';
 
 export const adminRouter = {
@@ -63,6 +64,7 @@ export const adminRouter = {
         { path: "danh-muc", element: <QuanLyDanhMuc /> },
         { path: "danh-muc-add", element: <AddDanhMuc /> },
         { path: "danh-muc-edit/:id", element: <EditDanhMuc /> },
+        { path: "danh-muc-detail/:id", element: <DetailDanhMuc /> },
 
 
 
