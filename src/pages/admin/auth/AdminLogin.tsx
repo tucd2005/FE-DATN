@@ -102,18 +102,7 @@ export default function AdminLogin() {
             )}
 
             <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
-              {/* <div>
-                <label className="text-gray-700 font-semibold">Tên đăng nhập</label>
-                <Input
-                  {...register("email")}
-                  prefix={<UserOutlined className="text-gray-400" />}
-                  placeholder="Nhập tên đăng nhập"
-                  className="rounded-xl h-14 border-gray-200 hover:border-blue-400 focus:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200"
-                />
-                {errors.email && (
-                  <Text type="danger">{errors.email.message}</Text>
-                )}
-              </div> */}
+
 
               <input type="email" autoComplete="off" {...register("email")} />
               {errors.email && (
@@ -122,18 +111,6 @@ export default function AdminLogin() {
 
               <div>
                 <label className="text-gray-700 font-semibold">Mật khẩu</label>
-                {/* <Input.Password
-                  {...register("password")}
-                  prefix={<LockOutlined className="text-gray-400" />}
-                  placeholder="Nhập mật khẩu"
-                  className="rounded-xl h-14 border-gray-200 hover:border-blue-400 focus:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
-                />
-                {errors.password && (
-                  <Text type="danger">{errors.password.message}</Text>
-                )} */}
                 <input type="password" autoComplete="off" {...register("password")} />
                 {errors.password && (
                   <Text type="danger">{errors.password.message}</Text>
