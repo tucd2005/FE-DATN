@@ -25,6 +25,8 @@ import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
 import AttributeAddPage from "../pages/admin/thuoc_tinh/AttributeAddPage";
 import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
 import QuanLyBienThe from '../pages/admin/bien_the/QuanLyBienThe';
+import AttributeEditPage from "../pages/admin/thuoc_tinh/AttributeEdit";
+import AttributeDeletedListPage from "../pages/admin/thuoc_tinh/AttributeDeletedListPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -77,6 +79,8 @@ export const adminRouter = {
         // Thuộc tính
         { path: "thuoc-tinh", element: <AttributeList /> },
         { path: "thuoc-tinh/add", element: <AttributeAddPage /> },
+        { path: "thuoc-tinh/deleted", element: <AttributeDeletedListPage /> },
+        { path: "thuoc-tinh/:id/edit", element: <AttributeEditPage /> },
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },

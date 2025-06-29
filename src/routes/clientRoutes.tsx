@@ -1,6 +1,6 @@
 // src/routers/clientRoutes.tsx
 
-import HomeClient from "../pages/client/home";
+import HomeClient from "../pages/client/home/home";
 import ClientLayout from "../layouts/LayoutClient";
 import ChiTietSanPham from "../pages/client/san_pham/chi_tiet_san_pham";
 import CartPage from "../pages/client/gioHang/giohang";
