@@ -1,7 +1,7 @@
+import React from 'react';
 import { Table, Button, Popconfirm, Tag, Space } from 'antd';
-
 import { useNavigate } from 'react-router-dom';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
 import { useDeleteAttribute, useList } from '../../../hooks/useAttribute';
 
 const AttributeListPage = () => {
@@ -37,11 +37,12 @@ const AttributeListPage = () => {
       width: 150,
       render: (_, record) => (
         <Space>
+          {/* Nút chỉnh sửa nếu cần */}
           <Button
             type="primary"
             icon={<EditOutlined />}
             size="small"
-            onClick={() => navigate(`/admin/attributes/${record.id}/edit`)}
+            onClick={() => navigate(`/admin/thuoc-tinh/${record.id}/edit`)}
           />
           <Popconfirm
             title="Bạn có chắc muốn xóa thuộc tính này?"
@@ -66,13 +67,21 @@ const AttributeListPage = () => {
     <div className="p-4 bg-white rounded shadow">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold">Danh sách thuộc tính</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => navigate('/admin/thuoc-tinh/add')}
-        >
-          Thêm thuộc tính
-        </Button>
+        <div className="space-x-2">
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => navigate('/admin/thuoc-tinh/deleted')}
+          >
+            Thuộc tính đã xóa
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/admin/thuoc-tinh/add')}
+          >
+            Thêm thuộc tính
+          </Button>
+        </div>
       </div>
       <Table
         loading={isLoading}
