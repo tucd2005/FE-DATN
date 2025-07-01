@@ -7,6 +7,8 @@ import CartPage from "../pages/client/gioHang/giohang";
 import CheckoutPage from "../pages/client/checkout/checkout";
 import OrderSuccessPage from "../pages/client/oder-succsee";
 import ProductDetailclientPage from "../pages/client/chitietsanpham/chitiet";
+import LoginClient from "../pages/client/authModal/LoginClient";
+import RegisterClient from "../pages/client/authModal/RegisterClient";
 
 
 export const clientRouter = {
@@ -19,7 +21,9 @@ export const clientRouter = {
     { path: "thanh-toan", element: <CheckoutPage /> },
     { path: "chi-tiet", element: <ProductDetailclientPage /> },
     { path: "cam-on", element: <OrderSuccessPage /> },
-  
+    { path: "login", element: <LoginClient /> },
+    { path: "register", element: <RegisterClient /> },
+
 
   ],
 };
