@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { sendOtpApi, verifyOtpApi } from "../../../api/authClientApi";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 
 interface VerifyOtpProps {
   email: string;
@@ -19,6 +20,8 @@ export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
     reset,
     formState: { isSubmitting }
   } = useForm<OtpForm>();
+
+  const navigate = useNavigate()
 
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [counter, setCounter] = useState(60);
@@ -48,7 +51,8 @@ export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
         localStorage.setItem("accessToken", res.data.access_token);
         message.success("Xác minh thành công!");
         reset();
-        onClose();
+        onClose?.();
+        navigate("/")
       }
     } catch (err: unknown) {
       if (typeof err === 'object' && err !== null && 'response' in err) {
