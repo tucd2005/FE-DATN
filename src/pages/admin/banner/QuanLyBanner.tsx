@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, Modal, Space, Table, Image, Popconfirm } from 'antd';
+import AddBanner from './AddBanner';
 
 interface BannerType {
   key: string;
@@ -100,14 +101,15 @@ const QuanLyBanner: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Quản lý Banner</h2>
-        <Button type="primary" onClick={showModal}>
+        {/* <Button type="primary" onClick={showModal}>
           Thêm Banner
-        </Button>
+        </Button> */}
+        <AddBanner />
       </div>
 
       <Table dataSource={banners} columns={columns} pagination={{ pageSize: 5 }} />
 
-      <Modal
+      {/* <Modal
         title="Thêm Banner mới"
         open={isModalOpen}
         onOk={handleOk}
@@ -129,7 +131,7 @@ const QuanLyBanner: React.FC = () => {
             <Input placeholder="https://..." />
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };
