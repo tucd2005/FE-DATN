@@ -1,24 +1,7 @@
-import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { useEffect } from 'react';
 import {
-  Search,
   ShoppingCart,
-  User,
-  Star,
-  Phone,
-  Mail,
-  MapPin,
-  Facebook,
-  Instagram,
-  Twitter,
-  Youtube,
-  Shirt,
-  Dumbbell,
-  Target,
-  Zap,
-  Trophy,
-  Percent,
+
   Minus,
   Plus,
   Trash2,
@@ -85,20 +68,20 @@ export default function CartPage() {
 
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="relative bg-gradient-to-r from-blue-100 to-green-100 rounded-2xl overflow-hidden mb-8 p-6 md:p-12 flex flex-col items-center text-center shadow-sm">
-  <ShoppingCart className="absolute opacity-10 w-48 h-48 text-blue-300 -bottom-4 -left-4 rotate-12 hidden md:block" />
-  <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">Giỏ hàng của bạn</h1>
-  <p className="text-gray-700 max-w-md mb-4">
-    Xem lại các sản phẩm bạn đã chọn và tận dụng ưu đãi <span className="font-semibold text-blue-600">SPORT30</span> để tiết kiệm hơn trước khi thanh toán.
-  </p>
-  <a
-    href="/"
-    className="inline-flex items-center gap-2 bg-white hover:bg-blue-600 text-blue-600 hover:text-white font-medium px-5 py-2 rounded-full transition-colors shadow"
-  >
-    <ShoppingCart className="w-4 h-4" />
-    Tiếp tục mua sắm
-  </a>
-</div>
+        <div className="relative bg-gradient-to-r from-blue-100 to-green-100 rounded-2xl overflow-hidden mb-8 p-6 md:p-12 flex flex-col items-center text-center shadow-sm">
+          <ShoppingCart className="absolute opacity-10 w-48 h-48 text-blue-300 -bottom-4 -left-4 rotate-12 hidden md:block" />
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">Giỏ hàng của bạn</h1>
+          <p className="text-gray-700 max-w-md mb-4">
+            Xem lại các sản phẩm bạn đã chọn và tận dụng ưu đãi <span className="font-semibold text-blue-600">SPORT30</span> để tiết kiệm hơn trước khi thanh toán.
+          </p>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 bg-white hover:bg-blue-600 text-blue-600 hover:text-white font-medium px-5 py-2 rounded-full transition-colors shadow"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Tiếp tục mua sắm
+          </a>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items - Left Side */}
           <div className="lg:col-span-2">
@@ -218,8 +201,8 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-   
+
     </div>
-    
+
   )
 }

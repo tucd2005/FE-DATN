@@ -1,8 +1,10 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Search, ShoppingCart, Twitter, User, Youtube } from 'lucide-react';
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 const ClientLayout = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <div>
@@ -51,7 +53,17 @@ const ClientLayout = () => {
                     </span>
                   </Link>
 
-                  <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
+                  <button
+                    className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+                    onClick={() => {
+                      const token = localStorage.getItem('accessToken');
+                      if (!token) {
+                        navigate('/login');
+                      } else {
+                        navigate('/');
+                      }
+                    }}
+                  >
                     <User className="w-5 h-5" />
                   </button>
                 </div>
