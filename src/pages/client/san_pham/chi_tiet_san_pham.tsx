@@ -62,8 +62,8 @@ export default function ChiTietSanPham() {
       const newCategories = selectedCategories.includes("Tất cả")
         ? [category]
         : selectedCategories.includes(category)
-        ? selectedCategories.filter((c) => c !== category)
-        : [...selectedCategories.filter((c) => c !== "Tất cả"), category];
+          ? selectedCategories.filter((c) => c !== category)
+          : [...selectedCategories.filter((c) => c !== "Tất cả"), category];
       setSelectedCategories(newCategories.length === 0 ? ["Tất cả"] : newCategories);
     }
   };
@@ -75,8 +75,8 @@ export default function ChiTietSanPham() {
       const newBrands = selectedBrands.includes("Tất cả")
         ? [brand]
         : selectedBrands.includes(brand)
-        ? selectedBrands.filter((b) => b !== brand)
-        : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
+          ? selectedBrands.filter((b) => b !== brand)
+          : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
       setSelectedBrands(newBrands.length === 0 ? ["Tất cả"] : newBrands);
     }
   };
@@ -209,9 +209,13 @@ export default function ChiTietSanPham() {
                       <h3 className="text-lg font-semibold mb-1 line-clamp-2">{product.ten}</h3>
                       <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.mo_ta}</p>
                       <div className="flex items-center gap-2 mb-4">
-                        <span className="text-xl font-bold text-gray-900">{formatPrice(price)}</span>
-                        {originalPrice && Number(originalPrice) > Number(price) && (
-                          <span className="text-sm text-gray-500 line-through">{formatPrice(originalPrice)}</span>
+                        {originalPrice && Number(originalPrice) > 0 ? (
+                          <>
+                            <span className="text-xl font-bold text-red-600">{formatPrice(originalPrice)}</span>
+                            <span className="text-sm text-gray-500 line-through">{formatPrice(price)}</span>
+                          </>
+                        ) : (
+                          <span className="text-xl font-bold text-gray-900">{formatPrice(price)}</span>
                         )}
                       </div>
                       <div className="flex gap-2">
