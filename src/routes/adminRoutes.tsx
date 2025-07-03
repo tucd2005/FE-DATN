@@ -29,6 +29,8 @@ import AttributeEditPage from "../pages/admin/thuoc_tinh/AttributeEdit";
 import AttributeDeletedListPage from "../pages/admin/thuoc_tinh/AttributeDeletedListPage";
 import OrderListPage from "../pages/admin/oder/OrderListPage";
 import OrderDetailPage from "../pages/admin/oder/OrderDetailPage";
+import ReviewListPage from "../pages/admin/danh-gia/ReviewListPage";
+import ReviewDetailPage from "../pages/admin/danh-gia/ReviewDetailPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -71,6 +73,11 @@ export const adminRouter = {
 
         // Banner
         { path: "banner", element: <QuanLyBanner /> },
+
+
+        { path: "danh-gia", element: <ReviewListPage /> },
+        { path: "danh-gia/:id", element: <ReviewDetailPage /> },
+
 
         // Các thuộc tính khác
         { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
