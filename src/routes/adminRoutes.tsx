@@ -27,6 +27,8 @@ import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
 import QuanLyBienThe from '../pages/admin/bien_the/QuanLyBienThe';
 import AttributeEditPage from "../pages/admin/thuoc_tinh/AttributeEdit";
 import AttributeDeletedListPage from "../pages/admin/thuoc_tinh/AttributeDeletedListPage";
+import OrderListPage from "../pages/admin/oder/OrderListPage";
+import OrderDetailPage from "../pages/admin/oder/OrderDetailPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -72,9 +74,9 @@ export const adminRouter = {
 
         // Các thuộc tính khác
         { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
-        { path: "don-hang", element: <QuanLyDonHang /> },
-        { path: "kich-thuoc", element: <QuanLyKichThuoc /> },
-        { path: "mau-sac", element: <QuanLyMauSac /> },
+        { path: "don-hang", element: <OrderListPage /> }, 
+        { path: "don-hang/:id", element: <OrderDetailPage /> }, 
+      
 
         // Thuộc tính
         { path: "thuoc-tinh", element: <AttributeList /> },

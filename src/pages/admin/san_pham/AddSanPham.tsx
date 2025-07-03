@@ -135,27 +135,25 @@ const AddProduct: React.FC = () => {
       </Form.Item>
 
       <Form.Item label="Ảnh sản phẩm">
-        <Controller
-          control={control}
-          name="hinh_anh"
-          render={({ field }) => (
-            <Upload
-              listType="picture-card"
-              fileList={field.value as UploadFile[]}
-              beforeUpload={() => false}
-              onChange={({ fileList }) => field.onChange(fileList)}
-              maxCount={1}
-            >
-              {(!field.value || field.value.length < 1) && (
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Tải ảnh</div>
-                </div>
-              )}
-            </Upload>
-          )}
-        />
-      </Form.Item>
+  <Controller
+    control={control}
+    name="hinh_anh"
+    render={({ field }) => (
+      <Upload
+        listType="picture-card"
+        fileList={field.value as UploadFile[]}
+        beforeUpload={() => false}
+        onChange={({ fileList }) => field.onChange(fileList)}
+        multiple // <-- Cho phép chọn nhiều ảnh
+      >
+        <div>
+          <UploadOutlined />
+          <div style={{ marginTop: 1 }}>Tải ảnh</div>
+        </div>
+      </Upload>
+    )}
+  />
+</Form.Item>
 
       <Card
         title="Danh sách biến thể"

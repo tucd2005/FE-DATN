@@ -1,9 +1,17 @@
-import { useState } from "react"
-import { MapPin, Truck, CreditCard, Wallet, Shield, Clock, CheckCircle, ArrowLeft } from "lucide-react"
+import { useState, useEffect } from "react"
+import { MapPin, Truck, CreditCard, Shield, Clock, CheckCircle } from "lucide-react"
 
 export default function CheckoutPage() {
   const [selectedPayment, setSelectedPayment] = useState("vnpay")
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+
+  const [provinces, setProvinces] = useState([])
+  const [districts, setDistricts] = useState([])
+  const [wards, setWards] = useState([])
+
+  const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedDistrict, setSelectedDistrict] = useState("")
+  const [selectedWard, setSelectedWard] = useState("")
 
   const orderItems = [
     {
@@ -32,15 +40,43 @@ export default function CheckoutPage() {
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + "đ"
 
+  useEffect(() => {
+    fetch("https://provinces.open-api.vn/api/p/")
+      .then((res) => res.json())
+      .then((data) => setProvinces(data))
+  }, [])
+
+  useEffect(() => {
+    if (selectedProvince) {
+      fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
+        .then((res) => res.json())
+        .then((data) => setDistricts(data.districts || []))
+    } else {
+      setDistricts([])
+      setWards([])
+      setSelectedDistrict("")
+      setSelectedWard("")
+    }
+  }, [selectedProvince])
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`)
+        .then((res) => res.json())
+        .then((data) => setWards(data.wards || []))
+    } else {
+      setWards([])
+      setSelectedWard("")
+    }
+  }, [selectedDistrict])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Thanh toán đơn hàng</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Shipping Address */}
             <div className="border rounded-lg bg-white">
               <div className="border-b p-4">
                 <h3 className="flex items-center space-x-2 text-lg font-semibold">
@@ -51,20 +87,51 @@ export default function CheckoutPage() {
               <div className="p-4 space-y-4">
                 <div>
                   <label htmlFor="address" className="text-sm font-medium text-gray-700">Địa chỉ *</label>
-                  <input id="address" placeholder="123 Nguyễn Văn Linh" defaultValue="123 Nguyễn Văn Linh" className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input id="address" placeholder="123 Nguyễn Văn Linh" className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {['Tỉnh/Thành phố *', 'Quận/Huyện *', 'Phường/Xã *'].map((label, idx) => (
-                    <div key={idx}>
-                      <label className="text-sm font-medium text-gray-700">{label}</label>
-                      <select className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Chọn {label.toLowerCase().replace(' *', '')}</option>
-                        <option>Option 1</option>
-                        <option>Option 2</option>
-                      </select>
-                    </div>
-                  ))}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Tỉnh/Thành phố *</label>
+                    <select
+                      className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedProvince}
+                      onChange={(e) => setSelectedProvince(e.target.value)}
+                    >
+                      <option value="">Chọn tỉnh/thành phố</option>
+                      {provinces.map((p) => (
+                        <option key={p.code} value={p.code}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Quận/Huyện *</label>
+                    <select
+                      className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      disabled={!selectedProvince}
+                    >
+                      <option value="">Chọn quận/huyện</option>
+                      {districts.map((d) => (
+                        <option key={d.code} value={d.code}>{d.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Phường/Xã *</label>
+                    <select
+                      className="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedWard}
+                      onChange={(e) => setSelectedWard(e.target.value)}
+                      disabled={!selectedDistrict}
+                    >
+                      <option value="">Chọn phường/xã</option>
+                      {wards.map((w) => (
+                        <option key={w.code} value={w.code}>{w.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -74,7 +141,6 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Shipping Method */}
             <div className="border rounded-lg bg-white p-4 space-y-2">
               <h3 className="flex items-center space-x-2 text-lg font-semibold mb-2">
                 <Truck className="w-5 h-5 text-blue-600" />
@@ -92,7 +158,6 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Method */}
             <div className="border rounded-lg bg-white p-4 space-y-4">
               <h3 className="flex items-center space-x-2 text-lg font-semibold">
                 <CreditCard className="w-5 h-5 text-blue-600" />
@@ -127,7 +192,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right */}
           <div className="lg:col-span-1">
             <div className="border rounded-lg bg-white p-4 sticky top-24 space-y-4">
               <h3 className="text-lg font-semibold">Đơn hàng của bạn</h3>
