@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Filter, Grid3X3, List, ChevronDown, Star, ShoppingCart, Zap } from "lucide-react";
+import { Filter, Grid3X3, List, ChevronDown, ShoppingCart, Zap } from "lucide-react";
 import { productService } from "../../../services/productservice";
+import { useNavigate } from "react-router-dom";
 
 interface Variant {
   id: number;
@@ -31,6 +32,8 @@ export default function ChiTietSanPham() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>(["Tất cả"]);
   const [priceRange, setPriceRange] = useState([0, 4000000]);
+
+  const navigate = useNavigate();
 
   const categories = ["Tất cả", "Áo thể thao", "Giày thể thao", "Quần thể thao", "Áo khoác", "Đồ yoga", "Phụ kiện"];
   const brands = ["Tất cả", "Nike", "Adidas", "Under Armour", "Puma"];
@@ -200,7 +203,8 @@ export default function ChiTietSanPham() {
                 return (
                   <div
                     key={product.id}
-                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
+                    onClick={() => navigate(`/san-pham/${product.id}`)} // hoặc dùng slug nếu có
+                    className="cursor-pointer bg-white border border-gray-200 rounded-2xl overflow-hidden shadow hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="relative">
                       <img src={src} alt={product.ten} className="w-full h-64 object-cover transition-transform duration-300 hover:scale-105" />

@@ -19,7 +19,7 @@ export const clientRouter = {
     { path: "san-pham", element: <ChiTietSanPham /> },
     { path: "gio-hang", element: <CartPage /> },
     { path: "thanh-toan", element: <CheckoutPage /> },
-    { path: "chi-tiet", element: <ProductDetailclientPage /> },
+    { path: "san-pham/:id", element: <ProductDetailclientPage /> },
     { path: "cam-on", element: <OrderSuccessPage /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
