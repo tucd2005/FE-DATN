@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-import { useProducts } from '../../../hooks/useproduct';
+import { useProducts } from '../../../hooks/useProduct';
 import XuHuongTheThao from "./components/xu_huong_the_thao";
 import DangKyNhanTin from "./components/dang_ky_nhan_tin";
 import CamNhanKhachHang from "./components/danh_gia";

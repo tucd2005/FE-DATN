@@ -15,7 +15,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import type { UploadFile } from 'antd/es/upload/interface'
 import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { useList as useAttributeList } from '../../../hooks/useAttribute'
-import { useCreateProduct } from '../../../hooks/useproduct'
+import { useCreateProduct } from '../../../hooks/useProduct'
 import type { Category } from '../../../types/categorys/category'
 
 const { TextArea } = Input
@@ -144,14 +144,12 @@ const AddProduct: React.FC = () => {
               fileList={field.value as UploadFile[]}
               beforeUpload={() => false}
               onChange={({ fileList }) => field.onChange(fileList)}
-              maxCount={1}
+              multiple // <-- Cho phép chọn nhiều ảnh
             >
-              {(!field.value || field.value.length < 1) && (
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Tải ảnh</div>
-                </div>
-              )}
+              <div>
+                <UploadOutlined />
+                <div style={{ marginTop: 1 }}>Tải ảnh</div>
+              </div>
             </Upload>
           )}
         />
@@ -186,7 +184,7 @@ const AddProduct: React.FC = () => {
             <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Giá" {...field} />} />
             giá KM
             <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Giá KM" {...field} />} />
-            số lượng 
+            số lượng
             <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" {...field} />} />
 
             <Form.Item label="Ảnh biến thể">

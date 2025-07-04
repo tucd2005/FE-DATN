@@ -1,25 +1,110 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { useProductDetail } from "../../../hooks/useProduct"
+import type { Variant } from "../../../types/product.type"
 
 export default function ProductDetailclientPage() {
-  const [selectedSize, setSelectedSize] = useState("M")
-  const [selectedColor, setSelectedColor] = useState("white")
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [activeTab, setActiveTab] = useState("description")
+  const { id } = useParams<{ id: string }>()
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useProductDetail(Number(id))
+  const navigate = useNavigate();
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [activeTab, setActiveTab] = useState("description");
 
-  const productImages = [
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-  ]
+  // Hàm chuẩn hóa đường dẫn ảnh
+  const getImageUrl = (img: string) => {
+    if (!img) return "/placeholder.svg?height=600&width=600";
+    if (img.startsWith("http")) return img;
+    return `http://localhost:8000/storage/${img}`;
+  };
 
-  const sizes = ["S", "M", "L", "XL", "XXL"]
-  const colors = [
-    { name: "black", value: "#000000" },
-    { name: "white", value: "#FFFFFF" },
-    { name: "blue", value: "#3B82F6" },
-  ]
+
+  const handleBuyNow = () => {
+    if (!product) {
+      alert("Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!");
+      return;
+    }
+  
+    if (!selectedColor || !selectedVariant) {
+      alert("Vui lòng chọn màu và kích thước trước khi mua!");
+      return;
+    }
+  
+    navigate("/thanh-toan", {
+      state: {
+        productId: product.id,
+        productName: product.ten,
+        variantId: selectedVariant.id,
+        quantity,
+        color: selectedColor,
+        size: selectedSize,
+        price: gia,
+        discountPrice: giaKhuyenMai,
+        image: productImages[selectedImage]
+      }
+    });
+  };
+
+
+  // Chuẩn hóa dữ liệu ảnh
+  const productImages: string[] =
+    product && Array.isArray(product.hinh_anh)
+      ? product.hinh_anh.map(getImageUrl)
+      : product && typeof product.hinh_anh === "string"
+        ? [getImageUrl(product.hinh_anh)]
+        : ["/placeholder.svg?height=1200&width=1200"]
+
+  // Lấy size và màu từ variants nếu 
+  const sizes: string[] = product && product.variants && product.variants.length > 0
+    ? Array.from(new Set((product.variants as Variant[]).flatMap((v) => v.thuoc_tinh.filter((a) => a.ten === "Kích cỡ").map((a) => a.gia_tri))))
+    : []
+  const colorNames: string[] = product && product.variants && product.variants.length > 0
+    ? Array.from(new Set((product.variants as Variant[]).flatMap((v) => v.thuoc_tinh.filter((a) => a.ten === "Màu sắc").map((a) => a.gia_tri))))
+    : []
+  const colors: { name: string, value: string }[] = colorNames.map((name: string) => ({ name, value: name }))
+
+  // Set mặc định size/color nếu có
+  useEffect(() => {
+    // if (sizes.length > 0 && !selectedSize) setSelectedSize(String(sizes[0]))
+    // if (colors.length > 0 && !selectedColor) setSelectedColor(String(colors[0].name))
+    // eslint-disable-next-line
+    console.log(sizes)
+    console.log(colorNames)
+  }, [sizes, colors])
+  console.log(product)
+  // Hàm format giá an toàn
+  const safeLocaleString = (value: number | string | undefined | null) =>
+    typeof value === "number"
+      ? value.toLocaleString("vi-VN")
+      : typeof value === "string" && !isNaN(Number(value))
+        ? Number(value).toLocaleString("vi-VN")
+        : "0"
+
+  // Tìm variant phù hợp với màu và size đã chọn
+  const selectedVariant = product && product.variants && product.variants.length > 0
+    ? (product.variants as Variant[]).find((v) => {
+      const hasColor = v.thuoc_tinh.some((a) => a.ten === "Màu sắc" && a.gia_tri === selectedColor);
+      const hasSize = selectedSize ? v.thuoc_tinh.some((a) => a.ten === "Kích cỡ" && a.gia_tri === selectedSize) : true;
+      return hasColor && hasSize;
+    })
+    : null;
+  const gia = selectedVariant ? selectedVariant.gia : product?.gia;
+  const giaKhuyenMai = selectedVariant ? selectedVariant.gia_khuyen_mai : product?.gia_khuyen_mai;
+
+  const maxQuantity = selectedVariant ? selectedVariant.so_luong : product?.so_luong || 1;
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Đang tải chi tiết sản phẩm...</div>
+  }
+  if (error || !product) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error ? "Không tìm thấy sản phẩm hoặc có lỗi xảy ra." : "Không tìm thấy sản phẩm."}</div>
+  }
 
   const features = [
     "Công nghệ Dri-FIT thấm hút mồ hôi",
@@ -70,17 +155,6 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
-  const SearchIcon = () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-      />
-    </svg>
-  )
-
   const ShoppingCartIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -88,17 +162,6 @@ export default function ProductDetailclientPage() {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
-      />
-    </svg>
-  )
-
-  const UserIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
       />
     </svg>
   )
@@ -185,7 +248,7 @@ export default function ProductDetailclientPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-     
+
 
       {/* Breadcrumb */}
       <div className="bg-gray-50 py-3">
@@ -206,15 +269,15 @@ export default function ProductDetailclientPage() {
 
       {/* Product Detail */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-12">
           {/* Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative bg-gray-50 rounded-lg overflow-hidden">
               <img
                 src={productImages[selectedImage] || "/placeholder.svg"}
-                alt="Áo thun thể thao Nike Dri-FIT"
-                className="w-full h-96 lg:h-[600px] object-cover"
+                alt={product.ten}
+                className="aspect-[4/3] object-cover rounded-lg"
               />
               <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                 -25%
@@ -241,14 +304,13 @@ export default function ProductDetailclientPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`border-2 rounded-lg overflow-hidden transition-colors ${
-                    selectedImage === index ? "border-blue-500" : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`border-2 rounded-lg overflow-hidden transition-colors ${selectedImage === index ? "border-blue-500" : "border-gray-200 hover:border-gray-300"
+                    }`}
                 >
                   <img
                     src={image || "/placeholder.svg"}
                     alt={`Product ${index + 1}`}
-                    className="w-full h-20 object-cover"
+                    className="aspect-square w-full object-cover rounded"
                   />
                 </button>
               ))}
@@ -262,7 +324,7 @@ export default function ProductDetailclientPage() {
               <div className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mb-3">
                 Áo thể thao
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">Áo thun thể thao Nike Dri-FIT</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.ten}</h1>
 
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-4">
@@ -279,36 +341,20 @@ export default function ProductDetailclientPage() {
 
             {/* Price */}
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-blue-600">599.000đ</span>
-              <span className="text-xl text-gray-500 line-through">799.000đ</span>
-              <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">-25%</div>
+              <span className="text-3xl font-bold text-blue-600">{gia ? `${safeLocaleString(gia)}đ` : "Liên hệ"}</span>
+              {giaKhuyenMai && (
+                <>
+                  <span className="text-xl text-gray-500 line-through">{safeLocaleString(giaKhuyenMai)}đ</span>
+                  <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                    -{gia && giaKhuyenMai ? Math.round(100 - (Number(giaKhuyenMai) / Number(gia)) * 100) : 0}%
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 leading-relaxed">
-              Áo thun thể thao Nike Dri-FIT với công nghệ thấm hút mồ hôi tiên tiến, giúp bạn luôn khô ráo và thoải mái
-              trong suốt quá trình tập luyện.
-            </p>
+            <p className="text-gray-600 leading-relaxed">{product.mo_ta}</p>
 
-            {/* Size Selection */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Kích thước:</h3>
-              <div className="flex space-x-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 border-2 rounded-lg font-semibold transition-colors ${
-                      selectedSize === size
-                        ? "border-blue-500 bg-blue-50 text-blue-600"
-                        : "border-gray-200 text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Color Selection */}
             <div>
@@ -318,9 +364,8 @@ export default function ProductDetailclientPage() {
                   <button
                     key={color.name}
                     onClick={() => setSelectedColor(color.name)}
-                    className={`w-10 h-10 rounded-full border-4 transition-colors ${
-                      selectedColor === color.name ? "border-blue-500" : "border-gray-200"
-                    }`}
+                    className={`w-10 h-10 rounded-full border-4 transition-colors ${selectedColor === color.name ? "border-blue-500" : "border-gray-200"
+                      }`}
                     style={{ backgroundColor: color.value }}
                   >
                     {color.name === "white" && <div className="w-full h-full rounded-full border border-gray-200" />}
@@ -328,6 +373,27 @@ export default function ProductDetailclientPage() {
                 ))}
               </div>
             </div>
+
+
+            {/* Size Selection */}
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3">Kích thước:</h3>
+              <div className="flex space-x-3">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`w-12 h-12 border-2 rounded-lg font-semibold transition-colors ${selectedSize === size
+                      ? "border-blue-500 bg-blue-50 text-blue-600"
+                      : "border-gray-200 text-gray-700 hover:border-gray-300"
+                      }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
 
             {/* Quantity */}
             <div>
@@ -341,26 +407,35 @@ export default function ProductDetailclientPage() {
                     <MinusIcon />
                   </button>
                   <span className="px-4 py-2 font-semibold">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                    className="p-2 hover:bg-gray-50 transition-colors"
+                  >
                     <PlusIcon />
                   </button>
                 </div>
-                <span className="text-gray-600">Còn lại 47 sản phẩm</span>
+                <span className="text-gray-600">Còn lại {safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm</span>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+              <button className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCartIcon />
-                <span>Thêm vào giỏ hàng</span>
+                <span className="text-sm">Thêm vào giỏ hàng</span>
               </button>
+
+              <button
+                onClick={handleBuyNow}
+              className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                <ShoppingCartIcon  />
+                <span className="text-sm">Mua ngay</span>
+              </button>
+
               <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <HeartIcon />
               </button>
-              <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ShareIcon />
-              </button>
+            
             </div>
 
             {/* Service Info */}
@@ -408,11 +483,10 @@ export default function ProductDetailclientPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
                 >
                   {tab.label}
                 </button>
