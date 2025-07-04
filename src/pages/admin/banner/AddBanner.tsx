@@ -5,6 +5,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Field from "../../../components/Field";
 import api from "../../../api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useSendMessage from "../../../hooks/useSendMessage";
 
 type TBannerPayload = {
     tieu_de: string;
@@ -25,20 +27,34 @@ const bannerSchema = z.object({
 })
 
 const AddBanner = () => {
+    const queryClient = useQueryClient();
+    const { sendMessage } = useSendMessage();
+
     const { handleSubmit, control, formState: { errors }, reset } = useForm<TBannerPayload>({
         resolver: zodResolver(bannerSchema),
     });
 
+    const { mutate, isPending } = useMutation({
+        mutationFn: (data: TBannerPayload) => api.post("/admin/banner", data),
+        onSuccess: () => {
+            sendMessage("success", "Thêm banner thành công");
+            queryClient.invalidateQueries({ queryKey: ["banners"] });
+            reset();
+        },
+        onError: () => {
+            sendMessage("error", "Thêm banner thất bại");
+
+        }
+
+    })
+
     const onSubmit = async (data: TBannerPayload) => {
-        const res = await api.post("/admin/banner", data);
-        console.log(res);
-        console.log(data);
+        mutate(data);
     }
 
     const onError = (error: FieldErrors) => {
         console.log("Form errors:", error);
     }
-
 
     return (
         <Dialog
@@ -51,6 +67,7 @@ const AddBanner = () => {
             onClose={reset}
             okButton="Thêm mới"
             onConfirm={handleSubmit(onSubmit, onError)}
+            loading={isPending}
         >
             <Form className="flex flex-col gap-2">
                 <Field<TBannerPayload>
