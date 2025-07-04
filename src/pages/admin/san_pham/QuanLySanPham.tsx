@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin } from 'antd'
 import { Link } from 'react-router-dom'
-import { useDeleteProduct, useProducts } from '../../../hooks/useproduct'
+import { useDeleteProduct, useProducts } from '../../../hooks/useProduct'
 import { useListCategory } from '../../../hooks/useCategory'
 import type { Category } from '../../../types/categorys/category'
 

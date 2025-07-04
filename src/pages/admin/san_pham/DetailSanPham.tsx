@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Descriptions, Image, Tag, Button, Table, Dropdown, Menu, Row, Col } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
-import { useProductDetail } from '../../../hooks/useproduct';
+import { useProductDetail } from '../../../hooks/useProduct';
 import type { ColumnsType } from 'antd/es/table';
 import type { Variant } from '../../../types/product.type';
 

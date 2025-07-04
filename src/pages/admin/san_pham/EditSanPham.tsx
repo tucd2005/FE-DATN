@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import type { UploadFile } from 'antd/es/upload/interface'
 import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
 import { useList as useAttributeList } from '../../../hooks/useAttribute'
-import { useProductDetail, useUpdateProduct } from '../../../hooks/useproduct'
+import { useProductDetail, useUpdateProduct } from '../../../hooks/useProduct'
 import type { Category } from '../../../types/categorys/category'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -38,7 +38,7 @@ const EditProduct: React.FC = () => {
   const navigate = useNavigate()
   const productId = Number(id)
   const queryClient = useQueryClient();
-  const { data: product, refetch ,isLoading } = useProductDetail(productId);
+  const { data: product, refetch, isLoading } = useProductDetail(productId);
 
   const { data: categories = [] } = useCategoryList()
   const { data: attributes = [] } = useAttributeList()
@@ -145,7 +145,7 @@ const EditProduct: React.FC = () => {
           message.success('✅ Cập nhật thành công!');
           queryClient.invalidateQueries({ queryKey: ['products'] });
           queryClient.invalidateQueries({ queryKey: ['product', productId] });
-          navigate('/admin/san-pham'); 
+          navigate('/admin/san-pham');
         },
         onError: () => message.error('❌ Cập nhật thất bại!')
       }
