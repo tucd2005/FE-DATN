@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { MapPin, Truck, CreditCard, Shield, CheckCircle, Banknote, ChevronRight, ChevronDown } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCheckout } from "../../../hooks/useCheckout";
 
 const CheckoutPage = () => {
   const location = useLocation();
   const productOrder = location.state;
-
+  const navigate = useNavigate();
   const [selectedPayment, setSelectedPayment] = useState("vnpay");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [tenNguoiDat, setTenNguoiDat] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
@@ -25,21 +26,22 @@ const CheckoutPage = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+
   const orderItems = productOrder
     ? [
-        {
-          san_pham_id: productOrder.productId,
-          bien_the_id: productOrder.variantId,
-          name: productOrder.productName,
-          size: productOrder.size,
-          color: productOrder.color,
-          quantity: productOrder.quantity,
-          price: productOrder.discountPrice || productOrder.price,
-          discountPrice: productOrder.discountPrice,
-          image: productOrder.image,
-          description: productOrder.description,
-        },
-      ]
+      {
+        san_pham_id: productOrder.productId,
+        bien_the_id: productOrder.variantId,
+        name: productOrder.productName,
+        size: productOrder.size,
+        color: productOrder.color,
+        quantity: productOrder.quantity,
+        price: productOrder.discountPrice || productOrder.price,
+        discountPrice: productOrder.discountPrice,
+        image: productOrder.image,
+        description: productOrder.description,
+      },
+    ]
     : [];
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -78,27 +80,28 @@ const CheckoutPage = () => {
   };
 
   const handleOrder = () => {
-    if (!phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
+    if (!tenNguoiDat || !phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
       showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng!");
       return;
     }
-  
+
     const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
     const selectedDistrictObj = districts.find((d) => String(d.code) === String(selectedDistrict));
     const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
-  
+
     if (!selectedProvinceObj || !selectedDistrictObj || !selectedWardObj) {
       showToastMessage("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
       return;
     }
-  
+
     const paymentMethodMap: Record<string, { id: number; name: string }> = {
       vnpay: { id: 2, name: "VNPay" },
       cod: { id: 1, name: "Thanh toán khi nhận hàng (COD)" },
     };
     const selectedPaymentMethod = paymentMethodMap[selectedPayment];
-  
+
     const payload = {
+      ten_nguoi_dat: tenNguoiDat,
       dia_chi: address,
       thanh_pho: selectedProvinceObj.name,
       huyen: selectedDistrictObj.name,
@@ -122,14 +125,13 @@ const CheckoutPage = () => {
         ],
       })),
     };
-  
     setIsLoading(true);
     checkoutMutation.mutate(payload, {
       onSettled: () => setIsLoading(false),
     });
   };
-  
 
+  
   useEffect(() => {
     fetch("https://provinces.open-api.vn/api/p/")
       .then((res) => res.json())
@@ -191,6 +193,19 @@ const CheckoutPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                      Họ và tên người đặt *
+                    </label>
+                    <input
+                      id="tenNguoiDat"
+                      type="text"
+                      value={tenNguoiDat}
+                      onChange={(e) => setTenNguoiDat(e.target.value)}
+                      placeholder="Nhập họ và tên"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                       Số điện thoại *
                     </label>
                     <input
@@ -202,6 +217,7 @@ const CheckoutPage = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                   </div>
+
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -340,11 +356,10 @@ const CheckoutPage = () => {
                 {paymentMethods.map((method) => (
                   <div key={method.id} className="relative">
                     <label
-                      className={`flex items-start space-x-4 p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                        selectedPayment === method.id
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`flex items-start space-x-4 p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${selectedPayment === method.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <input
                         type="radio"
@@ -422,9 +437,17 @@ const CheckoutPage = () => {
                           <span className="px-2 py-1 bg-white border border-gray-200 text-xs rounded">
                             Size: {item.size}
                           </span>
-                          <span className="px-2 py-1 bg-white border border-gray-200 text-xs rounded">
-                            {item.color}
-                          </span>
+                          {item.color?.startsWith("#") ? (
+                            <span
+                              className="inline-block w-5 h-5 rounded-sm border border-gray-300 shadow-sm relative top-0.5"
+                              style={{ backgroundColor: item.color }}
+                              title={item.color}
+                            ></span>
+                          ) : (
+                            <span className="px-2 py-1 bg-white border border-gray-200 text-xs rounded">
+                              {item.color}
+                            </span>
+                          )}
                         </div>
                         {/* Hiển thị mô tả */}
                         {item.description && (

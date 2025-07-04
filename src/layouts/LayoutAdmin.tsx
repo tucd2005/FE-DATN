@@ -81,6 +81,9 @@ const LayoutAdmin = () => {
           <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined />}>
             <span className="menu-text">Quản lí đơn hàng</span>
           </Menu.Item>
+          <Menu.Item key="/admin/danh-gia" icon={<ShoppingCartOutlined />}>
+            <span className="menu-text">Quản lí dánh giá</span>
+          </Menu.Item>
          
           
           <Menu.Item key="/admin/thuoc-tinh" icon={<BgColorsOutlined />}>
