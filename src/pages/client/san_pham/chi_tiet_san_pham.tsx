@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { Filter, Grid3X3, List, ChevronDown, ShoppingCart, Zap } from "lucide-react";
 import { productService } from "../../../services/productservice";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react"
-import { Filter, Grid3X3, List, ChevronDown, Star, ShoppingCart, Heart, Eye, Tag, Zap } from "lucide-react"
-import { productService } from "../../../services/productservice"
+
+import {  Star,  Heart, Eye, Tag } from "lucide-react"
 
 
 interface Variant {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
 
@@ -10,7 +10,7 @@ export default function ProductDetailclientPage() {
     isLoading,
     error,
   } = useProductDetail(Number(id))
-
+  const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -24,13 +24,41 @@ export default function ProductDetailclientPage() {
     return `http://localhost:8000/storage/${img}`;
   };
 
+
+  const handleBuyNow = () => {
+    if (!product) {
+      alert("Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!");
+      return;
+    }
+  
+    if (!selectedColor || !selectedVariant) {
+      alert("Vui lòng chọn màu và kích thước trước khi mua!");
+      return;
+    }
+  
+    navigate("/thanh-toan", {
+      state: {
+        productId: product.id,
+        productName: product.ten,
+        variantId: selectedVariant.id,
+        quantity,
+        color: selectedColor,
+        size: selectedSize,
+        price: gia,
+        discountPrice: giaKhuyenMai,
+        image: productImages[selectedImage]
+      }
+    });
+  };
+
+
   // Chuẩn hóa dữ liệu ảnh
   const productImages: string[] =
     product && Array.isArray(product.hinh_anh)
       ? product.hinh_anh.map(getImageUrl)
       : product && typeof product.hinh_anh === "string"
         ? [getImageUrl(product.hinh_anh)]
-        : ["/placeholder.svg?height=600&width=600"]
+        : ["/placeholder.svg?height=1200&width=1200"]
 
   // Lấy size và màu từ variants nếu 
   const sizes: string[] = product && product.variants && product.variants.length > 0
@@ -392,16 +420,22 @@ export default function ProductDetailclientPage() {
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+              <button className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
                 <ShoppingCartIcon />
-                <span>Thêm vào giỏ hàng</span>
+                <span className="text-sm">Thêm vào giỏ hàng</span>
               </button>
+
+              <button
+                onClick={handleBuyNow}
+              className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                <ShoppingCartIcon  />
+                <span className="text-sm">Mua ngay</span>
+              </button>
+
               <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <HeartIcon />
               </button>
-              <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ShareIcon />
-              </button>
+            
             </div>
 
             {/* Service Info */}
