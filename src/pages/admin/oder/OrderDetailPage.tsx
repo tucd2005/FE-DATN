@@ -18,15 +18,22 @@ const OrderDetailPage = () => {
       title: "Hình ảnh",
       dataIndex: "variant",
       render: (_: any, record: any) => {
-        // Lấy ảnh từ biến thể, nếu không có thì lấy ảnh sản phẩm, nếu không có thì dùng ảnh mặc định
-        const img = record.variant?.hinh_anh?.[0] || record.product?.hinh_anh || "no-image.png";
+        const variantImage = record.variant?.hinh_anh;
+        const productImage = record.product?.hinh_anh;
+        const img = variantImage || productImage || "no-image.png";
     
-        // Nếu img đã bắt đầu bằng http, dùng trực tiếp; ngược lại thêm prefix server
         const fullUrl = img.startsWith("http")
           ? img
           : `http://localhost:8000/storage/${img}`;
     
-        return <Image width={60} src={fullUrl} alt={record.product?.ten} />;
+        return (
+          <Image
+            width={60}
+            src={fullUrl}
+            alt={record.product?.ten || "Ảnh sản phẩm"}
+            fallback="/no-image.png"
+          />
+        );
       }
     },
     {
@@ -79,6 +86,7 @@ const OrderDetailPage = () => {
   ];
 
   if (isLoading) return <Spin size="large" />;
+  console.log("order data:", order);
 
   return (
     <div className="p-4">
