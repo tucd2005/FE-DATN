@@ -31,6 +31,10 @@ import OrderListPage from "../pages/admin/oder/OrderListPage";
 import OrderDetailPage from "../pages/admin/oder/OrderDetailPage";
 import ReviewListPage from "../pages/admin/danh-gia/ReviewListPage";
 import ReviewDetailPage from "../pages/admin/danh-gia/ReviewDetailPage";
+import AttributeValueListPage from "../pages/admin/gia_tri_thuoc_tinh/AttributeValueListPage";
+import AddAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/AddAttributeValuePage";
+import EditAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/EditAttributeValuePage";
+import DeletedListPage from "../pages/admin/gia_tri_thuoc_tinh/DeletedListPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -90,7 +94,11 @@ export const adminRouter = {
         { path: "thuoc-tinh/add", element: <AttributeAddPage /> },
         { path: "thuoc-tinh/deleted", element: <AttributeDeletedListPage /> },
         { path: "thuoc-tinh/:id/edit", element: <AttributeEditPage /> },
-
+        { path: "gia-tri/thuoc-tinh/:attributeId", element: <AttributeValueListPage /> },
+        { path: "gia-tri/thuoc-tinh/:attributeId/add", element: <AddAttributeValuePage /> },
+        { path: "gia-tri/thuoc-tinh/:id/edit", element: <EditAttributeValuePage /> },
+        { path: "gia-tri/thuoc-tinh/:attributeId/deleted", element: <DeletedListPage /> }
+      
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },
       ],

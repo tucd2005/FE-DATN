@@ -18,3 +18,7 @@ export const checkoutService = {
   },
 };
 
+export const getOrderDetail = async (orderCode: string) => {
+  const res = await instanceAxios.get(`/api/client/orders/${orderCode}`);
+  return res.data.order;
+};
