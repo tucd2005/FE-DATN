@@ -1,11 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Image, Popconfirm, Space, Table } from 'antd';
 import React from 'react';
 import api from '../../../api';
 import type { IBanner } from '../../../types/banner,type';
 import AddBanner from './AddBanner';
+import useSendMessage from '../../../hooks/useSendMessage';
 
 const QuanLyBanner: React.FC = () => {
+  const queryClient = useQueryClient();
+  const { sendMessage } = useSendMessage();
+
   const { data: banners, isPending } = useQuery({
     queryKey: ['banners'],
     queryFn: async () => {
@@ -14,6 +18,18 @@ const QuanLyBanner: React.FC = () => {
     },
     refetchOnWindowFocus: false,
   })
+
+  const archiveBanner = async (id: string) => {
+    try {
+      const res = await api.delete(`/admin/banner/${id}`);
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
+      sendMessage('success', 'Xoá banner thành công');
+      console.log(res);
+    } catch (error) {
+      sendMessage('error', 'Xoá banner thất bại');
+      console.log(error);
+    }
+  }
 
   const columns = [
     {
@@ -44,7 +60,7 @@ const QuanLyBanner: React.FC = () => {
       render: (_: any, record: IBanner) => (
         <Space>
           {/* Có thể thêm nút Sửa ở đây */}
-          <Popconfirm title="Bạn có chắc muốn xoá?">
+          <Popconfirm title="Bạn có chắc muốn xoá?" onConfirm={() => archiveBanner(record.id.toString())}>
             <Button danger>Xoá</Button>
           </Popconfirm>
         </Space>
