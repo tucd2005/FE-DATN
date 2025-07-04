@@ -41,10 +41,6 @@ export default function ChiTietSanPham() {
   const categories = ["Tất cả", "Áo thể thao", "Giày thể thao", "Quần thể thao", "Áo khoác", "Đồ yoga", "Phụ kiện"]
   const brands = ["Tất cả", "Nike", "Adidas", "Under Armour", "Puma"]
 
-  const navigate = useNavigate();
-
-
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
