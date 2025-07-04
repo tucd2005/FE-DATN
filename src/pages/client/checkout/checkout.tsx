@@ -1,46 +1,52 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { MapPin, Truck, CreditCard, Shield, CheckCircle, Banknote, ChevronRight, ChevronDown } from "lucide-react"
+import { useState, useEffect } from "react";
+import { MapPin, Truck, CreditCard, Shield, CheckCircle, Banknote, ChevronRight, ChevronDown } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { useCheckout } from "../../../hooks/useCheckout";
 
-export default function CheckoutPage() {
-  const [selectedPayment, setSelectedPayment] = useState("vnpay")
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [fullName, setFullName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [email, setEmail] = useState("")
-  const [address, setAddress] = useState("")
-  const [note, setNote] = useState("")
-  const [provinces, setProvinces] = useState<any[]>([])
-  const [districts, setDistricts] = useState<any[]>([])
-  const [wards, setWards] = useState<any[]>([])
-  const [selectedProvince, setSelectedProvince] = useState("")
-  const [selectedDistrict, setSelectedDistrict] = useState("")
-  const [selectedWard, setSelectedWard] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState("")
-  const [toastType, setToastType] = useState<"success" | "error">("success")
+const CheckoutPage = () => {
+  const location = useLocation();
+  const productOrder = location.state;
 
-  const orderItems = [
-    {
-      san_pham_id: 1,
-      bien_the_id: 1,
-      name: "Sony WH-1000XM5",
-      size: "M",
-      color: "Đỏ",
-      quantity: 1,
-      price: 206239,
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80",
-    },
-  ]
+  const [selectedPayment, setSelectedPayment] = useState("vnpay");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [note, setNote] = useState("");
+  const [provinces, setProvinces] = useState<Array<{ code: string; name: string; districts?: Array<{ code: string; name: string }> }>>([]);
+  const [districts, setDistricts] = useState<Array<{ code: string; name: string; wards?: Array<{ code: string; name: string }> }>>([]);
+  const [wards, setWards] = useState<Array<{ code: string; name: string }>>([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = 0
-  const total = subtotal + shipping
+  const orderItems = productOrder
+    ? [
+        {
+          san_pham_id: productOrder.productId,
+          bien_the_id: productOrder.variantId,
+          name: productOrder.productName,
+          size: productOrder.size,
+          color: productOrder.color,
+          quantity: productOrder.quantity,
+          price: productOrder.discountPrice || productOrder.price,
+          discountPrice: productOrder.discountPrice,
+          image: productOrder.image,
+          description: productOrder.description,
+        },
+      ]
+    : [];
 
-  const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ"
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = 0;
+  const total = subtotal + shipping;
+
+  const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
   const paymentMethods = [
     {
@@ -61,97 +67,114 @@ export default function CheckoutPage() {
       color: "bg-green-50 border-green-200 text-green-700",
       recommended: false,
     },
-  ]
+  ];
 
-  const showToastMessage = (message: string, type: "success" | "error") => {
-    setToastMessage(message)
-    setToastType(type)
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), 3000)
-  }
+  const checkoutMutation = useCheckout();
+
+  const showToastMessage = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 10000); // 10 giây
+  };
 
   const handleOrder = () => {
-    if (!fullName || !phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
-      showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng", "error")
-      return
+    if (!phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
+      showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng!");
+      return;
     }
-
-    if (!agreedToTerms) {
-      showToastMessage("Vui lòng đồng ý với điều khoản và điều kiện", "error")
-      return
+  
+    const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
+    const selectedDistrictObj = districts.find((d) => String(d.code) === String(selectedDistrict));
+    const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
+  
+    if (!selectedProvinceObj || !selectedDistrictObj || !selectedWardObj) {
+      showToastMessage("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
+      return;
     }
-
-    setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      showToastMessage("Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất có thể.", "success")
-    }, 2000)
-  }
+  
+    const paymentMethodMap: Record<string, { id: number; name: string }> = {
+      vnpay: { id: 2, name: "VNPay" },
+      cod: { id: 1, name: "Thanh toán khi nhận hàng (COD)" },
+    };
+    const selectedPaymentMethod = paymentMethodMap[selectedPayment];
+  
+    const payload = {
+      dia_chi: address,
+      thanh_pho: selectedProvinceObj.name,
+      huyen: selectedDistrictObj.name,
+      xa: selectedWardObj.name,
+      so_dien_thoai: phone,
+      email,
+      phuong_thuc_thanh_toan: selectedPaymentMethod.name,
+      phuong_thuc_thanh_toan_id: selectedPaymentMethod.id,
+      tong_tien: total,
+      items: orderItems.map((item) => ({
+        san_pham_id: item.san_pham_id,
+        bien_the_id: item.bien_the_id,
+        ten_san_pham: item.name,
+        hinh_anh: item.image,
+        so_luong: Number(item.quantity),
+        don_gia: Number(item.price),
+        tong_tien: Number(item.price) * Number(item.quantity),
+        thuoc_tinh_bien_the: [
+          { gia_tri: item.size, thuoc_tinh: "Kích cỡ" },
+          { gia_tri: item.color, thuoc_tinh: "Màu sắc" },
+        ],
+      })),
+    };
+  
+    setIsLoading(true);
+    checkoutMutation.mutate(payload, {
+      onSettled: () => setIsLoading(false),
+    });
+  };
+  
 
   useEffect(() => {
     fetch("https://provinces.open-api.vn/api/p/")
       .then((res) => res.json())
-      .then((data) => setProvinces(data))
-  }, [])
+      .then((data) => setProvinces(data));
+  }, []);
 
   useEffect(() => {
     if (selectedProvince) {
       fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
         .then((res) => res.json())
-        .then((data) => setDistricts(data.districts || []))
+        .then((data) => setDistricts(data.districts || []));
     } else {
-      setDistricts([])
-      setWards([])
-      setSelectedDistrict("")
-      setSelectedWard("")
+      setDistricts([]);
+      setWards([]);
+      setSelectedDistrict("");
+      setSelectedWard("");
     }
-  }, [selectedProvince])
+  }, [selectedProvince]);
 
   useEffect(() => {
     if (selectedDistrict) {
       fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`)
         .then((res) => res.json())
-        .then((data) => setWards(data.wards || []))
+        .then((data) => setWards(data.wards || []));
     } else {
-      setWards([])
-      setSelectedWard("")
+      setWards([]);
+      setSelectedWard("");
     }
-  }, [selectedDistrict])
+  }, [selectedDistrict]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
-          <div
-            className={`p-4 rounded-lg shadow-lg border ${
-              toastType === "success"
-                ? "bg-green-50 border-green-200 text-green-800"
-                : "bg-red-50 border-red-200 text-red-800"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {toastType === "success" ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">!</span>
-                </div>
-              )}
-              <span className="font-medium">{toastMessage}</span>
-            </div>
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="font-medium">{toastMessage}</span>
           </div>
         </div>
       )}
-
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Thanh toán đơn hàng</h1>
           <p className="text-gray-600">Vui lòng kiểm tra thông tin và hoàn tất đơn hàng của bạn</p>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cột trái */}
           <div className="lg:col-span-2 space-y-6">
@@ -164,22 +187,8 @@ export default function CheckoutPage() {
                 </div>
                 <p className="text-gray-600 text-sm">Thông tin người nhận hàng</p>
               </div>
-
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                      Họ và tên *
-                    </label>
-                    <input
-                      id="fullName"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Nhập họ và tên"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
-                  </div>
                   <div className="space-y-2">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                       Số điện thoại *
@@ -194,7 +203,6 @@ export default function CheckoutPage() {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email *
@@ -208,7 +216,6 @@ export default function CheckoutPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                     Địa chỉ cụ thể *
@@ -222,7 +229,6 @@ export default function CheckoutPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Tỉnh/Thành phố *</label>
@@ -242,7 +248,6 @@ export default function CheckoutPage() {
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Quận/Huyện *</label>
                     <div className="relative">
@@ -262,7 +267,6 @@ export default function CheckoutPage() {
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Phường/Xã *</label>
                     <div className="relative">
@@ -283,7 +287,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label htmlFor="note" className="block text-sm font-medium text-gray-700">
                     Ghi chú giao hàng
@@ -299,7 +302,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
             {/* Phương thức vận chuyển */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
@@ -308,7 +310,6 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold text-gray-900">Phương thức vận chuyển</h2>
                 </div>
               </div>
-
               <div className="p-6">
                 <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-3">
@@ -326,7 +327,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
             {/* Phương thức thanh toán */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
@@ -336,7 +336,6 @@ export default function CheckoutPage() {
                 </div>
                 <p className="text-gray-600 text-sm">Chọn phương thức thanh toán phù hợp với bạn</p>
               </div>
-
               <div className="p-6 space-y-4">
                 {paymentMethods.map((method) => (
                   <div key={method.id} className="relative">
@@ -355,7 +354,6 @@ export default function CheckoutPage() {
                         onChange={(e) => setSelectedPayment(e.target.value)}
                         className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       />
-
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div className={`p-2 rounded-lg ${method.color}`}>{method.icon}</div>
@@ -371,7 +369,6 @@ export default function CheckoutPage() {
                             <p className="text-sm text-gray-600">{method.description}</p>
                           </div>
                         </div>
-
                         {selectedPayment === method.id && (
                           <div className="mt-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
                             <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -386,7 +383,6 @@ export default function CheckoutPage() {
                           </div>
                         )}
                       </div>
-
                       {selectedPayment === method.id && <ChevronRight className="w-5 h-5 text-blue-500 mt-1" />}
                     </label>
                   </div>
@@ -394,7 +390,6 @@ export default function CheckoutPage() {
               </div>
             </div>
           </div>
-
           {/* Cột phải - Đơn hàng */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg border border-gray-200 sticky top-24">
@@ -406,7 +401,6 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               </div>
-
               <div className="p-6 space-y-4">
                 {/* Danh sách sản phẩm */}
                 <div className="space-y-4">
@@ -422,7 +416,6 @@ export default function CheckoutPage() {
                           {item.quantity}
                         </span>
                       </div>
-
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
                         <div className="flex gap-2 mt-1">
@@ -433,36 +426,39 @@ export default function CheckoutPage() {
                             {item.color}
                           </span>
                         </div>
-                        <p className="font-semibold text-blue-600 mt-2">{formatPrice(item.price)}</p>
+                        {/* Hiển thị mô tả */}
+                        {item.description && (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
+                        )}
+                        {/* Hiển thị giá khuyến mãi nếu có */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-semibold text-blue-600">{formatPrice(item.price)}</span>
+                          {item.discountPrice && (
+                            <span className="text-sm text-gray-500 line-through">{formatPrice(item.discountPrice)}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-
                 <hr className="border-gray-200" />
-
                 {/* Tóm tắt giá */}
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Tạm tính:</span>
                     <span className="font-medium">{formatPrice(subtotal)}</span>
                   </div>
-
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Phí vận chuyển:</span>
                     <span className="font-medium text-green-600">Miễn phí</span>
                   </div>
-
                   <hr className="border-gray-200" />
-
                   <div className="flex justify-between text-lg font-bold">
                     <span>Tổng cộng:</span>
                     <span className="text-blue-600">{formatPrice(total)}</span>
                   </div>
                 </div>
-
                 <hr className="border-gray-200" />
-
                 {/* Điều khoản */}
                 <div className="flex items-start space-x-2">
                   <input
@@ -480,7 +476,6 @@ export default function CheckoutPage() {
                     của cửa hàng
                   </label>
                 </div>
-
                 {/* Nút đặt hàng */}
                 <button
                   onClick={handleOrder}
@@ -499,7 +494,6 @@ export default function CheckoutPage() {
                     </>
                   )}
                 </button>
-
                 {/* Thông tin bảo mật */}
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
                   <Shield className="w-4 h-4" />
@@ -511,5 +505,8 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default CheckoutPage;
+

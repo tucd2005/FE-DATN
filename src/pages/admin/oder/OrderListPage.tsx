@@ -48,6 +48,14 @@ const OrderListPage: React.FC = () => {
   const { data: orders, isLoading } = useOrderList();
   const updateStatusMutation = useUpdateOrderStatus();
 
+  // Sắp xếp đơn hàng mới nhất lên đầu
+  const sortedOrders = React.useMemo(() => {
+    if (!orders) return [];
+    return [...orders].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }, [orders]);
+
   const handleChangeStatus = (id: number, value: string) => {
     updateStatusMutation.mutate(
       { id, trang_thai_don_hang: value },
@@ -77,7 +85,7 @@ const OrderListPage: React.FC = () => {
       },
     },
     {
-      title: "Trạng thái đơn hàng", // ✅ chỉ hiển thị
+      title: "Trạng thái đơn hàng",
       dataIndex: "trang_thai_don_hang",
       render: (status: string) =>
         ORDER_STATUS_TAG_MAP[status] ? (
@@ -86,7 +94,6 @@ const OrderListPage: React.FC = () => {
           <Tag>{status}</Tag>
         ),
     },
-    
     {
       title: "Tổng tiền",
       dataIndex: "so_tien_thanh_toan",
@@ -99,20 +106,19 @@ const OrderListPage: React.FC = () => {
       render: (date: string) => new Date(date).toLocaleDateString("vi-VN"),
     },
     {
-        title: "Cập nhật trạng thái", // ✅ chỉ Select để chỉnh
-        dataIndex: "update_status",
-       
-        render: (_: any, record: Order) => (
-          <Select
-            size="small"
-            value={record.trang_thai_don_hang}
-            style={{ width: 140 }}
-            onChange={(value) => handleChangeStatus(record.id, value)}
-            disabled={updateStatusMutation.isPending}
-            options={ORDER_STATUS_OPTIONS}
-          />
-        ),
-      },
+      title: "Cập nhật trạng thái",
+      dataIndex: "update_status",
+      render: (_: any, record: Order) => (
+        <Select
+          size="small"
+          value={record.trang_thai_don_hang}
+          style={{ width: 140 }}
+          onChange={(value) => handleChangeStatus(record.id, value)}
+          disabled={updateStatusMutation.isPending}
+          options={ORDER_STATUS_OPTIONS}
+        />
+      ),
+    },
     {
       title: "Hành động",
       render: (_: any, record: Order) => (
@@ -140,7 +146,7 @@ const OrderListPage: React.FC = () => {
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={orders || []}
+          dataSource={sortedOrders}
           pagination={{ pageSize: 10 }}
         />
       )}

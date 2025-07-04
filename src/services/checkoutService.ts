@@ -12,7 +12,7 @@ export interface CreateOrderPayload {
 }
 
 export const checkoutService = {
-  create: async (data: any) => {
+  create: async (data: CreateOrderPayload) => {
     const res = await instanceAxios.post("/client/orders", data);
     return res.data;
   },
