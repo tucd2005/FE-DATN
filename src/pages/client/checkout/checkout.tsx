@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { MapPin, Truck, CreditCard, Shield, CheckCircle, Banknote, ChevronRight, ChevronDown } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCheckout } from "../../../hooks/useCheckout";
+import { useCheckout, useVnpayPayment } from "../../../hooks/useCheckout";
+
+import type { CreateOrderPayload } from "../../../services/checkoutService";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -30,52 +32,52 @@ const CheckoutPage = () => {
 
 
 
-    // Lấy dữ liệu truyền sang
-    const state = location.state || {};
-    const productOrder = state.productOrder;
-    const cartItems = state.cartItems;
-  
-    // Xử lý dữ liệu đơn hàng
-    let orderItems: any[] = [];
-  
-    if (productOrder) {
-      orderItems = [
-        {
-          san_pham_id: productOrder.productId,
-          bien_the_id: productOrder.variantId,
-          name: productOrder.productName,
-          size: productOrder.size,
-          color: productOrder.color,
-          quantity: productOrder.quantity,
-          price: productOrder.discountPrice || productOrder.price,
-          discountPrice: productOrder.discountPrice,
-          image: productOrder.image,
-          description: productOrder.description,
-        }
-      ];
-    } else if (cartItems && cartItems.length > 0) {
-      orderItems = cartItems.map((item: any) => ({
-        san_pham_id: item.san_pham_id,
-        bien_the_id: item.bien_the_id,
-        name: item.ten_san_pham,
-        size: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
-        color: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
-        quantity: item.so_luong,
-        price: item.gia_san_pham,
-        discountPrice: null,
-        image: item.hinh_anh,
-        description: "",
-      }));
-    } else {
-      // Không có dữ liệu → điều hướng về giỏ hàng hoặc trang chính
-      navigate('/');
-    }
-  
-    const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = 0;
-    const total = subtotal + shipping;
-  
-    const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
+  // Lấy dữ liệu truyền sang
+  const state = location.state || {};
+  const productOrder = state.productOrder;
+  const cartItems = state.cartItems;
+
+  // Xử lý dữ liệu đơn hàng
+  let orderItems: any[] = [];
+
+  if (productOrder) {
+    orderItems = [
+      {
+        san_pham_id: productOrder.productId,
+        bien_the_id: productOrder.variantId,
+        name: productOrder.productName,
+        size: productOrder.size,
+        color: productOrder.color,
+        quantity: productOrder.quantity,
+        price: productOrder.discountPrice || productOrder.price,
+        discountPrice: productOrder.discountPrice,
+        image: productOrder.image,
+        description: productOrder.description,
+      }
+    ];
+  } else if (cartItems && cartItems.length > 0) {
+    orderItems = cartItems.map((item: any) => ({
+      san_pham_id: item.san_pham_id,
+      bien_the_id: item.bien_the_id,
+      name: item.ten_san_pham,
+      size: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
+      color: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
+      quantity: item.so_luong,
+      price: item.gia_san_pham,
+      discountPrice: null,
+      image: item.hinh_anh,
+      description: "",
+    }));
+  } else {
+    // Không có dữ liệu → điều hướng về giỏ hàng hoặc trang chính
+ 
+  }
+
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = 0;
+  const total = subtotal + shipping;
+
+  const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
   const paymentMethods = [
     {
@@ -99,6 +101,7 @@ const CheckoutPage = () => {
   ];
 
   const checkoutMutation = useCheckout();
+  const vnpayMutation = useVnpayPayment();
 
   const showToastMessage = (msg: string) => {
     setToastMessage(msg);
@@ -111,23 +114,23 @@ const CheckoutPage = () => {
       showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng!");
       return;
     }
-
+  
     const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
     const selectedDistrictObj = districts.find((d) => String(d.code) === String(selectedDistrict));
     const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
-
+  
     if (!selectedProvinceObj || !selectedDistrictObj || !selectedWardObj) {
       showToastMessage("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
       return;
     }
-
+  
     const paymentMethodMap: Record<string, { id: number; name: string }> = {
       vnpay: { id: 2, name: "VNPay" },
       cod: { id: 1, name: "Thanh toán khi nhận hàng (COD)" },
     };
     const selectedPaymentMethod = paymentMethodMap[selectedPayment];
-
-    const payload = {
+  
+    const payload: CreateOrderPayload = {
       ten_nguoi_dat: tenNguoiDat,
       dia_chi: address,
       thanh_pho: selectedProvinceObj.name,
@@ -152,11 +155,35 @@ const CheckoutPage = () => {
         ],
       })),
     };
+  
     setIsLoading(true);
+  
     checkoutMutation.mutate(payload, {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         console.log("Đặt hàng thành công, dữ liệu trả về:", data);
-       
+    
+        if (selectedPayment === "vnpay") {
+          try {
+            const vnpayData = await vnpayMutation.mutateAsync({
+              don_hang_id: data.id,
+              phuong_thuc_thanh_toan_id: 2,
+              ngon_ngu: "vn"
+            });
+    
+            console.log("VNPAY trả về:", vnpayData);
+            if (vnpayData?.pay_url) {
+              window.location.href = vnpayData.pay_url;
+            } else {
+              showToastMessage("Không nhận được link thanh toán VNPAY!");
+            }
+          } catch (error) {
+            console.error("Lỗi khi gọi VNPAY:", error);
+            showToastMessage("Thanh toán VNPAY thất bại!");
+          }
+        } else {
+          // COD → điều hướng sang trang cảm ơn
+          navigate("/thank-you", { state: { orderId: data.id } });
+        }
       },
       onError: (error) => {
         console.error("Lỗi khi đặt hàng:", error);
@@ -164,38 +191,66 @@ const CheckoutPage = () => {
       },
       onSettled: () => setIsLoading(false),
     });
-  };
-
+    
+  }
   
-  useEffect(() => {
-    fetch("https://provinces.open-api.vn/api/p/")
-      .then((res) => res.json())
-      .then((data) => setProvinces(data));
-  }, []);
 
   useEffect(() => {
-    if (selectedProvince) {
-      fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
-        .then((res) => res.json())
-        .then((data) => setDistricts(data.districts || []));
+    if (selectedProvince === "01") {
+      setDistricts([
+        { code: "001", name: "Quận Ba Đình" },
+        { code: "002", name: "Quận Hoàn Kiếm" },
+      ]);
+    } else if (selectedProvince === "79") {
+      setDistricts([
+        { code: "760", name: "Quận 1" },
+        { code: "761", name: "Quận 12" },
+      ]);
+    } else if (selectedProvince === "48") {
+      setDistricts([
+        { code: "490", name: "Quận Hải Châu" },
+        { code: "491", name: "Quận Thanh Khê" },
+      ]);
     } else {
       setDistricts([]);
-      setWards([]);
-      setSelectedDistrict("");
-      setSelectedWard("");
     }
+    setWards([]);
+    setSelectedDistrict("");
+    setSelectedWard("");
   }, [selectedProvince]);
 
   useEffect(() => {
-    if (selectedDistrict) {
-      fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`)
-        .then((res) => res.json())
-        .then((data) => setWards(data.wards || []));
+    if (selectedDistrict === "001") {
+      setWards([
+        { code: "00001", name: "Phường Phúc Xá" },
+        { code: "00004", name: "Phường Trúc Bạch" },
+      ]);
+    } else if (selectedDistrict === "760") {
+      setWards([
+        { code: "26734", name: "Phường Bến Nghé" },
+        { code: "26737", name: "Phường Bến Thành" },
+      ]);
+    } else if (selectedDistrict === "490") {
+      setWards([
+        { code: "20101", name: "Phường Hải Châu 1" },
+        { code: "20102", name: "Phường Hải Châu 2" },
+      ]);
     } else {
       setWards([]);
-      setSelectedWard("");
     }
+    setSelectedWard("");
   }, [selectedDistrict]);
+
+
+  useEffect(() => {
+    const provincesData = [
+      { code: "01", name: "Hà Nội" },
+      { code: "79", name: "Hồ Chí Minh" },
+      { code: "48", name: "Đà Nẵng" },
+    ];
+    setProvinces(provincesData);
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -291,7 +346,7 @@ const CheckoutPage = () => {
                       >
                         <option value="">Chọn tỉnh/thành phố</option>
                         {provinces.map((p) => (
-                          <option key={p.code} value={p.code}>
+                          <option key={p.code} value={String(p.code)}>
                             {p.name}
                           </option>
                         ))}
@@ -310,7 +365,7 @@ const CheckoutPage = () => {
                       >
                         <option value="">Chọn quận/huyện</option>
                         {districts.map((d) => (
-                          <option key={d.code} value={d.code}>
+                          <option key={d.code} value={String(d.code)}>
                             {d.name}
                           </option>
                         ))}
@@ -329,7 +384,7 @@ const CheckoutPage = () => {
                       >
                         <option value="">Chọn phường/xã</option>
                         {wards.map((w) => (
-                          <option key={w.code} value={w.code}>
+                          <option key={w.code} value={String(w.code)}>
                             {w.name}
                           </option>
                         ))}
