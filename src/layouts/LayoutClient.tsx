@@ -1,9 +1,14 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Search, ShoppingCart, Twitter, User, Youtube } from 'lucide-react';
 import React from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useCartStore } from '../stores/cart.store';
 
 const ClientLayout = () => {
   const navigate = useNavigate();
+  const { items } = useCartStore();
+
+  // Tính tổng số lượng sản phẩm trong giỏ hàng
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
@@ -48,9 +53,11 @@ const ClientLayout = () => {
                     className="relative p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
                   >
                     <ShoppingCart className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      2
-                    </span>
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {totalItems}
+                      </span>
+                    )}
                   </Link>
 
                   <button

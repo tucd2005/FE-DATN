@@ -1,59 +1,27 @@
 import 'aos/dist/aos.css';
 import {
   ShoppingCart,
-
   Minus,
   Plus,
   Trash2,
 } from "lucide-react"
 import { useState } from "react"
-
-interface CartItem {
-  id: number
-  name: string
-  size: string
-  color: string
-  price: number
-  quantity: number
-  image: string
-}
+import { useCartStore } from "../../../stores/cart.store"
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Áo thun thể thao Nike Dri-FIT",
-      size: "M",
-      color: "Đen",
-      price: 599000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80",
-    },
-    {
-      id: 2,
-      name: "Giày chạy bộ Adidas Ultraboost",
-      size: "42",
-      color: "Trắng",
-      price: 2999000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80",
-    },
-  ])
-
+  const { items: cartItems, updateQuantity, removeFromCart } = useCartStore();
   const [promoCode, setPromoCode] = useState("SPORT30")
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  const handleUpdateQuantity = (id: number, size: string, color: string, newQuantity: number) => {
     if (newQuantity === 0) {
-      removeItem(id)
+      removeFromCart(id, size, color)
       return
     }
-    setCartItems((items) => items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
+    updateQuantity(id, size, color, newQuantity)
   }
 
-  const removeItem = (id: number) => {
-    setCartItems((items) => items.filter((item) => item.id !== id))
+  const handleRemoveItem = (id: number, size: string, color: string) => {
+    removeFromCart(id, size, color)
   }
 
   const formatPrice = (price: number) => {
@@ -114,14 +82,14 @@ export default function CartPage() {
                   {/* Quantity Controls */}
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => handleUpdateQuantity(item.id, item.size, item.color, item.quantity - 1)}
                       className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="w-8 text-center">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => handleUpdateQuantity(item.id, item.size, item.color, item.quantity + 1)}
                       className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Plus className="w-4 h-4" />
@@ -130,7 +98,7 @@ export default function CartPage() {
 
                   {/* Delete Button */}
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemoveItem(item.id, item.size, item.color)}
                     className="p-2 text-red-500 hover:text-red-700 transition-colors"
                   >
                     <Trash2 className="w-5 h-5" />

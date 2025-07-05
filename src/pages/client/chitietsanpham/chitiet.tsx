@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
 import { Modal, notification } from "antd"
+import { useCartStore } from "../../../stores/cart.store"
 
 export default function ProductDetailclientPage() {
   const { id } = useParams<{ id: string }>()
@@ -12,6 +13,7 @@ export default function ProductDetailclientPage() {
     error,
   } = useProductDetail(Number(id))
   const navigate = useNavigate();
+  const { addToCart } = useCartStore();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -26,9 +28,46 @@ export default function ProductDetailclientPage() {
   };
 
 
+  const handleAddToCart = () => {
+    if (!product) {
+      Modal.error({
+        title: "Lỗi",
+        content: "Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!",
+        centered: true,
+      });
+      return;
+    }
+
+    if (!selectedColor) {
+      Modal.info({
+        title: "Thông báo",
+        content: "Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!",
+        centered: true,
+      });
+      return;
+    }
+
+    const cartItem = {
+      id: product.id,
+      name: product.ten,
+      size: selectedSize || "Mặc định",
+      color: selectedColor,
+      price: Number(gia) || Number(product.gia),
+      quantity: quantity,
+      image: productImages[selectedImage],
+    };
+
+    addToCart(cartItem);
+    notification.success({
+      message: "Thành công",
+      description: "Đã thêm sản phẩm vào giỏ hàng!",
+      placement: "topRight",
+    });
+  };
+
   const handleBuyNow = () => {
     const isLoggedIn = !!localStorage.getItem("accessToken");
-  
+
     if (!isLoggedIn) {
       Modal.warning({
         title: "Bạn chưa đăng nhập",
@@ -41,7 +80,7 @@ export default function ProductDetailclientPage() {
       });
       return;
     }
-  
+
     if (!product) {
       Modal.error({
         title: "Lỗi",
@@ -50,7 +89,7 @@ export default function ProductDetailclientPage() {
       });
       return;
     }
-  
+
     if (!selectedColor || !selectedVariant) {
       Modal.info({
         title: "Thông báo",
@@ -59,7 +98,7 @@ export default function ProductDetailclientPage() {
       });
       return;
     }
-  
+
     navigate("/thanh-toan", {
       state: {
         productId: product.id,
@@ -443,22 +482,25 @@ export default function ProductDetailclientPage() {
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+              <button
+                onClick={handleAddToCart}
+                className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+              >
                 <ShoppingCartIcon />
                 <span className="text-sm">Thêm vào giỏ hàng</span>
               </button>
 
               <button
                 onClick={handleBuyNow}
-              className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
-                <ShoppingCartIcon  />
+                className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                <ShoppingCartIcon />
                 <span className="text-sm">Mua ngay</span>
               </button>
 
               <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <HeartIcon />
               </button>
-            
+
             </div>
 
             {/* Service Info */}
@@ -715,90 +757,7 @@ export default function ProductDetailclientPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-100 py-12 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">S</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">Sportigo</span>
-              </div>
-              <p className="text-gray-600 mb-4">
-                Cửa hàng đồ thể thao trực tuyến hàng đầu Việt Nam với hàng ngàn sản phẩm chất lượng từ các thương hiệu
-                uy tín.
-              </p>
-            </div>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Liên kết nhanh</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Về chúng tôi
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Sản phẩm
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Khuyến mãi
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Liên hệ
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Hỗ trợ khách hàng</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Trung tâm trợ giúp
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Chính sách giao hàng
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Đổi trả hàng
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Bảo hành sản phẩm
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Liên hệ</h3>
-              <div className="space-y-2 text-gray-600">
-                <p>📞 1900 2024</p>
-                <p>✉️ support@sportigo.vn</p>
-                <p>📍 456 Lê Văn Việt, Quận 9, TP.HCM</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
-            <p>© 2024 Sportigo. Tất cả quyền được bảo lưu.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

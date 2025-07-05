@@ -43,7 +43,6 @@ export default function AdminLogin() {
         localStorage.setItem("accessToken", data.access_token)
         nav("/admin")
       }
-      // localStorage.setItem("user", JSON.stringify(data.user))
     } catch (err: any) {
       setError(err?.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.")
     }
