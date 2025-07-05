@@ -6,14 +6,11 @@ import { Modal, notification } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
 
 export default function ProductDetailclientPage() {
-  const { id } = useParams<{ id: string }>()
-  const {
-    data: product,
-    isLoading,
-    error,
-  } = useProductDetail(Number(id))
+  const { id } = useParams<{ id: string }>();
+  const { data: product, isLoading, error } = useProductDetail(Number(id));
   const navigate = useNavigate();
   const { addToCart } = useCartStore();
+
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -27,143 +24,116 @@ export default function ProductDetailclientPage() {
     return `http://localhost:8000/storage/${img}`;
   };
 
-
-  const handleAddToCart = async () => {
-    if (!product) {
-      Modal.error({
-        title: "Lỗi",
-        content: "Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!",
-        centered: true,
-      });
-      return;
-    }
-
-    if (!selectedColor) {
-      Modal.info({
-        title: "Thông báo",
-        content: "Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!",
-        centered: true,
-      });
-      return;
-    }
-
-    try {
-      const cartData = {
-        san_pham_id: product.id,
-        so_luong: quantity,
-        bien_the_id: selectedVariant?.id || undefined,
-      };
-
-      await addToCart(cartData);
-      notification.success({
-        message: "Thành công",
-        description: "Đã thêm sản phẩm vào giỏ hàng!",
-        placement: "topRight",
-      });
-    } catch (error) {
-      notification.error({
-        message: "Lỗi",
-        description: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại!",
-        placement: "topRight",
-      });
-    }
-  };
-
-  const handleBuyNow = () => {
-    const isLoggedIn = !!localStorage.getItem("accessToken");
-
-    if (!isLoggedIn) {
-      Modal.warning({
-        title: "Bạn chưa đăng nhập",
-        content: "Vui lòng đăng nhập để tiếp tục mua hàng!",
-        centered: true,        // Hiển thị ở giữa màn hình
-        okText: "Đăng nhập ngay",
-        onOk: () => {
-          navigate("/login");
-        },
-      });
-      return;
-    }
-
-    if (!product) {
-      Modal.error({
-        title: "Lỗi",
-        content: "Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!",
-        centered: true,
-      });
-      return;
-    }
-
-    if (!selectedColor || !selectedVariant) {
-      Modal.info({
-        title: "Thông báo",
-        content: "Vui lòng chọn màu và kích thước trước khi mua!",
-        centered: true,
-      });
-      return;
-    }
-
-    navigate("/thanh-toan", {
-      state: {
-        productId: product.id,
-        productName: product.ten,
-        variantId: selectedVariant.id,
-        quantity,
-        color: selectedColor,
-        size: selectedSize,
-        price: gia,
-        discountPrice: giaKhuyenMai,
-        image: productImages[selectedImage],
-      },
-    });
-  };
-
   // Chuẩn hóa dữ liệu ảnh
   const productImages: string[] =
     product && Array.isArray(product.hinh_anh)
       ? product.hinh_anh.map(getImageUrl)
       : product && typeof product.hinh_anh === "string"
-        ? [getImageUrl(product.hinh_anh)]
-        : ["/placeholder.svg?height=1200&width=1200"]
+      ? [getImageUrl(product.hinh_anh)]
+      : ["/placeholder.svg?height=1200&width=1200"];
 
-  // Lấy size và màu từ variants nếu 
-  const sizes: string[] = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set((product.variants as Variant[]).flatMap((v) => v.thuoc_tinh.filter((a) => a.ten === "Kích cỡ").map((a) => a.gia_tri))))
-    : []
-  const colorNames: string[] = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set((product.variants as Variant[]).flatMap((v) => v.thuoc_tinh.filter((a) => a.ten === "Màu sắc").map((a) => a.gia_tri))))
-    : []
-  const colors: { name: string, value: string }[] = colorNames.map((name: string) => ({ name, value: name }))
+  // Lấy size và màu từ variants
+  const sizes: string[] =
+    product?.variants?.length
+      ? Array.from(
+          new Set(
+            (product.variants as Variant[]).flatMap((v) =>
+              v.thuoc_tinh.filter((a) => a.ten === "Kích cỡ").map((a) => a.gia_tri)
+            )
+          )
+        )
+      : [];
+  const colorNames: string[] =
+    product?.variants?.length
+      ? Array.from(
+          new Set(
+            (product.variants as Variant[]).flatMap((v) =>
+              v.thuoc_tinh.filter((a) => a.ten === "Màu sắc").map((a) => a.gia_tri)
+            )
+          )
+        )
+      : [];
+  const colors: { name: string; value: string }[] = colorNames.map((name) => ({ name, value: name }));
 
-  // Set mặc định size/color nếu có
-  useEffect(() => {
-    // if (sizes.length > 0 && !selectedSize) setSelectedSize(String(sizes[0]))
-    // if (colors.length > 0 && !selectedColor) setSelectedColor(String(colors[0].name))
-    // eslint-disable-next-line
-    console.log(sizes)
-    console.log(colorNames)
-  }, [sizes, colors])
-  console.log(product)
+  // Tìm variant phù hợp
+  const selectedVariant = product?.variants?.length
+    ? (product.variants as Variant[]).find((v) => {
+        const hasColor = v.thuoc_tinh.some((a) => a.ten === "Màu sắc" && a.gia_tri === selectedColor);
+        const hasSize = selectedSize ? v.thuoc_tinh.some((a) => a.ten === "Kích cỡ" && a.gia_tri === selectedSize) : true;
+        return hasColor && hasSize;
+      })
+    : null;
+
+  const gia = selectedVariant ? selectedVariant.gia : product?.gia;
+  const giaKhuyenMai = selectedVariant ? selectedVariant.gia_khuyen_mai : product?.gia_khuyen_mai;
+  const maxQuantity = selectedVariant ? selectedVariant.so_luong : product?.so_luong || 1;
+
   // Hàm format giá an toàn
   const safeLocaleString = (value: number | string | undefined | null) =>
     typeof value === "number"
       ? value.toLocaleString("vi-VN")
       : typeof value === "string" && !isNaN(Number(value))
-        ? Number(value).toLocaleString("vi-VN")
-        : "0"
+      ? Number(value).toLocaleString("vi-VN")
+      : "0";
 
-  // Tìm variant phù hợp với màu và size đã chọn
-  const selectedVariant = product && product.variants && product.variants.length > 0
-    ? (product.variants as Variant[]).find((v) => {
-      const hasColor = v.thuoc_tinh.some((a) => a.ten === "Màu sắc" && a.gia_tri === selectedColor);
-      const hasSize = selectedSize ? v.thuoc_tinh.some((a) => a.ten === "Kích cỡ" && a.gia_tri === selectedSize) : true;
-      return hasColor && hasSize;
-    })
-    : null;
-  const gia = selectedVariant ? selectedVariant.gia : product?.gia;
-  const giaKhuyenMai = selectedVariant ? selectedVariant.gia_khuyen_mai : product?.gia_khuyen_mai;
+  const handleAddToCart = async () => {
+    if (!product) {
+      Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+      return;
+    }
+    if (!selectedColor) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+      return;
+    }
+    try {
+      await addToCart({
+        san_pham_id: product.id,
+        so_luong: quantity,
+        bien_the_id: selectedVariant?.id,
+      });
+      notification.success({ message: "Thành công", description: "Đã thêm vào giỏ hàng!", placement: "topRight" });
+    } catch {
+      notification.error({ message: "Lỗi", description: "Không thể thêm sản phẩm.", placement: "topRight" });
+    }
+  };
 
-  const maxQuantity = selectedVariant ? selectedVariant.so_luong : product?.so_luong || 1;
+  const handleBuyNow = () => {
+    const isLoggedIn = !!localStorage.getItem("accessToken");
+    if (!isLoggedIn) {
+      Modal.warning({
+        title: "Bạn chưa đăng nhập",
+        content: "Vui lòng đăng nhập để mua hàng!",
+        centered: true,
+        okText: "Đăng nhập ngay",
+        onOk: () => navigate("/login"),
+      });
+      return;
+    }
+    if (!product || !selectedColor || !selectedVariant) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu và kích thước!", centered: true });
+      return;
+    }
+    navigate("/thanh-toan", {
+      state: {
+        productOrder: {
+          productId: product.id,
+          productName: product.ten,
+          variantId: selectedVariant.id,
+          quantity,
+          color: selectedColor,
+          size: selectedSize,
+          price: gia,
+          discountPrice: giaKhuyenMai,
+          image: productImages[selectedImage],
+          description: product.mo_ta,
+        },
+      },
+    });
+  };
+
+
+
+
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Đang tải chi tiết sản phẩm...</div>

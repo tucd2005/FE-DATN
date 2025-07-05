@@ -7,7 +7,8 @@ import { useCheckout } from "../../../hooks/useCheckout";
 
 const CheckoutPage = () => {
   const location = useLocation();
-  const productOrder = location.state;
+
+
   const navigate = useNavigate();
   const [selectedPayment, setSelectedPayment] = useState("vnpay");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -27,28 +28,54 @@ const CheckoutPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
 
-  const orderItems = productOrder
-    ? [
-      {
-        san_pham_id: productOrder.productId,
-        bien_the_id: productOrder.variantId,
-        name: productOrder.productName,
-        size: productOrder.size,
-        color: productOrder.color,
-        quantity: productOrder.quantity,
-        price: productOrder.discountPrice || productOrder.price,
-        discountPrice: productOrder.discountPrice,
-        image: productOrder.image,
-        description: productOrder.description,
-      },
-    ]
-    : [];
 
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 0;
-  const total = subtotal + shipping;
 
-  const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
+    // Lấy dữ liệu truyền sang
+    const state = location.state || {};
+    const productOrder = state.productOrder;
+    const cartItems = state.cartItems;
+  
+    // Xử lý dữ liệu đơn hàng
+    let orderItems: any[] = [];
+  
+    if (productOrder) {
+      orderItems = [
+        {
+          san_pham_id: productOrder.productId,
+          bien_the_id: productOrder.variantId,
+          name: productOrder.productName,
+          size: productOrder.size,
+          color: productOrder.color,
+          quantity: productOrder.quantity,
+          price: productOrder.discountPrice || productOrder.price,
+          discountPrice: productOrder.discountPrice,
+          image: productOrder.image,
+          description: productOrder.description,
+        }
+      ];
+    } else if (cartItems && cartItems.length > 0) {
+      orderItems = cartItems.map((item: any) => ({
+        san_pham_id: item.san_pham_id,
+        bien_the_id: item.bien_the_id,
+        name: item.ten_san_pham,
+        size: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
+        color: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
+        quantity: item.so_luong,
+        price: item.gia_san_pham,
+        discountPrice: null,
+        image: item.hinh_anh,
+        description: "",
+      }));
+    } else {
+      // Không có dữ liệu → điều hướng về giỏ hàng hoặc trang chính
+      navigate('/');
+    }
+  
+    const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shipping = 0;
+    const total = subtotal + shipping;
+  
+    const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
   const paymentMethods = [
     {
