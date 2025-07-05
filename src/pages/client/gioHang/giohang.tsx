@@ -5,30 +5,44 @@ import {
   Plus,
   Trash2,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCartStore } from "../../../stores/cart.store"
 
 export default function CartPage() {
-  const { items: cartItems, updateQuantity, removeFromCart } = useCartStore();
+  const {
+    items: cartItems,
+    loading,
+    error,
+    totalPrice,
+    totalQuantity,
+    fetchCart,
+    updateQuantity,
+    removeFromCart
+  } = useCartStore();
   const [promoCode, setPromoCode] = useState("SPORT30")
 
-  const handleUpdateQuantity = (id: number, size: string, color: string, newQuantity: number) => {
+  // Load cart data when component mounts
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const handleUpdateQuantity = async (id: number, newQuantity: number) => {
     if (newQuantity === 0) {
-      removeFromCart(id, size, color)
-      return
+      await removeFromCart(id);
+      return;
     }
-    updateQuantity(id, size, color, newQuantity)
+    await updateQuantity(id, newQuantity);
   }
 
-  const handleRemoveItem = (id: number, size: string, color: string) => {
-    removeFromCart(id, size, color)
+  const handleRemoveItem = async (id: number) => {
+    await removeFromCart(id);
   }
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + "đ"
   }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = totalPrice
   const shipping = 0 // Miễn phí
   const total = subtotal + shipping
 
@@ -56,40 +70,61 @@ export default function CartPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-8">Giỏ hàng ({cartItems.length} sản phẩm)</h1>
 
             <div className="space-y-6">
-              {cartItems.map((item) => (
+              {loading && (
+                <div className="text-center py-8">
+                  <div className="text-gray-600">Đang tải giỏ hàng...</div>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-center py-8">
+                  <div className="text-red-600">Lỗi: {error}</div>
+                </div>
+              )}
+
+              {!loading && !error && cartItems.length === 0 && (
+                <div className="text-center py-8">
+                  <div className="text-gray-600">Giỏ hàng trống</div>
+                </div>
+              )}
+
+              {!loading && !error && cartItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 py-6 border-b border-gray-200">
                   {/* Product Image */}
                   <div className="flex-shrink-0">
                     <img
-                      src={item.image || "/placeholder.svg"}
-                      alt={item.name}
+                      src={item.hinh_anh || "/placeholder.svg"}
+                      alt={item.ten_san_pham}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
                   </div>
 
                   {/* Product Info */}
                   <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">{item.name}</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{item.ten_san_pham}</h3>
                     <div className="flex gap-4 text-sm text-gray-600">
-                      <span>Size: {item.size}</span>
-                      <span>Màu: {item.color}</span>
+                      {item.bien_the && item.bien_the.thuoc_tinh.map((attr, index) => (
+                        <span key={index}>
+                          {attr.ten_thuoc_tinh}: {attr.gia_tri}
+                        </span>
+                      ))}
                     </div>
                     <div className="mt-2">
-                      <span className="text-lg font-semibold text-gray-900">{formatPrice(item.price)}</span>
+                      <span className="text-lg font-semibold text-gray-900">{formatPrice(item.gia_san_pham)}</span>
                     </div>
                   </div>
 
                   {/* Quantity Controls */}
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => handleUpdateQuantity(item.id, item.size, item.color, item.quantity - 1)}
+                      onClick={() => handleUpdateQuantity(item.id, item.so_luong - 1)}
                       className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-8 text-center">{item.quantity}</span>
+                    <span className="w-8 text-center">{item.so_luong}</span>
                     <button
-                      onClick={() => handleUpdateQuantity(item.id, item.size, item.color, item.quantity + 1)}
+                      onClick={() => handleUpdateQuantity(item.id, item.so_luong + 1)}
                       className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
                     >
                       <Plus className="w-4 h-4" />
@@ -98,7 +133,7 @@ export default function CartPage() {
 
                   {/* Delete Button */}
                   <button
-                    onClick={() => handleRemoveItem(item.id, item.size, item.color)}
+                    onClick={() => handleRemoveItem(item.id)}
                     className="p-2 text-red-500 hover:text-red-700 transition-colors"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -107,7 +142,7 @@ export default function CartPage() {
                   {/* Item Total */}
                   <div className="text-right min-w-[120px]">
                     <span className="text-lg font-semibold text-gray-900">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(item.thanh_tien)}
                     </span>
                   </div>
                 </div>

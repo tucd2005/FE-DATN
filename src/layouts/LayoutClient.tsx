@@ -5,10 +5,7 @@ import { useCartStore } from '../stores/cart.store';
 
 const ClientLayout = () => {
   const navigate = useNavigate();
-  const { items } = useCartStore();
-
-  // Tính tổng số lượng sản phẩm trong giỏ hàng
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const { totalQuantity } = useCartStore();
 
   return (
     <>
@@ -53,9 +50,9 @@ const ClientLayout = () => {
                     className="relative p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
                   >
                     <ShoppingCart className="w-5 h-5" />
-                    {totalItems > 0 && (
+                    {totalQuantity > 0 && (
                       <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {totalItems}
+                        {totalQuantity}
                       </span>
                     )}
                   </Link>

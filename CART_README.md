@@ -1,58 +1,76 @@
-# Hướng dẫn sử dụng Giỏ hàng với Zustand
+# Hướng dẫn sử dụng Giỏ hàng với Zustand + API
 
 ## Tổng quan
 
-Đã tích hợp giỏ hàng sử dụng Zustand để quản lý state toàn cục cho ứng dụng React.
+Đã tích hợp giỏ hàng sử dụng Zustand để quản lý state toàn cục và kết nối với API backend Laravel.
 
 ## Cấu trúc
 
 ### 1. Store Zustand (`src/stores/cart.store.ts`)
 
 ```typescript
-interface CartItem {
-  id: number;
-  name: string;
-  size: string;
-  color: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
 interface CartState {
-  items: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number, size: string, color: string) => void;
-  updateQuantity: (
-    id: number,
-    size: string,
-    color: string,
-    quantity: number
-  ) => void;
-  clearCart: () => void;
+  items: CartItemAPI[];
+  loading: boolean;
+  error: string | null;
+  totalPrice: number;
+  totalQuantity: number;
+
+  // Actions
+  fetchCart: () => Promise<void>;
+  addToCart: (data: AddToCartRequest) => Promise<void>;
+  removeFromCart: (id: number) => Promise<void>;
+  updateQuantity: (id: number, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 ```
 
-### 2. Các hàm chính
+### 2. API Service (`src/services/cartService.ts`)
 
-#### `addToCart(item: CartItem)`
+```typescript
+export interface CartItemAPI {
+  id: number;
+  san_pham_id: number;
+  ten_san_pham: string;
+  hinh_anh: string;
+  so_luong: number;
+  gia_san_pham: number;
+  thanh_tien: number;
+  bien_the: {
+    id: number;
+    thuoc_tinh: Array<{
+      ten_thuoc_tinh: string;
+      gia_tri: string;
+    }>;
+  } | null;
+}
+```
 
-- Thêm sản phẩm vào giỏ hàng
-- Nếu sản phẩm cùng id, size, color đã tồn tại → tăng số lượng
-- Nếu chưa có → thêm mới
+### 3. Các hàm chính
 
-#### `removeFromCart(id, size, color)`
+#### `fetchCart()`
 
-- Xóa sản phẩm khỏi giỏ hàng dựa trên id, size, color
+- Lấy danh sách giỏ hàng từ API
+- Cập nhật state với dữ liệu từ server
 
-#### `updateQuantity(id, size, color, quantity)`
+#### `addToCart(data: AddToCartRequest)`
 
-- Cập nhật số lượng sản phẩm
-- Nếu quantity = 0 → tự động xóa sản phẩm
+- Thêm sản phẩm vào giỏ hàng qua API
+- Tự động refresh giỏ hàng sau khi thêm
+
+#### `removeFromCart(id: number)`
+
+- Xóa sản phẩm khỏi giỏ hàng qua API
+- Tự động refresh giỏ hàng sau khi xóa
+
+#### `updateQuantity(id: number, quantity: number)`
+
+- Cập nhật số lượng sản phẩm qua API
+- Tự động refresh giỏ hàng sau khi cập nhật
 
 #### `clearCart()`
 
-- Xóa toàn bộ giỏ hàng
+- Xóa toàn bộ giỏ hàng qua API
 
 ## Sử dụng
 
@@ -65,62 +83,97 @@ import { useCartStore } from "../stores/cart.store";
 ### 2. Sử dụng trong component
 
 ```typescript
-const { items, addToCart, removeFromCart, updateQuantity } = useCartStore();
+const {
+  items,
+  loading,
+  error,
+  totalPrice,
+  totalQuantity,
+  fetchCart,
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+} = useCartStore();
+
+// Load giỏ hàng khi component mount
+useEffect(() => {
+  fetchCart();
+}, [fetchCart]);
 
 // Thêm vào giỏ hàng
-const handleAddToCart = () => {
-  const cartItem = {
-    id: product.id,
-    name: product.ten,
-    size: selectedSize,
-    color: selectedColor,
-    price: Number(product.gia),
-    quantity: quantity,
-    image: productImage,
-  };
-  addToCart(cartItem);
+const handleAddToCart = async () => {
+  try {
+    const cartData = {
+      san_pham_id: product.id,
+      so_luong: quantity,
+      bien_the_id: selectedVariant?.id || undefined,
+    };
+    await addToCart(cartData);
+  } catch (error) {
+    // Xử lý lỗi
+  }
 };
 
 // Cập nhật số lượng
-const handleUpdateQuantity = (id, size, color, newQuantity) => {
-  updateQuantity(id, size, color, newQuantity);
+const handleUpdateQuantity = async (id, newQuantity) => {
+  await updateQuantity(id, newQuantity);
 };
 
 // Xóa sản phẩm
-const handleRemoveItem = (id, size, color) => {
-  removeFromCart(id, size, color);
+const handleRemoveItem = async (id) => {
+  await removeFromCart(id);
 };
 ```
 
 ### 3. Hiển thị số lượng giỏ hàng
 
 ```typescript
-const { items } = useCartStore();
-const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+const { totalQuantity } = useCartStore();
+// totalQuantity đã được tính từ API
+```
+
+## API Endpoints
+
+### Backend Laravel Routes
+
+```php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'index']);           // Lấy giỏ hàng
+        Route::post('/add', [CartController::class, 'addToCart']);   // Thêm sản phẩm
+        Route::put('/update/{id}', [CartController::class, 'updateQuantity']); // Cập nhật số lượng
+        Route::delete('/remove/{id}', [CartController::class, 'removeItem']);  // Xóa sản phẩm
+        Route::delete('/clear', [CartController::class, 'clearCart']);         // Xóa toàn bộ
+    });
+});
 ```
 
 ## Tính năng đã tích hợp
 
 ### ✅ Trang chi tiết sản phẩm (`chitiet.tsx`)
 
-- Nút "Thêm vào giỏ hàng" hoạt động
+- Nút "Thêm vào giỏ hàng" gọi API
 - Validation: yêu cầu chọn màu sắc
-- Thông báo thành công khi thêm vào giỏ hàng
+- Thông báo thành công/lỗi khi thêm vào giỏ hàng
+- Hỗ trợ thêm variant (bien_the_id)
 
 ### ✅ Trang giỏ hàng (`giohang.tsx`)
 
-- Hiển thị danh sách sản phẩm từ store
-- Tăng/giảm số lượng sản phẩm
-- Xóa sản phẩm khỏi giỏ hàng
-- Tính tổng tiền tự động
+- Load dữ liệu từ API khi component mount
+- Hiển thị loading state và error handling
+- Tăng/giảm số lượng sản phẩm qua API
+- Xóa sản phẩm khỏi giỏ hàng qua API
+- Hiển thị thuộc tính sản phẩm (size, color) từ variant
+- Tính tổng tiền từ API
 
 ### ✅ Layout header (`LayoutClient.tsx`)
 
-- Hiển thị số lượng sản phẩm trong giỏ hàng
+- Hiển thị số lượng sản phẩm từ API
 - Badge chỉ hiển thị khi có sản phẩm
 
 ## Lưu ý
 
-- Store Zustand tự động persist state trong session
-- Mỗi sản phẩm được định danh bởi: `id + size + color`
-- Sản phẩm cùng id, size, color sẽ được gộp lại và tăng số lượng
+- Cần đăng nhập để sử dụng giỏ hàng (middleware auth:sanctum)
+- Store tự động refresh sau mỗi thao tác CRUD
+- Hỗ trợ đầy đủ error handling và loading states
+- Dữ liệu được đồng bộ với database thông qua API

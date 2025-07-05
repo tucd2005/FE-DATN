@@ -28,7 +28,7 @@ export default function ProductDetailclientPage() {
   };
 
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) {
       Modal.error({
         title: "Lỗi",
@@ -47,22 +47,26 @@ export default function ProductDetailclientPage() {
       return;
     }
 
-    const cartItem = {
-      id: product.id,
-      name: product.ten,
-      size: selectedSize || "Mặc định",
-      color: selectedColor,
-      price: Number(gia) || Number(product.gia),
-      quantity: quantity,
-      image: productImages[selectedImage],
-    };
+    try {
+      const cartData = {
+        san_pham_id: product.id,
+        so_luong: quantity,
+        bien_the_id: selectedVariant?.id || undefined,
+      };
 
-    addToCart(cartItem);
-    notification.success({
-      message: "Thành công",
-      description: "Đã thêm sản phẩm vào giỏ hàng!",
-      placement: "topRight",
-    });
+      await addToCart(cartData);
+      notification.success({
+        message: "Thành công",
+        description: "Đã thêm sản phẩm vào giỏ hàng!",
+        placement: "topRight",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại!",
+        placement: "topRight",
+      });
+    }
   };
 
   const handleBuyNow = () => {
