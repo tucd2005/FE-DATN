@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
+import { Modal, notification } from "antd"
 
 export default function ProductDetailclientPage() {
   const { id } = useParams<{ id: string }>()
@@ -26,13 +27,36 @@ export default function ProductDetailclientPage() {
 
 
   const handleBuyNow = () => {
+    const isLoggedIn = !!localStorage.getItem("accessToken");
+  
+    if (!isLoggedIn) {
+      Modal.warning({
+        title: "Bạn chưa đăng nhập",
+        content: "Vui lòng đăng nhập để tiếp tục mua hàng!",
+        centered: true,        // Hiển thị ở giữa màn hình
+        okText: "Đăng nhập ngay",
+        onOk: () => {
+          navigate("/login");
+        },
+      });
+      return;
+    }
+  
     if (!product) {
-      alert("Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!");
+      Modal.error({
+        title: "Lỗi",
+        content: "Không tìm thấy thông tin sản phẩm. Vui lòng thử lại!",
+        centered: true,
+      });
       return;
     }
   
     if (!selectedColor || !selectedVariant) {
-      alert("Vui lòng chọn màu và kích thước trước khi mua!");
+      Modal.info({
+        title: "Thông báo",
+        content: "Vui lòng chọn màu và kích thước trước khi mua!",
+        centered: true,
+      });
       return;
     }
   
@@ -46,11 +70,10 @@ export default function ProductDetailclientPage() {
         size: selectedSize,
         price: gia,
         discountPrice: giaKhuyenMai,
-        image: productImages[selectedImage]
-      }
+        image: productImages[selectedImage],
+      },
     });
   };
-
 
   // Chuẩn hóa dữ liệu ảnh
   const productImages: string[] =

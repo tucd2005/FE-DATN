@@ -127,6 +127,14 @@ const CheckoutPage = () => {
     };
     setIsLoading(true);
     checkoutMutation.mutate(payload, {
+      onSuccess: (data) => {
+        console.log("Đặt hàng thành công, dữ liệu trả về:", data);
+       
+      },
+      onError: (error) => {
+        console.error("Lỗi khi đặt hàng:", error);
+        showToastMessage("Đặt hàng thất bại. Vui lòng thử lại!");
+      },
       onSettled: () => setIsLoading(false),
     });
   };
