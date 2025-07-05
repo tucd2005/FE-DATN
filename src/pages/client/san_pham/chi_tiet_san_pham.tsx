@@ -265,8 +265,24 @@ export default function ChiTietSanPham() {
                 const discount = calculateDiscount(price || "0", originalPrice || "0")
                 const isFavorite = favorites.includes(product.id)
 
-                const imgPath = Array.isArray(variant?.hinh_anh) ? variant?.hinh_anh[0] : variant?.hinh_anh
-                const src = imgPath?.startsWith("http") ? imgPath : `http://127.0.0.1:8000/storage/${imgPath}`
+                 // Handle image path - it might be a string representation of an array
+                 let imgPath: string | undefined = undefined
+                 const rawImgPath = variant?.hinh_anh
+                 
+                 if (typeof rawImgPath === 'string') {
+                   // Try to parse if it's a JSON string
+                   try {
+                     const parsed = JSON.parse(rawImgPath)
+                     imgPath = Array.isArray(parsed) ? parsed[0] : parsed
+                   } catch {
+                     // If parsing fails, use as is
+                     imgPath = rawImgPath
+                   }
+                 } else if (Array.isArray(rawImgPath)) {
+                   imgPath = rawImgPath[0]
+                 }
+                 
+                 const src = imgPath?.startsWith("http") ? imgPath : `http://127.0.0.1:8000/storage/${imgPath}`
 
                 return (
                   <div
