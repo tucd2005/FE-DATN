@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import { useCartStore } from "../../../stores/cart.store";
 import { useNavigate } from 'react-router-dom';
+import CartItem from './CartItem';
 
 export default function CartPage() {
   const {
@@ -38,6 +39,7 @@ export default function CartPage() {
   }, []);
 
   const handleCheckout = () => {
+    console.log(cartItems);
     navigate('/thanh-toan', { state: { cartItems, totalPrice, totalQuantity } });
   }
 
@@ -64,7 +66,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div 
+        <div
           className="relative bg-gradient-to-r from-blue-100 to-green-100 rounded-2xl overflow-hidden mb-8 p-6 md:p-12 flex flex-col items-center text-center shadow-sm"
           data-aos="fade-down"
         >
@@ -88,11 +90,11 @@ export default function CartPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-8">Giỏ hàng ({cartItems.length} sản phẩm)</h1>
 
             <div className="space-y-6">
-              {loading && (
+              {/* {loading && (
                 <div className="text-center py-8">
                   <div className="text-gray-600">Đang tải giỏ hàng...</div>
                 </div>
-              )}
+              )} */}
 
               {error && (
                 <div className="text-center py-8">
@@ -100,69 +102,14 @@ export default function CartPage() {
                 </div>
               )}
 
-              {!loading && !error && cartItems.length === 0 && (
+              {cartItems.length === 0 && (
                 <div className="text-center py-8">
                   <div className="text-gray-600">Giỏ hàng trống</div>
                 </div>
               )}
 
-              {!loading && !error && cartItems.map((item) => (
-                <div 
-                  key={item.id}
-                  className="flex items-center gap-4 py-6 border-b border-gray-200"
-                  data-aos="fade-up"
-                >
-                  <div className="flex-shrink-0">
-                    <img
-                      src={item.hinh_anh || "/placeholder.svg"}
-                      alt={item.ten_san_pham}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                  </div>
-
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">{item.ten_san_pham}</h3>
-                    <div className="flex gap-4 text-sm text-gray-600">
-                      {item.bien_the && item.bien_the.thuoc_tinh.map((attr, index) => (
-                        <span key={index}>
-                          {attr.ten_thuoc_tinh}: {attr.gia_tri}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-lg font-semibold text-gray-900">{formatPrice(item.gia_san_pham)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => handleUpdateQuantity(item.id, item.so_luong - 1)}
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-8 text-center">{item.so_luong}</span>
-                    <button
-                      onClick={() => handleUpdateQuantity(item.id, item.so_luong + 1)}
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="p-2 text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-
-                  <div className="text-right min-w-[120px]">
-                    <span className="text-lg font-semibold text-gray-900">
-                      {formatPrice(item.thanh_tien)}
-                    </span>
-                  </div>
-                </div>
+              {cartItems.map((item) => (
+                <CartItem item={item} formatPrice={formatPrice} handleRemoveItem={handleRemoveItem} handleUpdateQuantity={handleUpdateQuantity} />
               ))}
             </div>
           </div>
