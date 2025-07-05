@@ -40,7 +40,7 @@ export default function AdminLogin() {
       console.log(data, values)
       if (data.access_token) {
         setLoading(false)
-        localStorage.setItem("token", data.access_token)
+        localStorage.setItem("accessToken", data.access_token)
         nav("/admin")
       }
       // localStorage.setItem("user", JSON.stringify(data.user))
