@@ -10,6 +10,7 @@ import ProductDetailclientPage from "../pages/client/chitietsanpham/chitiet";
 import LoginClient from "../pages/client/authModal/LoginClient";
 import RegisterClient from "../pages/client/authModal/RegisterClient";
 import Component from "../pages/client/thành_cong";
+import PaymentResultPage from "../pages/client/oder-succsee";
 
 
 export const clientRouter = {
@@ -20,6 +21,9 @@ export const clientRouter = {
     { path: "san-pham", element: <ChiTietSanPham /> },
     { path: "gio-hang", element: <CartPage /> },
     { path: "thanh-toan", element: <CheckoutPage /> },
+    { path: "payment/result", element: <PaymentResultPage /> },
+
+  
     { path: "san-pham/:id", element: <ProductDetailclientPage /> },
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },

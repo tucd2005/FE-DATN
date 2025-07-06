@@ -1,8 +1,6 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-
+import axios from "axios"
 import instanceAxios from "../../utils/axios"
 
 interface OrderDetail {
@@ -104,7 +102,7 @@ export default function VNPaySuccessPage() {
   const parseProductAttributes = (str: string) => {
     try {
       const attrs = JSON.parse(str)
-      return attrs.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
+      return attrs.map((a: any) => ${a.thuoc_tinh}: ${a.gia_tri}).join(", ")
     } catch { return "" }
   }
   const copyOrderCode = () => {
@@ -112,9 +110,7 @@ export default function VNPaySuccessPage() {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-  const fullAddress = data && data.order
-    ? `${data.order.dia_chi}, ${data.order.xa}, ${data.order.huyen}, ${data.order.thanh_pho}`
-    : ""
+  const fullAddress = ${data.order.dia_chi}, ${data.order.xa}, ${data.order.huyen}, ${data.order.thanh_pho}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -140,10 +136,8 @@ export default function VNPaySuccessPage() {
           <div className="text-center bg-green-50 p-8 rounded-xl border-2 border-green-100">
             <p className="text-gray-600 mb-2 text-lg">Số tiền đã thanh toán</p>
             <p className="text-4xl font-bold text-green-600">{formatCurrency(data.order.so_tien_thanh_toan)} VNĐ</p>
-            {data && data.order && Number.parseFloat(data.order.so_tien_duoc_giam || "0") > 0 && (
-              <p className="text-sm text-green-600 mt-2">
-                Đã giảm: {formatCurrency(Number.parseFloat(data.order.so_tien_duoc_giam))} VNĐ
-              </p>
+            {Number.parseFloat(data.order.so_tien_duoc_giam) > 0 && (
+              <p className="text-sm text-green-600 mt-2">Đã giảm: {formatCurrency(Number.parseFloat(data.order.so_tien_duoc_giam))} VNĐ</p>
             )}
           </div>
           <div className="grid md:grid-cols-2 gap-8">
@@ -215,9 +209,7 @@ export default function VNPaySuccessPage() {
 
                 <div className="py-3">
                   <span className="text-gray-600 font-medium block mb-1">Địa chỉ giao hàng:</span>
-                  {data && data.order && (
-                    <span className="font-semibold text-gray-800">{fullAddress}</span>
-                  )}
+                  <span className="font-semibold text-gray-800">{fullAddress}</span>
                 </div>
               </div>
             </div>
@@ -338,5 +330,5 @@ export default function VNPaySuccessPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
