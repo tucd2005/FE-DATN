@@ -2,16 +2,6 @@
 import instanceAxios from "../utils/axios";
 
 export interface CreateOrderPayload {
-  dia_chi: string;
-  phuong_thuc_thanh_toan: string;
-  items: {
-    san_pham_id: number;
-    bien_the_id: number;
-    so_luong: number;
-  }[];
-}
-
-export interface CreateOrderPayload {
   ten_nguoi_dat: string;
   dia_chi: string;
   thanh_pho: string;
@@ -38,7 +28,14 @@ export const checkoutService = {
     const res = await instanceAxios.post("/client/orders", data);
     return res.data;
   },
-  createVnpayPayment: async (payload: { don_hang_id: number; phuong_thuc_thanh_toan_id: number; ngon_ngu: string }) => {
+  createVnpayPayment: async (payload: { 
+    don_hang_id: number; 
+    phuong_thuc_thanh_toan_id: number; 
+    ngon_ngu: string;
+    amount?: number;
+    order_info?: string;
+    return_url?: string;
+  }) => {
     const res = await instanceAxios.post("/payment/vnpay/create", payload);
     return res.data;
   },
@@ -49,12 +46,19 @@ export const getOrderDetail = async (orderCode: string) => {
   return res.data.order;
 };
 
-export const createOrder = async (payload: any) => {
+export const createOrder = async (payload: CreateOrderPayload) => {
   const { data } = await instanceAxios.post("/client/orders", payload);
   return data;
 };
 
-export const createVnpayPayment = async (payload: { don_hang_id: number; phuong_thuc_thanh_toan_id: number; ngon_ngu: string }) => {
+export const createVnpayPayment = async (payload: { 
+  don_hang_id: number; 
+  phuong_thuc_thanh_toan_id: number; 
+  ngon_ngu: string;
+  amount?: number;
+  order_info?: string;
+  return_url?: string;
+}) => {
   const { data } = await instanceAxios.post("/payment/vnpay/create", payload);
   return data;
 };

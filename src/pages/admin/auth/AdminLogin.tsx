@@ -36,17 +36,19 @@ export default function AdminLogin() {
     setError(null)
 
     try {
-      const { data } = await instanceAxios.post("/auth/login", values);
+      const { data } = await instanceAxios.post("/admin/login", values);
       console.log(data, values)
-      if (data.access_token) {
+      if (data.token) {
         setLoading(false)
-        localStorage.setItem("accessToken", data.access_token)
+        localStorage.setItem("accessToken", data.token)
         nav("/admin")
       }
     } catch (err: any) {
       setError(err?.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.")
     }
   }
+
+ 
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">

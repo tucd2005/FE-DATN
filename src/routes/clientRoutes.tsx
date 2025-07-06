@@ -9,6 +9,7 @@ import OrderSuccessPage from "../pages/client/oder-succsee";
 import ProductDetailclientPage from "../pages/client/chitietsanpham/chitiet";
 import LoginClient from "../pages/client/authModal/LoginClient";
 import RegisterClient from "../pages/client/authModal/RegisterClient";
+import Component from "../pages/client/thành_cong";
 
 
 export const clientRouter = {
@@ -20,7 +21,7 @@ export const clientRouter = {
     { path: "gio-hang", element: <CartPage /> },
     { path: "thanh-toan", element: <CheckoutPage /> },
     { path: "san-pham/:id", element: <ProductDetailclientPage /> },
-    { path: "cam-on", element: <OrderSuccessPage /> },
+    { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
 

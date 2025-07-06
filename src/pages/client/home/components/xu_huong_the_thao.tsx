@@ -1,26 +1,24 @@
-import React from "react";
-
 export default function XuHuongTheThao() {
   const trends = [
     {
       title: "Running Tech",
       subtitle: "Công nghệ chạy bộ tiên tiến nhất",
       growth: "+65%",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3BvcnR8ZW58MHx8MHx8fDA%3D", 
     },
     {
       title: "Athleisure Style",
       subtitle: "Phong cách thể thao hàng ngày",
       growth: "+48%",
-      image: "https://images.unsplash.com/photo-1506629905607-d9c297d3f5f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      image: "https://images.unsplash.com/photo-1659081442328-b99758bb2053?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
     },
     {
       title: "Sustainable Sports",
       subtitle: "Thể thao bền vững thân thiện môi trường",
       growth: "+72%",
-      image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
+      image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8c3BvcnR8ZW58MHx8MHx8fDA%3D",
     },
-  ];
+  ]
 
   return (
     <section data-aos="fade-up" className="py-16">
@@ -34,10 +32,20 @@ export default function XuHuongTheThao() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {trends.map((trend, index) => (
-            <div key={index} className="relative overflow-hidden rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
-              <img data-aos="fade-up" src={trend.image} alt={trend.title} className="w-full h-64 object-cover" />
+            <div
+              key={index}
+              className="relative overflow-hidden rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-shadow"
+            >
+              <img
+                data-aos="fade-up"
+                src={trend.image}
+                alt={trend.title}
+                className="w-full h-64 object-cover"
+              />
               <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-              <span className="absolute top-4 right-4 bg-green-500 text-white px-2 py-1 text-xs font-medium rounded">{trend.growth}</span>
+              <span className="absolute top-4 right-4 bg-green-500 text-white px-2 py-1 text-xs font-medium rounded">
+                {trend.growth}
+              </span>
               <div className="absolute bottom-4 left-4 text-white">
                 <h3 className="text-xl font-bold mb-1">{trend.title}</h3>
                 <p className="text-sm opacity-90">{trend.subtitle}</p>
@@ -46,9 +54,11 @@ export default function XuHuongTheThao() {
           ))}
         </div>
         <div className="text-center mt-8">
-          <button className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-8 py-3 rounded-md font-medium">Khám phá xu hướng</button>
+          <button className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-8 py-3 rounded-md font-medium">
+            Khám phá xu hướng
+          </button>
         </div>
       </div>
     </section>
-  );
+  )
 }

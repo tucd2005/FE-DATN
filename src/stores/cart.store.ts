@@ -42,6 +42,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
 
+  // Lấy giỏ hàng từ backend
   fetchCart: async () => {
     try {
       set({ loading: true, error: null });
@@ -52,7 +53,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         totalQuantity: response.data.tong_so_luong,
         loading: false,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       set({
         error: error instanceof Error ? error.message : "Lỗi khi tải giỏ hàng",
         loading: false,
@@ -60,29 +61,28 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
+  // Thêm sản phẩm vào giỏ
   addToCart: async (data) => {
     try {
       set({ loading: true, error: null });
       await cartService.addToCart(data);
-      // Refresh cart after adding
-      await get().fetchCart();
-    } catch (error) {
+      await get().fetchCart(); // refresh sau khi thêm
+    } catch (error: unknown) {
       set({
-        error:
-          error instanceof Error ? error.message : "Lỗi khi thêm vào giỏ hàng",
+        error: error instanceof Error ? error.message : "Lỗi khi thêm vào giỏ hàng",
         loading: false,
       });
       throw error;
     }
   },
 
+  // Xóa 1 sản phẩm
   removeFromCart: async (id) => {
     try {
       set({ loading: true, error: null });
       await cartService.removeItem(id);
-      // Refresh cart after removing
-      await get().fetchCart();
-    } catch (error) {
+      await get().fetchCart(); // refresh
+    } catch (error: unknown) {
       set({
         error: error instanceof Error ? error.message : "Lỗi khi xóa sản phẩm",
         loading: false,
@@ -91,28 +91,28 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
+  // Cập nhật số lượng
   updateQuantity: async (id, quantity) => {
     try {
       set({ loading: true, error: null });
       await cartService.updateQuantity(id, { so_luong: quantity });
-      // Refresh cart after updating
-      await get().fetchCart();
-    } catch (error) {
+      await get().fetchCart(); // refresh
+    } catch (error: unknown) {
       set({
-        error:
-          error instanceof Error ? error.message : "Lỗi khi cập nhật số lượng",
+        error: error instanceof Error ? error.message : "Lỗi khi cập nhật số lượng",
         loading: false,
       });
       throw error;
     }
   },
 
+  // Xóa toàn bộ giỏ hàng
   clearCart: async () => {
     try {
       set({ loading: true, error: null });
-      await cartService.clearCart();
+      await cartService.clearCart(); // gọi API clear giỏ hàng
       set({ items: [], totalPrice: 0, totalQuantity: 0, loading: false });
-    } catch (error) {
+    } catch (error: unknown) {
       set({
         error: error instanceof Error ? error.message : "Lỗi khi xóa giỏ hàng",
         loading: false,
