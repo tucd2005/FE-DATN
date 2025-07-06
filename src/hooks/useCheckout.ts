@@ -11,7 +11,7 @@ export const useCheckout = () => {
   return useMutation({
     mutationFn: (payload: CreateOrderPayload) => checkoutService.create(payload),
     onSuccess: () => {
-      toast.success("Đặt hàng thành công!");
+     
     
     },
     onError: (error: unknown) => {

@@ -6,12 +6,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCheckout, useVnpayPayment } from "../../../hooks/useCheckout";
 
 import type { CreateOrderPayload } from "../../../services/checkoutService";
+import { useCartStore } from "../../../stores";
 
 const CheckoutPage = () => {
   const location = useLocation();
-
-
   const navigate = useNavigate();
+  const clearCart = useCartStore((state) => state.clearCart);
+  // Hooks must be called at the top level
+  const checkoutMutation = useCheckout();
+  const vnpayMutation = useVnpayPayment();
+
   const [selectedPayment, setSelectedPayment] = useState("vnpay");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [tenNguoiDat, setTenNguoiDat] = useState("");
@@ -29,16 +33,30 @@ const CheckoutPage = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-
-
-
   // Lấy dữ liệu truyền sang
   const state = location.state || {};
   const productOrder = state.productOrder;
   const cartItems = state.cartItems;
 
+  const showToastMessage = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 10000); // 10 giây
+  };
+
   // Xử lý dữ liệu đơn hàng
-  let orderItems: any[] = [];
+  let orderItems: Array<{
+    san_pham_id: number;
+    bien_the_id: number | null;
+    name: string;
+    size: string;
+    color: string;
+    quantity: number;
+    price: number;
+    discountPrice: number | null;
+    image: string;
+    description: string;
+  }> = [];
 
   if (productOrder) {
     orderItems = [
@@ -56,21 +74,29 @@ const CheckoutPage = () => {
       }
     ];
   } else if (cartItems && cartItems.length > 0) {
-    orderItems = cartItems.map((item: any) => ({
-      san_pham_id: item.san_pham_id,
-      bien_the_id: item.bien_the_id,
-      name: item.ten_san_pham,
-      size: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
-      color: item.bien_the?.thuoc_tinh?.find((t: any) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
-      quantity: item.so_luong,
-      price: item.gia_san_pham,
-      discountPrice: null,
-      image: item.hinh_anh,
-      description: "",
-    }));
-  } else {
-    // Không có dữ liệu → điều hướng về giỏ hàng hoặc trang chính
- 
+    console.log("Cart items:", cartItems);
+    orderItems = cartItems.map((item: { 
+      san_pham_id: number; 
+      bien_the?: { id: number; thuoc_tinh: Array<{ ten_thuoc_tinh: string; gia_tri: string }> } | null;
+      ten_san_pham: string;
+      so_luong: number;
+      gia_san_pham: number;
+      hinh_anh: string;
+    }) => {
+      console.log("Processing item:", item);
+      return {
+        san_pham_id: item.san_pham_id,
+        bien_the_id: item.bien_the?.id || null,
+        name: item.ten_san_pham,
+        size: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
+        color: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
+        quantity: item.so_luong,
+        price: item.gia_san_pham,
+        discountPrice: null,
+        image: item.hinh_anh,
+        description: "",
+      };
+    });
   }
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -100,16 +126,21 @@ const CheckoutPage = () => {
     },
   ];
 
-  const checkoutMutation = useCheckout();
-  const vnpayMutation = useVnpayPayment();
-
-  const showToastMessage = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 10000); // 10 giây
-  };
-
   const handleOrder = () => {
+    // Check if we have valid data
+    if (!productOrder && (!cartItems || cartItems.length === 0)) {
+      showToastMessage("Không có sản phẩm nào để đặt hàng!");
+      navigate("/gio-hang");
+      return;
+    }
+
+    // Check if user is authenticated
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      showToastMessage("Vui lòng đăng nhập để tiếp tục!");
+      return;
+    }
+
     if (!tenNguoiDat || !phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
       showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng!");
       return;
@@ -143,7 +174,7 @@ const CheckoutPage = () => {
       tong_tien: total,
       items: orderItems.map((item) => ({
         san_pham_id: item.san_pham_id,
-        bien_the_id: item.bien_the_id,
+        bien_the_id: item.bien_the_id || 0,
         ten_san_pham: item.name,
         hinh_anh: item.image,
         so_luong: Number(item.quantity),
@@ -152,24 +183,33 @@ const CheckoutPage = () => {
         thuoc_tinh_bien_the: [
           { gia_tri: item.size, thuoc_tinh: "Kích cỡ" },
           { gia_tri: item.color, thuoc_tinh: "Màu sắc" },
-        ],
+        ].filter(attr => attr.gia_tri !== ""), // Only include non-empty attributes
       })),
     };
   
+    console.log("Payload being sent:", payload);
     setIsLoading(true);
   
     checkoutMutation.mutate(payload, {
       onSuccess: async (data) => {
-        console.log("Đặt hàng thành công, dữ liệu trả về:", data);
-    
+   
+        await clearCart(); 
         if (selectedPayment === "vnpay") {
           try {
-            const vnpayData = await vnpayMutation.mutateAsync({
-              don_hang_id: data.id,
+            if (!data.id) {
+              showToastMessage("Không lấy được ID đơn hàng từ server!");
+              return;
+            }
+      
+            const vnpayPayload = {
+              don_hang_id: data.id,  // ✅ dùng id
               phuong_thuc_thanh_toan_id: 2,
               ngon_ngu: "vn"
-            });
-    
+            };
+            console.log("Payload gửi đến VNPAY:", vnpayPayload);
+      
+            const vnpayData = await vnpayMutation.mutateAsync(vnpayPayload);
+      
             console.log("VNPAY trả về:", vnpayData);
             if (vnpayData?.pay_url) {
               window.location.href = vnpayData.pay_url;
@@ -178,22 +218,40 @@ const CheckoutPage = () => {
             }
           } catch (error) {
             console.error("Lỗi khi gọi VNPAY:", error);
-            showToastMessage("Thanh toán VNPAY thất bại!");
+            if (error && typeof error === 'object' && 'response' in error) {
+              const response = (error as { response?: { data?: { message?: string; errors?: Record<string, unknown> } } }).response;
+              console.error("VNPAY error response:", response?.data);
+      
+              if (response?.data?.errors) {
+                showToastMessage(`Lỗi VNPAY: ${JSON.stringify(response.data.errors)}`);
+              } else {
+                showToastMessage(`Thanh toán VNPAY thất bại: ${response?.data?.message || 'Lỗi không xác định'}`);
+              }
+            } else {
+              showToastMessage("Thanh toán VNPAY thất bại!");
+            }
           }
         } else {
           // COD → điều hướng sang trang cảm ơn
-          navigate("/thank-you", { state: { orderId: data.id } });
+          navigate("/cam-on", {
+            state: { orderCode: data.ma_don_hang }
+          });
         }
       },
+      
       onError: (error) => {
         console.error("Lỗi khi đặt hàng:", error);
-        showToastMessage("Đặt hàng thất bại. Vui lòng thử lại!");
+        if (error && typeof error === 'object' && 'response' in error) {
+          const response = (error as { response?: { data?: { message?: string } } }).response;
+          console.error("Server response:", response?.data);
+          showToastMessage(`Đặt hàng thất bại: ${response?.data?.message || 'Lỗi server'}`);
+        } else {
+          showToastMessage("Đặt hàng thất bại. Vui lòng thử lại!");
+        }
       },
       onSettled: () => setIsLoading(false),
     });
-    
   }
-  
 
   useEffect(() => {
     if (selectedProvince === "01") {
@@ -241,7 +299,6 @@ const CheckoutPage = () => {
     setSelectedWard("");
   }, [selectedDistrict]);
 
-
   useEffect(() => {
     const provincesData = [
       { code: "01", name: "Hà Nội" },
@@ -251,6 +308,23 @@ const CheckoutPage = () => {
     setProvinces(provincesData);
   }, []);
 
+  // Check if we have valid data - render empty state if not
+  if (!productOrder && (!cartItems || cartItems.length === 0)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Không có sản phẩm nào để đặt hàng</h1>
+          <p className="text-gray-600 mb-6">Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán</p>
+          <button
+            onClick={() => navigate("/gio-hang")}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Đi đến giỏ hàng
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
