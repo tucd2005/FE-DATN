@@ -1,5 +1,45 @@
 
 import instanceAxios from "../utils/axios";
+export interface ThuocTinhBienThe {
+  thuoc_tinh_id: number
+  ten_thuoc_tinh: string
+  gia_tri: string
+}
+
+export interface OrderItem {
+  san_pham_id: number
+  ten_san_pham: string
+  hinh_anh: string
+  bien_the_id: number
+  thuoc_tinh_bien_the: ThuocTinhBienThe[]
+  so_luong: number
+  don_gia: string
+  tong_tien: string
+}
+
+export interface Order {
+  id: number
+  ma_don_hang: string
+  trang_thai_don_hang: string
+  trang_thai_thanh_toan: string
+  tong_tien_thanh_toan: number
+  ngay_dat: string
+  phuong_thuc_thanh_toan: string
+  so_luong_mat_hang: number
+  items: OrderItem[]
+}
+
+export interface Pagination {
+  total: number
+  per_page: number
+  current_page: number
+  last_page: number
+}
+
+export interface GetOrdersResponse {
+  orders: Order[]
+  pagination: Pagination
+}
 
 export const orderService = {
   // Lấy danh sách đơn hàng
@@ -14,3 +54,17 @@ export const orderService = {
 
 
 };
+
+// API lấy danh sách đơn hàng (có thể truyền params page, per_page nếu backend hỗ trợ)
+export const getOrders = async (page = 1): Promise<GetOrdersResponse> => {
+  const res = await instanceAxios.get(`/client/orders`, {
+    params: { page }
+  })
+  return res.data
+}
+
+// Lấy chi tiết đơn hàng theo ID hoặc mã đơn hàng
+export const getOrderDetail = async (orderId: number | string) => {
+  const { data } = await instanceAxios.get(`/client/orders/${orderId}`)
+  return data
+}
