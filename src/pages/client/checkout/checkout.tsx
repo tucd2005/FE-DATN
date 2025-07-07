@@ -1,4 +1,4 @@
-"use client"
+ "use client"
 
 import { useState, useEffect } from "react";
 import { MapPin, Truck, CreditCard, Shield, CheckCircle, Banknote, ChevronRight, ChevronDown } from "lucide-react";
@@ -32,6 +32,7 @@ const CheckoutPage = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Lấy dữ liệu truyền sang
   const state = location.state || {};
@@ -42,6 +43,31 @@ const CheckoutPage = () => {
     setToastMessage(msg);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 10000); // 10 giây
+  };
+
+  const validateForm = () => {
+    if (!tenNguoiDat || tenNguoiDat.trim().length < 2) {
+      return "Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự)!";
+    }
+    if (!phone || !/^0\d{9}$/.test(phone)) {
+      return "Vui lòng nhập số điện thoại hợp lệ (10 số, bắt đầu bằng 0)!";
+    }
+    if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      return "Vui lòng nhập email hợp lệ!";
+    }
+    if (!address || address.trim().length < 5) {
+      return "Vui lòng nhập địa chỉ cụ thể (tối thiểu 5 ký tự)!";
+    }
+    if (!selectedProvince) {
+      return "Vui lòng chọn tỉnh/thành phố!";
+    }
+    if (!selectedDistrict) {
+      return "Vui lòng chọn quận/huyện!";
+    }
+    if (!selectedWard) {
+      return "Vui lòng chọn phường/xã!";
+    }
+    return null;
   };
 
   // Xử lý dữ liệu đơn hàng
@@ -56,6 +82,8 @@ const CheckoutPage = () => {
     discountPrice: number | null;
     image: string;
     description: string;
+    attributes?: Array<{ ten: string; gia_tri: string }>;
+    bien_the?: any;
   }> = [];
 
   if (productOrder) {
@@ -71,30 +99,25 @@ const CheckoutPage = () => {
         discountPrice: productOrder.discountPrice,
         image: productOrder.image,
         description: productOrder.description,
+        attributes: productOrder.attributes,
       }
     ];
   } else if (cartItems && cartItems.length > 0) {
     console.log("Cart items:", cartItems);
-    orderItems = cartItems.map((item: { 
-      san_pham_id: number; 
-      bien_the?: { id: number; thuoc_tinh: Array<{ ten_thuoc_tinh: string; gia_tri: string }> } | null;
-      ten_san_pham: string;
-      so_luong: number;
-      gia_san_pham: number;
-      hinh_anh: string;
-    }) => {
-      console.log("Processing item:", item);
+    orderItems = cartItems.map((item) => {
       return {
         san_pham_id: item.san_pham_id,
         bien_the_id: item.bien_the?.id || null,
         name: item.ten_san_pham,
-        size: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
-        color: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
+        size: item.bien_the?.thuoc_tinh?.find((t) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
+        color: item.bien_the?.thuoc_tinh?.find((t) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
         quantity: item.so_luong,
         price: item.gia_san_pham,
         discountPrice: null,
         image: item.hinh_anh,
         description: "",
+        attributes: item.attributes,
+        bien_the: item.bien_the,
       };
     });
   }
@@ -141,8 +164,9 @@ const CheckoutPage = () => {
       return;
     }
 
-    if (!tenNguoiDat || !phone || !email || !address || !selectedProvince || !selectedDistrict || !selectedWard) {
-      showToastMessage("Vui lòng điền đầy đủ thông tin giao hàng!");
+    const errorMsg = validateForm();
+    if (errorMsg) {
+      showToastMessage(errorMsg);
       return;
     }
   
@@ -308,6 +332,19 @@ const CheckoutPage = () => {
     setProvinces(provincesData);
   }, []);
 
+  const getBienTheImg = (bien_the: any) => {
+    let img = bien_the?.hinh_anh;
+    if (!img) return null;
+    if (Array.isArray(img)) return img[0];
+    if (typeof img === "string" && img.startsWith("[")) {
+      try {
+        const arr = JSON.parse(img);
+        if (Array.isArray(arr) && arr.length > 0) return arr[0];
+      } catch {}
+    }
+    return img;
+  };
+
   // Check if we have valid data - render empty state if not
   if (!productOrder && (!cartItems || cartItems.length === 0)) {
     return (
@@ -356,7 +393,7 @@ const CheckoutPage = () => {
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="tenNguoiDat" className="block text-sm font-medium text-gray-700">
                       Họ và tên người đặt *
                     </label>
                     <input
@@ -367,6 +404,9 @@ const CheckoutPage = () => {
                       placeholder="Nhập họ và tên"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
+                    {formError && formError.includes("họ và tên") && (
+                      <p className="text-xs text-red-500 mt-1">{formError}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
@@ -380,6 +420,9 @@ const CheckoutPage = () => {
                       placeholder="Nhập số điện thoại"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
+                    {formError && formError.includes("số điện thoại") && (
+                      <p className="text-xs text-red-500 mt-1">{formError}</p>
+                    )}
                   </div>
 
                 </div>
@@ -395,6 +438,9 @@ const CheckoutPage = () => {
                     placeholder="Nhập địa chỉ email"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
+                  {formError && formError.includes("email") && (
+                    <p className="text-xs text-red-500 mt-1">{formError}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700">
@@ -408,6 +454,9 @@ const CheckoutPage = () => {
                     placeholder="Số nhà, tên đường..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
+                  {formError && formError.includes("địa chỉ") && (
+                    <p className="text-xs text-red-500 mt-1">{formError}</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -427,6 +476,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
+                    {formError && formError.includes("tỉnh/thành phố") && (
+                      <p className="text-xs text-red-500 mt-1">{formError}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Quận/Huyện *</label>
@@ -446,6 +498,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
+                    {formError && formError.includes("quận/huyện") && (
+                      <p className="text-xs text-red-500 mt-1">{formError}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Phường/Xã *</label>
@@ -465,6 +520,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
+                    {formError && formError.includes("phường/xã") && (
+                      <p className="text-xs text-red-500 mt-1">{formError}</p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -583,50 +641,65 @@ const CheckoutPage = () => {
               <div className="p-6 space-y-4">
                 {/* Danh sách sản phẩm */}
                 <div className="space-y-4">
-                  {orderItems.map((item) => (
-                    <div key={item.bien_the_id} className="flex gap-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="relative">
-                        <img
-                          src={item.image || "/placeholder.svg?height=64&width=64"}
-                          alt={item.name}
-                          className="w-16 h-16 rounded-lg object-cover border"
-                        />
-                        <span className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                          {item.quantity}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
-                        <div className="flex gap-2 mt-1">
-                          <span className="px-2 py-1 bg-white border border-gray-200 text-xs rounded">
-                            Size: {item.size}
+                  {orderItems.map((item) => {
+                    const bienTheImg = getBienTheImg(item.bien_the);
+                    const imgSrc =
+                      bienTheImg
+                        ? bienTheImg.startsWith("http")
+                          ? bienTheImg
+                          : `http://localhost:8000/storage/${bienTheImg}`
+                        : item.image
+                          ? item.image.startsWith("http")
+                            ? item.image
+                            : `http://localhost:8000/storage/${item.image}`
+                          : "/placeholder.svg";
+
+                    return (
+                      <div key={item.bien_the_id} className="flex gap-4 p-3 bg-gray-50 rounded-lg">
+                        <div className="relative">
+                          <img
+                            src={imgSrc}
+                            alt={item.name}
+                            className="w-16 h-16 rounded-lg object-cover border"
+                          />
+                          <span className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                            {item.quantity}
                           </span>
-                          {item.color?.startsWith("#") ? (
-                            <span
-                              className="inline-block w-5 h-5 rounded-sm border border-gray-300 shadow-sm relative top-0.5"
-                              style={{ backgroundColor: item.color }}
-                              title={item.color}
-                            ></span>
-                          ) : (
-                            <span className="px-2 py-1 bg-white border border-gray-200 text-xs rounded">
-                              {item.color}
-                            </span>
-                          )}
                         </div>
-                        {/* Hiển thị mô tả */}
-                        {item.description && (
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
-                        )}
-                        {/* Hiển thị giá khuyến mãi nếu có */}
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-semibold text-blue-600">{formatPrice(item.price)}</span>
-                          {item.discountPrice && (
-                            <span className="text-sm text-gray-500 line-through">{formatPrice(item.discountPrice)}</span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
+                          <div className="flex gap-2 mt-1">
+                            {(item.attributes || item.bien_the?.thuoc_tinh || []).map((attr, idx) => {
+                              const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(attr.gia_tri);
+                              return (
+                                <span key={idx} className="flex items-center gap-1">
+                                  {attr.ten || attr.ten_thuoc_tinh}:
+                                  {isColor ? (
+                                    <span
+                                      className="inline-block w-5 h-5 rounded-full border ml-1"
+                                      style={{ backgroundColor: attr.gia_tri }}
+                                      title={attr.gia_tri}
+                                    />
+                                  ) : (
+                                    <span className="ml-1">{attr.gia_tri}</span>
+                                  )}
+                                </span>
+                              );
+                            })}
+                          </div>
+                          {item.description && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.description}</p>
                           )}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="font-semibold text-blue-600">{formatPrice(item.price)}</span>
+                            {item.discountPrice && (
+                              <span className="text-sm text-gray-500 line-through">{formatPrice(item.discountPrice)}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <hr className="border-gray-200" />
                 {/* Tóm tắt giá */}

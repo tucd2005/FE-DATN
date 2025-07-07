@@ -16,6 +16,7 @@ export default function ProductDetailclientPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
+  const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
   // Hàm chuẩn hóa đường dẫn ảnh
   const getImageUrl = (img: string) => {
@@ -32,36 +33,27 @@ export default function ProductDetailclientPage() {
       ? [getImageUrl(product.hinh_anh)]
       : ["/placeholder.svg?height=1200&width=1200"];
 
+  // Lấy tối đa 4 biến thể có ảnh
+  const variantThumbnails = (product?.variants || [])
+    .filter(v => v.hinh_anh)
+    .slice(0, 4);
+
   // Lấy size và màu từ variants
-  const sizes: string[] =
-    product?.variants?.length
-      ? Array.from(
-          new Set(
-            (product.variants as Variant[]).flatMap((v) =>
-              v.thuoc_tinh.filter((a) => a.ten === "Kích cỡ").map((a) => a.gia_tri)
-            )
-          )
-        )
-      : [];
-  const colorNames: string[] =
-    product?.variants?.length
-      ? Array.from(
-          new Set(
-            (product.variants as Variant[]).flatMap((v) =>
-              v.thuoc_tinh.filter((a) => a.ten === "Màu sắc").map((a) => a.gia_tri)
-            )
-          )
-        )
-      : [];
-  const colors: { name: string; value: string }[] = colorNames.map((name) => ({ name, value: name }));
+  const attributeNames: string[] = product?.variants?.length
+    ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
+    : [];
+
+  const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
   const selectedVariant = product?.variants?.length
-    ? (product.variants as Variant[]).find((v) => {
-        const hasColor = v.thuoc_tinh.some((a) => a.ten === "Màu sắc" && a.gia_tri === selectedColor);
-        const hasSize = selectedSize ? v.thuoc_tinh.some((a) => a.ten === "Kích cỡ" && a.gia_tri === selectedSize) : true;
-        return hasColor && hasSize;
-      })
+    ? product.variants.find((v) =>
+        attributeNames.every((attr) =>
+          selectedAttributes[attr]
+            ? v.thuoc_tinh.some((a) => a.ten === attr && a.gia_tri === selectedAttributes[attr])
+            : false
+        )
+      )
     : null;
 
   const gia = selectedVariant ? selectedVariant.gia : product?.gia;
@@ -81,8 +73,14 @@ export default function ProductDetailclientPage() {
       Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
       return;
     }
-    if (!selectedColor) {
-      Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+    // XÓA dòng này:
+    // if (!selectedColor) {
+    //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+    //   return;
+    // }
+    // THÊM kiểm tra động:
+    if (!isAllAttributesSelected) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
       return;
     }
     try {
@@ -109,8 +107,13 @@ export default function ProductDetailclientPage() {
       });
       return;
     }
-    if (!product || !selectedColor || !selectedVariant) {
-      Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu và kích thước!", centered: true });
+    // Kiểm tra động
+    if (!isAllAttributesSelected) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
+      return;
+    }
+    if (!product || !selectedVariant) {
+      Modal.info({ title: "Thông báo", content: "Không tìm thấy biến thể phù hợp!", centered: true });
       return;
     }
     navigate("/thanh-toan", {
@@ -120,8 +123,7 @@ export default function ProductDetailclientPage() {
           productName: product.ten,
           variantId: selectedVariant.id,
           quantity,
-          color: selectedColor,
-          size: selectedSize,
+          attributes: selectedVariant.thuoc_tinh, // <-- truyền toàn bộ thuộc tính động
           price: gia,
           discountPrice: giaKhuyenMai,
           image: productImages[selectedImage],
@@ -131,9 +133,28 @@ export default function ProductDetailclientPage() {
     });
   };
 
+  const handleSelectVariantImage = (variant: Variant, index: number) => {
+    // Tìm màu và size của biến thể
+    const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
+    const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
+    setSelectedColor(color);
+    setSelectedSize(size);
+    setSelectedImage(index); // Đổi ảnh to sang ảnh biến thể đó
+  };
 
-
-
+  const getVariantImage = (hinh_anh: string | string[] | undefined) => {
+    if (!hinh_anh) return "/placeholder.svg";
+    if (Array.isArray(hinh_anh)) return getImageUrl(hinh_anh[0]);
+    try {
+      // Nếu là string dạng JSON array
+      const arr = JSON.parse(hinh_anh);
+      if (Array.isArray(arr) && arr.length > 0) return getImageUrl(arr[0]);
+    } catch {
+      // Nếu là string path thông thường
+      return getImageUrl(hinh_anh);
+    }
+    return "/placeholder.svg";
+  };
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Đang tải chi tiết sản phẩm...</div>
@@ -213,17 +234,7 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
-  const ShareIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-      />
-    </svg>
-  )
-
+ 
   const MinusIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -281,6 +292,11 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
+  const mainImage =
+    selectedVariant?.hinh_anh
+      ? getVariantImage(selectedVariant.hinh_anh)
+      : productImages[selectedImage] || "/placeholder.svg";
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -311,7 +327,7 @@ export default function ProductDetailclientPage() {
             {/* Main Image */}
             <div className="relative bg-gray-50 rounded-lg overflow-hidden">
               <img
-                src={productImages[selectedImage] || "/placeholder.svg"}
+                src={mainImage}
                 alt={product.ten}
                 className="aspect-[4/3] object-cover rounded-lg"
               />
@@ -336,20 +352,22 @@ export default function ProductDetailclientPage() {
 
             {/* Thumbnail Images */}
             <div className="grid grid-cols-4 gap-3">
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`border-2 rounded-lg overflow-hidden transition-colors ${selectedImage === index ? "border-blue-500" : "border-gray-200 hover:border-gray-300"
-                    }`}
-                >
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={`Product ${index + 1}`}
-                    className="aspect-square w-full object-cover rounded"
-                  />
-                </button>
-              ))}
+              {variantThumbnails.map((variant, idx) => {
+                const img = getVariantImage(variant.hinh_anh);
+                const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
+                const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
+                const isActive = selectedVariant?.id === variant.id;
+                return (
+                  <button
+                    key={variant.id}
+                    onClick={() => handleSelectVariantImage(variant, idx)}
+                    className={`border-2 rounded-lg overflow-hidden transition-colors ${isActive ? "border-blue-500" : "border-gray-200 hover:border-gray-300"}`}
+                    title={`Màu: ${color}, Size: ${size}`}
+                  >
+                    <img src={img} alt={`Variant ${idx + 1}`} className="aspect-square w-full object-cover rounded" />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -377,7 +395,15 @@ export default function ProductDetailclientPage() {
 
             {/* Price */}
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-blue-600">{gia ? `${safeLocaleString(gia)}đ` : "Liên hệ"}</span>
+              <span className="text-3xl font-bold text-blue-600">
+                {selectedVariant
+                  ? `${safeLocaleString(selectedVariant.gia)}đ`
+                  : product?.gia
+                    ? `${safeLocaleString(product.gia)}đ`
+                    : isAllAttributesSelected
+                      ? "Liên hệ"
+                      : "Vui lòng chọn đầy đủ thuộc tính"}
+              </span>
               {giaKhuyenMai && (
                 <>
                   <span className="text-xl text-gray-500 line-through">{safeLocaleString(giaKhuyenMai)}đ</span>
@@ -392,42 +418,68 @@ export default function ProductDetailclientPage() {
             <p className="text-gray-600 leading-relaxed">{product.mo_ta}</p>
 
 
-            {/* Color Selection */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Màu sắc:</h3>
-              <div className="flex space-x-3">
-                {colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-10 h-10 rounded-full border-4 transition-colors ${selectedColor === color.name ? "border-blue-500" : "border-gray-200"
-                      }`}
-                    style={{ backgroundColor: color.value }}
-                  >
-                    {color.name === "white" && <div className="w-full h-full rounded-full border border-gray-200" />}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Attributes Selection */}
+            <div className="space-y-4">
+              {attributeNames.map((attr) => {
+                const values = Array.from(
+                  new Set(
+                    product.variants.flatMap((v) =>
+                      v.thuoc_tinh.filter((a) => a.ten === attr).map((a) => a.gia_tri)
+                    )
+                  )
+                );
 
+                return (
+                  <div key={attr}>
+                    <h3 className="font-semibold text-gray-900 mb-3">{attr}:</h3>
+                    <div className="flex space-x-3 mb-2">
+                      {values.map((value) => {
+                        const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
+                        const hypotheticalSelected = { ...selectedAttributes, [attr]: value };
+                        const matchingVariants = product.variants.filter((v) =>
+                          attributeNames.every((a) =>
+                            hypotheticalSelected[a]
+                              ? v.thuoc_tinh.some((t) => t.ten === a && t.gia_tri === hypotheticalSelected[a])
+                              : true
+                          )
+                        );
+                        const isOutOfStock = matchingVariants.length === 0 || matchingVariants.every((v) => v.so_luong === 0);
 
-            {/* Size Selection */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Kích thước:</h3>
-              <div className="flex space-x-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 border-2 rounded-lg font-semibold transition-colors ${selectedSize === size
-                      ? "border-blue-500 bg-blue-50 text-blue-600"
-                      : "border-gray-200 text-gray-700 hover:border-gray-300"
-                      }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => {
+                              if (isOutOfStock) return;
+                              setSelectedAttributes((prev) => {
+                                if (prev[attr] === value) {
+                                  const newAttrs = { ...prev };
+                                  delete newAttrs[attr];
+                                  return newAttrs;
+                                }
+                                return { ...prev, [attr]: value };
+                              });
+                            }}
+                            disabled={isOutOfStock}
+                            className={
+                              isColor
+                                ? `w-10 h-10 rounded-full border-4 transition-colors flex items-center justify-center
+                                    ${selectedAttributes[attr] === value ? "border-blue-500" : "border-gray-200 hover:border-gray-300"}
+                                    ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`
+                                : `border-2 rounded-lg px-4 py-2 font-semibold transition-colors
+                                    ${selectedAttributes[attr] === value ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-200 text-gray-700 hover:border-gray-300"}
+                                    ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`
+                            }
+                            style={isColor ? { backgroundColor: value } : {}}
+                            title={isColor ? value : undefined}
+                          >
+                            {isColor ? "" : value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
 

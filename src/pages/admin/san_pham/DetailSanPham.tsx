@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Descriptions, Image, Tag, Button, Table, Dropdown, Menu, Row, Col } from 'antd';
@@ -14,10 +13,24 @@ const ProductDetailPage: React.FC = () => {
   if (isLoading) return <p>Loading...</p>;
   if (!product) return <p>Không tìm thấy sản phẩm</p>;
 
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return '/placeholder.png';
+    return img.startsWith('http')
+      ? img
+      : `http://127.0.0.1:8000/storage/${img}`;
+  };
+
   const getImage = () => {
-    if (Array.isArray(product.hinh_anh)) return product.hinh_anh[0];
+    if (Array.isArray(product.hinh_anh)) return getImageUrl(product.hinh_anh[0]);
     if (typeof product.hinh_anh === 'string') {
-      return product.hinh_anh.startsWith('http') ? product.hinh_anh : `http://127.0.0.1:8000/storage/${product.hinh_anh}`;
+      try {
+        const arr = JSON.parse(product.hinh_anh);
+        if (Array.isArray(arr) && arr.length > 0) {
+          return getImageUrl(arr[0]);
+        }
+      } catch {
+        return getImageUrl(product.hinh_anh);
+      }
     }
     return '/placeholder.png';
   };
@@ -43,7 +56,14 @@ const ProductDetailPage: React.FC = () => {
       render: (img: string | null) => {
         let src = '/placeholder.png';
         if (img) {
-          src = img.startsWith('http') ? img : `http://127.0.0.1:8000/storage/${img}`;
+          try {
+            const arr = JSON.parse(img);
+            if (Array.isArray(arr) && arr.length > 0) {
+              src = getImageUrl(arr[0]);
+            }
+          } catch {
+            src = img.startsWith('http') ? img : `http://127.0.0.1:8000/storage/${img}`;
+          }
         }
         return <Image src={src} width={60} height={60} />;
       },
@@ -83,7 +103,9 @@ const ProductDetailPage: React.FC = () => {
           <Descriptions bordered column={1}>
             <Descriptions.Item label="Tên">{product.ten}</Descriptions.Item>
             <Descriptions.Item label="Mô tả">{product.mo_ta}</Descriptions.Item>
-            <Descriptions.Item label="Danh mục ID">{product.danh_muc_id}</Descriptions.Item>
+            <Descriptions.Item label="Danh mục">
+              {product.danh_muc?.ten || product.danh_muc_id}
+            </Descriptions.Item>
             <Descriptions.Item label="Ngày tạo">{product.created_at}</Descriptions.Item>
             <Descriptions.Item label="Ngày cập nhật">{product.updated_at}</Descriptions.Item>
           </Descriptions>
