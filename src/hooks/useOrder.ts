@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { orderService } from "../services/orderService";
+import { getOrderDetail, getOrders, orderService } from "../services/orderService";
 
 // Lấy danh sách đơn hàng
 export const useOrderList = () => {
@@ -31,3 +31,20 @@ export const useUpdateOrderStatus = () => {
       },
     });
   };
+
+
+  // Hook lấy danh sách đơn hàng client
+export const useOrders = (page = 1) => {
+  return useQuery({
+    queryKey: ["orders", page],
+    queryFn: () => getOrders(page),
+  });
+};
+
+
+export const useOrderDetailclient = (orderId: number | string) => {
+  return useQuery({
+  queryKey: ["order-detail", orderId],
+  queryFn: () => getOrderDetail(orderId),
+})
+}

@@ -64,7 +64,7 @@ const ClientLayout = () => {
                       if (!token) {
                         navigate('/login');
                       } else {
-                        navigate('/');
+                        navigate('/thong-tin-khach-hang');
                       }
                     }}
                   >
