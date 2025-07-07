@@ -1,4 +1,4 @@
-    import React from 'react'
+import React from 'react'
     import type { CartItemAPI } from '../../../services/cartService'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 
@@ -10,6 +10,33 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
     }
 
     const CartItem = ({item,formatPrice,handleUpdateQuantity, handleRemoveItem}: Props) => {
+        console.log("bien_the:", item.bien_the);
+        const getBienTheImg = (bien_the: any) => {
+          let img = bien_the?.hinh_anh;
+          if (!img) return null;
+          if (Array.isArray(img)) return img[0];
+          if (typeof img === "string" && img.startsWith("[")) {
+            try {
+              const arr = JSON.parse(img);
+              if (Array.isArray(arr) && arr.length > 0) return arr[0];
+            } catch {}
+          }
+          return img;
+        };
+
+        const bienTheImg = getBienTheImg(item.bien_the);
+
+        const imgSrc =
+          bienTheImg
+            ? bienTheImg.startsWith("http")
+              ? bienTheImg
+              : `http://localhost:8000/storage/${bienTheImg}`
+            : item.hinh_anh
+              ? item.hinh_anh.startsWith("http")
+                ? item.hinh_anh
+                : `http://localhost:8000/storage/${item.hinh_anh}`
+              : "/placeholder.svg";
+
         return (
             <div>
                 <div
@@ -19,7 +46,7 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
                 >
                     <div className="flex-shrink-0">
                         <img
-                            src={item.hinh_anh || "/placeholder.svg"}
+                            src={imgSrc}
                             alt={item.ten_san_pham}
                             className="w-20 h-20 object-cover rounded-lg"
                         />
@@ -28,11 +55,23 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
                     <div className="flex-1">
                         <h3 className="text-lg font-medium text-gray-900 mb-2">{item.ten_san_pham}</h3>
                         <div className="flex gap-4 text-sm text-gray-600">
-                            {item.bien_the && item.bien_the.thuoc_tinh.map((attr, index) => (
-                                <span key={index}>
-                                    {attr.ten_thuoc_tinh}: {attr.gia_tri}
-                                </span>
-                            ))}
+                            {(item.bien_the?.thuoc_tinh || []).map((attr, index) => {
+                                const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(attr.gia_tri);
+                                return (
+                                    <span key={index} className="flex items-center gap-1">
+                                        {attr.ten || attr.ten_thuoc_tinh}:
+                                        {isColor ? (
+                                            <span
+                                                className="inline-block w-5 h-5 rounded-full border ml-1"
+                                                style={{ backgroundColor: attr.gia_tri }}
+                                                title={attr.gia_tri}
+                                            />
+                                        ) : (
+                                            <span className="ml-1">{attr.gia_tri}</span>
+                                        )}
+                                    </span>
+                                );
+                            })}
                         </div>
                         <div className="mt-2">
                             <span className="text-lg font-semibold text-gray-900">{formatPrice(item.gia_san_pham)}</span>
@@ -72,4 +111,4 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
         )
     }
 
-    export default CartItem 
+    export default CartItem

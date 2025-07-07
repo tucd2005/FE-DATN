@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Filter, Grid3X3, List, ChevronDown, ShoppingCart, Zap } from "lucide-react";
 import { productService } from "../../../services/productservice";
@@ -265,24 +264,12 @@ export default function ChiTietSanPham() {
                 const discount = calculateDiscount(price || "0", originalPrice || "0")
                 const isFavorite = favorites.includes(product.id)
 
-                 // Handle image path - it might be a string representation of an array
-                 let imgPath: string | undefined = undefined
-                 const rawImgPath = variant?.hinh_anh
-                 
-                 if (typeof rawImgPath === 'string') {
-                   // Try to parse if it's a JSON string
-                   try {
-                     const parsed = JSON.parse(rawImgPath)
-                     imgPath = Array.isArray(parsed) ? parsed[0] : parsed
-                   } catch {
-                     // If parsing fails, use as is
-                     imgPath = rawImgPath
-                   }
-                 } else if (Array.isArray(rawImgPath)) {
-                   imgPath = rawImgPath[0]
-                 }
-                 
-                 const src = imgPath?.startsWith("http") ? imgPath : `http://127.0.0.1:8000/storage/${imgPath}`
+                const imgPath = product.hinh_anh
+                const src = imgPath?.startsWith("http")
+                  ? imgPath
+                  : imgPath
+                    ? `http://127.0.0.1:8000/storage/${imgPath}`
+                    : "/placeholder.svg"
 
                 return (
                   <div
@@ -294,7 +281,7 @@ export default function ChiTietSanPham() {
                   >
                     <div className="relative overflow-hidden">
                       <img
-                        src={src || "/placeholder.svg"}
+                        src={src}
                         alt={product.ten}
                         className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
@@ -336,9 +323,9 @@ export default function ChiTietSanPham() {
                         {originalPrice && Number(originalPrice) > 0 ? (
                           <>
                             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-                              {formatPrice(originalPrice)}
+                              {formatPrice(price)}
                             </span>
-                            <span className="text-sm text-gray-400 line-through font-medium">{formatPrice(price)}</span>
+                            <span className="text-sm text-gray-400 line-through font-medium">{formatPrice(originalPrice)}</span>
                           </>
                         ) : (
                           <span className="text-2xl font-bold text-gray-800">{formatPrice(price)}</span>
