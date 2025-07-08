@@ -5,7 +5,7 @@ import QuanLyDanhMuc from "../pages/admin/danh_muc/QuanLyDanhMuc";
 import DanhMucDaXoa from "../pages/admin/danh_muc/DanhMucDaXoa";
 import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
 import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
-import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
+import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/DiscountCodeList";
 import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
 
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
@@ -37,6 +37,9 @@ import EditAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/EditAttrib
 import DeletedListPage from "../pages/admin/gia_tri_thuoc_tinh/DeletedListPage";
 import StaffManagementPage from "../pages/admin/tai_khoan/liststuff";
 import StaffAddPage from "../pages/admin/tai_khoan/Formadd";
+import AddDiscountCodePage from "../pages/admin/ma_giam_gia/AddDiscountCodePage";
+import EditDiscountCodePage from "../pages/admin/ma_giam_gia/EditDiscountCodePage";
+import DeletedDiscountCodeList from "../pages/admin/ma_giam_gia/DeletedDiscountCodeList";
 
 export const adminRouter = {
   path: "/admin",
@@ -89,6 +92,10 @@ export const adminRouter = {
 
         // Các thuộc tính khác
         { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
+        { path: "ma-giam-gia/add", element: <AddDiscountCodePage /> },
+        { path: "ma-giam-gia/edit/:id", element: <EditDiscountCodePage /> },
+        { path: "ma-giam-gia/list/delete", element: <DeletedDiscountCodeList /> },
+
         { path: "don-hang", element: <OrderListPage /> },   
         { path: "don-hang/:id", element: <OrderDetailPage /> }, 
       
