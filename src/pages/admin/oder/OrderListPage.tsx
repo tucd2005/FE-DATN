@@ -48,13 +48,8 @@ const OrderListPage: React.FC = () => {
   const { data: orders, isLoading } = useOrderList();
   const updateStatusMutation = useUpdateOrderStatus();
 
-  // Sắp xếp đơn hàng mới nhất lên đầu
-  const sortedOrders = React.useMemo(() => {
-    if (!orders) return [];
-    return [...orders].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-  }, [orders]);
+  const sortedOrders = orders?.slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+
 
   const handleChangeStatus = (id: number, value: string) => {
     updateStatusMutation.mutate(
@@ -135,23 +130,23 @@ const OrderListPage: React.FC = () => {
     },
   ];
 
-  return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h2>
-      {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={sortedOrders}
-          pagination={{ pageSize: 10 }}
-        />
-      )}
-    </div>
-  );
+ return (
+  <div className="p-4">
+    <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h2>
+    {isLoading ? (
+      <div className="flex justify-center items-center py-8">
+        <Spin size="large" />
+      </div>
+    ) : (
+     <Table
+  rowKey="id"
+  columns={columns}
+  dataSource={sortedOrders}
+  pagination={{ pageSize: sortedOrders.length, showSizeChanger: true, pageSizeOptions: ['10', '20', '50', '100'] }}
+/>
+    )}
+  </div>
+);
 };
 
 export default OrderListPage;

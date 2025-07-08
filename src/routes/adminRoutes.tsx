@@ -35,6 +35,8 @@ import AttributeValueListPage from "../pages/admin/gia_tri_thuoc_tinh/AttributeV
 import AddAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/AddAttributeValuePage";
 import EditAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/EditAttributeValuePage";
 import DeletedListPage from "../pages/admin/gia_tri_thuoc_tinh/DeletedListPage";
+import StaffManagementPage from "../pages/admin/tai_khoan/liststuff";
+import StaffAddPage from "../pages/admin/tai_khoan/Formadd";
 
 export const adminRouter = {
   path: "/admin",
@@ -56,6 +58,8 @@ export const adminRouter = {
         // Tài khoản
         { path: "account_admin", element: <ListAccountAdminPage /> },
         { path: "account_user", element: <ListAccountUsePage /> },
+        { path: "account_staff", element: <StaffManagementPage /> },
+        { path: "accounts/add", element: <StaffAddPage /> },
 
         // Sản phẩm
         { path: "san-pham", element: <QuanLySanPham /> },
@@ -85,7 +89,7 @@ export const adminRouter = {
 
         // Các thuộc tính khác
         { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
-        { path: "don-hang", element: <OrderListPage /> }, 
+        { path: "don-hang", element: <OrderListPage /> },   
         { path: "don-hang/:id", element: <OrderDetailPage /> }, 
       
 

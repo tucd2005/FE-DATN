@@ -1,14 +1,11 @@
-import { Button, Popconfirm, Tag, Table } from 'antd';
+import {  Tag, Table } from 'antd';
 import React from 'react';
-import { useAccountList, useBlockUser, useUnblockUser } from '../../../hooks/useAccount';
-import { useNavigate } from 'react-router-dom';
-import { PlusOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { useAccountList } from '../../../hooks/useAccount';
+
 
 const ListAccountAdminPage = () => {
   const { data: accounts = [], isLoading } = useAccountList();
-  const navigate = useNavigate();
-  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
-  const { mutate: unblockUser, isPending: isUnblocking } = useUnblockUser();
+
 
   const columns = [
     { title: 'Tên', dataIndex: 'name', key: 'name' },
@@ -25,62 +22,13 @@ const ListAccountAdminPage = () => {
         </Tag>
       )
     },
-    {
-      title: 'Thao tác',
-      key: 'action',
-      render: (_: any, record: any) => (
-        <>
-          {record.trang_thai !== 'blocked' ? (
-            <Popconfirm
-              title="Xác nhận khóa tài khoản này?"
-              okText="Khóa"
-              cancelText="Hủy"
-              onConfirm={() =>
-                blockUser({
-                  id: record.id,
-                  data: { ly_do_block: 'Khóa bởi admin', block_den_ngay: null }
-                })
-              }
-            >
-              <Button
-                icon={<LockOutlined />}
-                loading={isBlocking}
-              >
-                Khóa
-              </Button>
-            </Popconfirm>
-          ) : (
-            <Popconfirm
-              title="Xác nhận mở khóa tài khoản này?"
-              okText="Mở khóa"
-              cancelText="Hủy"
-              onConfirm={() => unblockUser(record.id)}
-            >
-              <Button
-                type="primary"
-                icon={<UnlockOutlined />}
-                loading={isUnblocking}
-              >
-                Mở khóa
-              </Button>
-            </Popconfirm>
-          )}
-        </>
-      )
-    }
+    
   ];
 
   return (
     <div className="p-6 bg-white rounded shadow">
       <div className="flex justify-between mb-4 items-center">
         <h2 className="text-xl font-semibold">Danh sách tài khoản quản trị</h2>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => navigate('/admin/accounts/add')}
-        >
-          Thêm tài khoản
-        </Button>
       </div>
       <Table
         columns={columns}
