@@ -184,9 +184,9 @@ const AddProduct: React.FC = () => {
         {variantFields.map((variant, variantIndex) => (
           <Space key={variant.id} direction="vertical" className="w-full p-4 border rounded mb-4">
             <h4>Biến thể #{variantIndex + 1}</h4>
-
+<span>Giá gốc</span>
             <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Giá" {...field} />} />
-            <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Giá KM" {...field} />} />
+          z  <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Giá KM" {...field} />} />
             <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" {...field} />} />
 
             <Form.Item label="Ảnh biến thể">
