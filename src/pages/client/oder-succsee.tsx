@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react"
-import { useLocation } from "react-router-dom"
+"use client"
 
+import { useEffect, useRef, useState } from "react"
+import { useLocation } from "react-router-dom"
+import { CheckCircle, XCircle, Copy, Package, User, MapPin, Calendar, CreditCard, Home } from "lucide-react"
 import instanceAxios from "../../utils/axios"
 
 interface OrderDetail {
@@ -41,7 +43,7 @@ interface Order {
 interface PaymentData {
   code: string
   message: string
-  order: Order
+  order: Order | null
 }
 
 export default function PaymentResultPage() {
@@ -49,305 +51,296 @@ export default function PaymentResultPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<PaymentData | null>(null)
   const [copied, setCopied] = useState(false)
+  const didFetch = useRef(false)
 
   useEffect(() => {
+    if (didFetch.current) return
+    didFetch.current = true
+
     const fetchData = async () => {
       try {
         const query = location.search
+        console.log("[Payment] Fetching payment callback:", query)
         const res = await instanceAxios.get(`/payment/vnpay/return${query}`)
+        console.log("[Payment] Callback data:", res.data)
         setData(res.data)
       } catch (error) {
-        console.error(error)
+        console.error("[Payment] Lỗi khi gọi /payment/vnpay/return:", error)
         setData(null)
       } finally {
         setLoading(false)
       }
     }
+
     fetchData()
   }, [location.search])
 
   if (loading) {
-    return <div className="text-center mt-10">Đang xử lý kết quả thanh toán...</div>
-  }
-
-  if (!data || data.code !== "00" || !data.order) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-        <div className="bg-white shadow rounded-xl p-6 text-center">
-          <h1 className="text-3xl font-bold text-red-600 mb-4">❌ Thanh toán thất bại!</h1>
-          <p className="text-gray-700">
-            Lý do: <strong>{data?.message || "Không xác định"}</strong>
-            {data?.code && (
-              <span className="block text-sm text-gray-500 mt-1">
-                (Mã lỗi: <span className="font-mono">{data.code}</span>)
-              </span>
-            )}
-          </p>
-          <a href="/" className="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Về trang chủ</a>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full mx-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Đang xử lý thanh toán</h2>
+          <p className="text-gray-600">Vui lòng chờ trong giây lát...</p>
         </div>
       </div>
     )
   }
 
-  const order = data.order;
-  const isCancelled = order.trang_thai_don_hang === "da_huy";
+  if (!data || data.code !== "00" || !data.order) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
+          <div className="mb-6">
+            <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4 animate-pulse" />
+            <h1 className="text-2xl font-bold text-red-600 mb-3">Thanh toán thất bại!</h1>
+            <div className="bg-red-50 rounded-lg p-4 mb-6">
+              <p className="text-red-700 font-medium">{data?.message || "Không xác định"}</p>
+              {data?.code && (
+                <p className="text-red-500 text-sm mt-2">
+                  Mã lỗi: <span className="font-mono bg-red-100 px-2 py-1 rounded">{data.code}</span>
+                </p>
+              )}
+            </div>
+          </div>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200"
+          >
+            <Home className="w-4 h-4" />
+            Về trang chủ
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  const order = data.order
+  const orderDetails = order?.order_detail || []
+  const isCancelled = order.trang_thai_don_hang === "da_huy"
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat("vi-VN").format(amount)
+
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleString("vi-VN", {
-      year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", second: "2-digit"
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     })
+
   const getStatusText = (status: string) => {
     const map: Record<string, string> = {
       da_thanh_toan: "Đã thanh toán",
       dang_chuan_bi: "Đang chuẩn bị",
       dang_giao: "Đang giao",
       da_giao: "Đã giao",
-      da_huy: "Đã hủy"
+      da_huy: "Đã hủy",
     }
     return map[status] || status
   }
+
+  const getStatusColor = (status: string) => {
+    const colorMap: Record<string, string> = {
+      da_thanh_toan: "bg-green-100 text-green-800",
+      dang_chuan_bi: "bg-yellow-100 text-yellow-800",
+      dang_giao: "bg-blue-100 text-blue-800",
+      da_giao: "bg-green-100 text-green-800",
+      da_huy: "bg-red-100 text-red-800",
+    }
+    return colorMap[status] || "bg-gray-100 text-gray-800"
+  }
+
   const parseProductAttributes = (str: string) => {
     try {
       const attrs = JSON.parse(str)
       return attrs.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
-    } catch { return "" }
+    } catch {
+      return ""
+    }
   }
+
   const copyOrderCode = () => {
-    if (data?.order?.ma_don_hang) {
-      navigator.clipboard.writeText(data.order.ma_don_hang)
+    if (order?.ma_don_hang) {
+      navigator.clipboard.writeText(order.ma_don_hang)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
   }
-  const fullAddress = data?.order
-    ? `${data.order.dia_chi}, ${data.order.xa}, ${data.order.huyen}, ${data.order.thanh_pho}`
-    : ""
+
+  const fullAddress = `${order.dia_chi}, ${order.xa}, ${order.huyen}, ${order.thanh_pho}`
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${isCancelled ? "from-red-50 to-red-100" : "from-blue-50 to-indigo-100"} flex items-center justify-center p-4`}>
-      <div className={`w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden ${isCancelled ? "border-2 border-red-400" : ""}`}>
-        {/* Header */}
-        <div className={`text-center py-8 px-6 ${isCancelled ? "bg-red-50" : "bg-white"}`}>
-          <div className="flex justify-center mb-6">
-            <div className={`px-8 py-3 rounded-lg font-bold text-2xl tracking-wide ${isCancelled ? "bg-red-600 text-white" : "bg-red-600 text-white"}`}>VNPAY</div>
+    <div
+      className={`min-h-screen bg-gradient-to-br ${isCancelled ? "from-red-50 via-pink-50 to-rose-50" : "from-green-50 via-emerald-50 to-teal-50"} py-8 px-4`}
+    >
+      <div className="max-w-4xl mx-auto">
+        {/* Header Success */}
+        <div className="bg-white rounded-2xl shadow-xl mb-8 overflow-hidden">
+          <div
+            className={`text-center py-12 px-6 ${isCancelled ? "bg-gradient-to-r from-red-500 to-pink-500" : "bg-gradient-to-r from-green-500 to-emerald-500"}`}
+          >
+            {isCancelled ? (
+              <XCircle className="w-20 h-20 text-white mx-auto mb-4 animate-pulse" />
+            ) : (
+              <CheckCircle className="w-20 h-20 text-white mx-auto mb-4 animate-bounce" />
+            )}
+            <h1 className="text-3xl font-bold text-white mb-3">
+              {isCancelled ? "Đơn hàng đã hủy" : "Thanh toán thành công!"}
+            </h1>
+            <p className="text-white/90 text-lg">
+              {isCancelled ? "Đơn hàng của bạn đã bị hủy." : "Cảm ơn bạn đã sử dụng dịch vụ thanh toán VNPay"}
+            </p>
           </div>
-          <div className="flex justify-center mb-6">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isCancelled ? "bg-red-100" : "bg-green-100"}`}>
-              <svg className={`w-12 h-12 ${isCancelled ? "text-red-500" : "text-green-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isCancelled ? "M6 18L18 6M6 6l12 12" : "M5 13l4 4L19 7"} />
-              </svg>
+
+          {/* Payment Amount */}
+          {/* Payment Amount */}
+          {!isCancelled && (
+            <div className="p-8">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 text-center border border-green-200">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <CreditCard className="w-6 h-6 text-green-600" />
+                  <p className="text-gray-700 text-lg font-medium">Số tiền đã thanh toán</p>
+                </div>
+                <p className="text-4xl font-bold text-green-600 mb-2">{formatCurrency(order.so_tien_thanh_toan)} VNĐ</p>
+                {Number.parseFloat(order.so_tien_duoc_giam) > 0 && (
+                  <div className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                    <span>Đã tiết kiệm: {formatCurrency(Number.parseFloat(order.so_tien_duoc_giam))} VNĐ</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          <h1 className={`text-3xl font-bold mb-3 ${isCancelled ? "text-red-600" : "text-green-600"}`}>{isCancelled ? "Đơn hàng đã hủy" : data.message}</h1>
-          <p className={`text-lg ${isCancelled ? "text-red-600" : "text-gray-600"}`}>
-            {isCancelled ? "Đơn hàng của bạn đã bị hủy. Nếu có thắc mắc, vui lòng liên hệ hỗ trợ." : "Cảm ơn bạn đã sử dụng dịch vụ thanh toán VNPay"}
-          </p>
+          )}
         </div>
 
-        {/* Nội dung giữ nguyên giao diện */}
-        <div className="px-6 pb-8 space-y-8">
-          <div className="text-center bg-green-50 p-8 rounded-xl border-2 border-green-100">
-            <p className="text-gray-600 mb-2 text-lg">Số tiền đã thanh toán</p>
-            <p className="text-4xl font-bold text-green-600">
-              {formatCurrency(order.so_tien_thanh_toan)} VNĐ
-            </p>
-            {Number.parseFloat(data.order.so_tien_duoc_giam) > 0 && (
-              <p className="text-sm text-green-600 mt-2">Đã giảm: {formatCurrency(Number.parseFloat(data.order.so_tien_duoc_giam))} VNĐ</p>
-            )}
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Order Information */}
-            <div className="space-y-6">
-              <h3 className="font-bold text-xl text-gray-800 border-b-2 border-gray-100 pb-2">Thông tin đơn hàng</h3>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Mã đơn hàng:</span>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded">{data?.order?.ma_don_hang}</span>
-                    <button
-                      onClick={copyOrderCode}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Sao chép mã đơn hàng"
-                    >
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </button>
-                    {copied && <span className="text-sm text-green-600 font-medium">Đã sao chép!</span>}
-                  </div>
-                </div>
-
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Trạng thái thanh toán:</span>
-                  <span className="font-semibold text-green-600">
-                    {getStatusText(data?.order?.trang_thai_thanh_toan || "")}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Trạng thái đơn hàng:</span>
-                  <span className="font-semibold text-blue-600">
-                    {getStatusText(data?.order?.trang_thai_don_hang || "")}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Thời gian đặt hàng:</span>
-                  <span className="font-semibold text-gray-800">
-                    {formatDate(data?.order?.created_at || "")}
-                  </span>
-                </div>
-
-                <div className="flex justify-between py-3">
-                  <span className="text-gray-600 font-medium">Mã phản hồi:</span>
-                  <span className="font-semibold text-green-600">{data.code} - Thành công</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Customer Information */}
-            <div className="space-y-6">
-              <h3 className="font-bold text-xl text-gray-800 border-b-2 border-gray-100 pb-2">Thông tin khách hàng</h3>
-
-              <div className="space-y-4">
-                <div className="py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium block mb-1">Tên khách hàng:</span>
-                  <span className="font-semibold text-gray-800">{data?.order?.user?.name}</span>
-                </div>
-
-                <div className="py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium block mb-1">Email:</span>
-                  <span className="font-semibold text-gray-800">{data?.order?.email_nguoi_dat}</span>
-                </div>
-
-                <div className="py-3">
-                  <span className="text-gray-600 font-medium block mb-1">Địa chỉ giao hàng:</span>
-                  <span className="font-semibold text-gray-800">{fullAddress}</span>
-                </div>
-              </div>
+        {/* Order Details */}
+        <div className="bg-white rounded-2xl shadow-xl mb-8 overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b">
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-gray-600" />
+              <h3 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h3>
             </div>
           </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
-            <h3 className="font-bold text-xl text-gray-800 border-b-2 border-gray-100 pb-2">Chi tiết sản phẩm</h3>
-
-            <div className="space-y-4">
-              {data.order.order_detail.map((item) => (
-                <div key={item.id} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={item.product.hinh_anh || "/placeholder.svg"}
-                      alt={item.product.ten}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 mb-1">{item.product.ten}</h4>
-                      {parseProductAttributes(item.thuoc_tinh_bien_the) && (
-                        <p className="text-sm text-gray-600 mb-2">{parseProductAttributes(item.thuoc_tinh_bien_the)}</p>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Số lượng: {item.so_luong}</span>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">
-                            {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ x {item.so_luong}
-                          </p>
-                          <p className="font-semibold text-gray-800">
-                            {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Security Notice */}
-          <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-400">
-            <div className="flex items-start">
-              <svg
-                className="w-6 h-6 text-blue-600 mr-3 mt-0.5 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="p-6 space-y-4">
+            {orderDetails.map((item, index) => (
+              <div
+                key={item.id}
+                className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
+                <div className="flex-shrink-0">
+                  <img
+                    src={`http://127.0.0.1:8000/storage/${item.product.hinh_anh}`}
+                    alt={item.product.ten}
+                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h4 className="font-semibold text-gray-800 text-lg">{item.product.ten}</h4>
+                  {parseProductAttributes(item.thuoc_tinh_bien_the) && (
+                    <p className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full inline-block">
+                      {parseProductAttributes(item.thuoc_tinh_bien_the)}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
+                      Số lượng: {item.so_luong}
+                    </span>
+                    <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
+                      Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
+                    </span>
+                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
+                      Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Order Information */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-800">Thông tin đơn hàng</h3>
+          </div>
+          <div className="p-6 space-y-6">
+            {/* Order Code */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
               <div>
-                <p className="text-blue-800 font-semibold mb-1">Lưu ý bảo mật:</p>
-                <p className="text-blue-700 text-sm leading-relaxed">
-                  Vui lòng lưu lại mã đơn hàng để tra cứu khi cần thiết. VNPay không bao giờ yêu cầu bạn cung cấp thông
-                  tin thẻ qua email hoặc điện thoại.
-                </p>
+                <p className="text-sm text-gray-600 mb-1">Mã đơn hàng</p>
+                <p className="font-mono text-lg font-semibold text-gray-800">{order.ma_don_hang}</p>
+              </div>
+              <button
+                onClick={copyOrderCode}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <Copy className="w-4 h-4" />
+                {copied ? "Đã sao chép!" : "Sao chép"}
+              </button>
+            </div>
+
+            {/* Status */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <p className="text-sm text-gray-600 mb-2">Trạng thái đơn hàng</p>
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.trang_thai_don_hang)}`}
+                >
+                  {getStatusText(order.trang_thai_don_hang)}
+                </span>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <p className="text-sm text-gray-600 mb-2">Trạng thái thanh toán</p>
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.trang_thai_thanh_toan)}`}
+                >
+                  {getStatusText(order.trang_thai_thanh_toan)}
+                </span>
+              </div>
+            </div>
+
+            {/* Date */}
+            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+              <Calendar className="w-5 h-5 text-gray-600" />
+              <div>
+                <p className="text-sm text-gray-600">Ngày đặt hàng</p>
+                <p className="font-medium text-gray-800">{formatDate(order.created_at)}</p>
+              </div>
+            </div>
+
+            {/* Customer Info */}
+            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+              <User className="w-5 h-5 text-gray-600 mt-1" />
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Thông tin khách hàng</p>
+                <p className="font-medium text-gray-800">{order.user?.name ?? "Không xác định"}</p>
+                <p className="text-gray-700">{order.user?.email ?? order.email_nguoi_dat}</p>
+
+              </div>
+            </div>
+
+            {/* Address */}
+            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+              <MapPin className="w-5 h-5 text-gray-600 mt-1" />
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Địa chỉ giao hàng</p>
+                <p className="text-gray-800 leading-relaxed">{fullAddress}</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <button className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              Về trang chủ
-            </button>
-
-            <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 px-6 rounded-lg border-2 border-gray-200 transition-colors duration-200 flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              In hóa đơn
-            </button>
-
-            <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 px-6 rounded-lg border-2 border-gray-200 transition-colors duration-200 flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Tải biên lai
-            </button>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center pt-8 border-t-2 border-gray-100">
-            <p className="text-sm text-gray-600 mb-2">
-              Được cung cấp bởi <span className="font-bold text-red-600">VNPay</span> - Giải pháp thanh toán hàng đầu
-              Việt Nam
-            </p>
-            <p className="text-sm text-gray-500">
-              Hotline: <span className="font-semibold">1900 55 55 77</span> | Email:{" "}
-              <span className="font-semibold">support@vnpay.vn</span>
-            </p>
-          </div>
+        {/* Back to Home Button */}
+        <div className="text-center mt-8">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1"
+          >
+            <Home className="w-5 h-5" />
+            Về trang chủ
+          </a>
         </div>
       </div>
     </div>
