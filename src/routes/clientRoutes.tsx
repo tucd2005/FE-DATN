@@ -14,6 +14,7 @@ import PaymentResultPage from "../pages/client/oder-succsee";
 import ProfilePage from "../pages/client/profile/profile";
 import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
+import EditProfilePage from "../pages/client/profile/EditProfilePage";
 
 
 
@@ -24,6 +25,7 @@ export const clientRouter = {
     { index: true, element: < HomeClient /> },
     { path: "san-pham", element: <ChiTietSanPham /> },
     { path: "thong-tin-khach-hang", element: <ProfilePage /> },
+    { path: "thong-tin-khach-hang/edit", element: <EditProfilePage /> },
     { path: "chi-tiet-don-hang/:id", element: <OrderTracking /> },
     { path: "chi-tiet-don-hang", element: <OrderHistory /> },
     { path: "gio-hang", element: <CartPage /> },
