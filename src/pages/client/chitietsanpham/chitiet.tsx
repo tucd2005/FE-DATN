@@ -1,25 +1,167 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { useProductDetail } from "../../../hooks/useProduct"
+import type { Variant } from "../../../types/product.type"
+import { Modal, notification } from "antd"
+import { useCartStore } from "../../../stores/cart.store"
 
 export default function ProductDetailclientPage() {
-  const [selectedSize, setSelectedSize] = useState("M")
-  const [selectedColor, setSelectedColor] = useState("white")
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [activeTab, setActiveTab] = useState("description")
+  const { id } = useParams<{ id: string }>();
+  const { data: product, isLoading, error } = useProductDetail(Number(id));
+  const navigate = useNavigate();
+  const { addToCart } = useCartStore();
 
-  const productImages = [
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-  ]
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [activeTab, setActiveTab] = useState("description");
+  const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
-  const sizes = ["S", "M", "L", "XL", "XXL"]
-  const colors = [
-    { name: "black", value: "#000000" },
-    { name: "white", value: "#FFFFFF" },
-    { name: "blue", value: "#3B82F6" },
-  ]
+  // Hàm chuẩn hóa đường dẫn ảnh
+  const getImageUrl = (img: string) => {
+    if (!img) return "/placeholder.svg?height=600&width=600";
+    if (img.startsWith("http")) return img;
+    return `http://localhost:8000/storage/${img}`;
+  };
+
+  // Chuẩn hóa dữ liệu ảnh
+  const productImages: string[] =
+    product && Array.isArray(product.hinh_anh)
+      ? product.hinh_anh.map(getImageUrl)
+      : product && typeof product.hinh_anh === "string"
+      ? [getImageUrl(product.hinh_anh)]
+      : ["/placeholder.svg?height=1200&width=1200"];
+
+  // Lấy tối đa 4 biến thể có ảnh
+  const variantThumbnails = (product?.variants || [])
+    .filter(v => v.hinh_anh)
+    .slice(0, 4);
+
+  // Lấy size và màu từ variants
+  const attributeNames: string[] = product?.variants?.length
+    ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
+    : [];
+
+  const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
+
+  // Tìm variant phù hợp
+  const selectedVariant = product?.variants?.length
+    ? product.variants.find((v) =>
+        attributeNames.every((attr) =>
+          selectedAttributes[attr]
+            ? v.thuoc_tinh.some((a) => a.ten === attr && a.gia_tri === selectedAttributes[attr])
+            : false
+        )
+      )
+    : null;
+
+  const gia = selectedVariant ? selectedVariant.gia : product?.gia;
+  const giaKhuyenMai = selectedVariant ? selectedVariant.gia_khuyen_mai : product?.gia_khuyen_mai;
+  const maxQuantity = selectedVariant ? selectedVariant.so_luong : product?.so_luong || 1;
+
+  // Hàm format giá an toàn
+  const safeLocaleString = (value: number | string | undefined | null) =>
+    typeof value === "number"
+      ? value.toLocaleString("vi-VN")
+      : typeof value === "string" && !isNaN(Number(value))
+      ? Number(value).toLocaleString("vi-VN")
+      : "0";
+
+  const handleAddToCart = async () => {
+    if (!product) {
+      Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+      return;
+    }
+    // XÓA dòng này:
+    // if (!selectedColor) {
+    //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+    //   return;
+    // }
+    // THÊM kiểm tra động:
+    if (!isAllAttributesSelected) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
+      return;
+    }
+    try {
+      await addToCart({
+        san_pham_id: product.id,
+        so_luong: quantity,
+        bien_the_id: selectedVariant?.id,
+      });
+      notification.success({ message: "Thành công", description: "Đã thêm vào giỏ hàng!", placement: "topRight" });
+    } catch {
+      notification.error({ message: "Lỗi", description: "Không thể thêm sản phẩm.", placement: "topRight" });
+    }
+  };
+
+  const handleBuyNow = () => {
+    const isLoggedIn = !!localStorage.getItem("accessToken");
+    if (!isLoggedIn) {
+      Modal.warning({
+        title: "Bạn chưa đăng nhập",
+        content: "Vui lòng đăng nhập để mua hàng!",
+        centered: true,
+        okText: "Đăng nhập ngay",
+        onOk: () => navigate("/login"),
+      });
+      return;
+    }
+    // Kiểm tra động
+    if (!isAllAttributesSelected) {
+      Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
+      return;
+    }
+    if (!product || !selectedVariant) {
+      Modal.info({ title: "Thông báo", content: "Không tìm thấy biến thể phù hợp!", centered: true });
+      return;
+    }
+    navigate("/thanh-toan", {
+      state: {
+        productOrder: {
+          productId: product.id,
+          productName: product.ten,
+          variantId: selectedVariant.id,
+          quantity,
+          attributes: selectedVariant.thuoc_tinh, // <-- truyền toàn bộ thuộc tính động
+          price: gia,
+          discountPrice: giaKhuyenMai,
+          image: productImages[selectedImage],
+          description: product.mo_ta,
+        },
+      },
+    });
+  };
+
+  const handleSelectVariantImage = (variant: Variant, index: number) => {
+    // Tìm màu và size của biến thể
+    const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
+    const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
+    setSelectedColor(color);
+    setSelectedSize(size);
+    setSelectedImage(index); // Đổi ảnh to sang ảnh biến thể đó
+  };
+
+  const getVariantImage = (hinh_anh: string | string[] | undefined) => {
+    if (!hinh_anh) return "/placeholder.svg";
+    if (Array.isArray(hinh_anh)) return getImageUrl(hinh_anh[0]);
+    try {
+      // Nếu là string dạng JSON array
+      const arr = JSON.parse(hinh_anh);
+      if (Array.isArray(arr) && arr.length > 0) return getImageUrl(arr[0]);
+    } catch {
+      // Nếu là string path thông thường
+      return getImageUrl(hinh_anh);
+    }
+    return "/placeholder.svg";
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Đang tải chi tiết sản phẩm...</div>
+  }
+  if (error || !product) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error ? "Không tìm thấy sản phẩm hoặc có lỗi xảy ra." : "Không tìm thấy sản phẩm."}</div>
+  }
 
   const features = [
     "Công nghệ Dri-FIT thấm hút mồ hôi",
@@ -70,17 +212,6 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
-  const SearchIcon = () => (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-      />
-    </svg>
-  )
-
   const ShoppingCartIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -88,17 +219,6 @@ export default function ProductDetailclientPage() {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
-      />
-    </svg>
-  )
-
-  const UserIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
       />
     </svg>
   )
@@ -114,17 +234,7 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
-  const ShareIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-      />
-    </svg>
-  )
-
+ 
   const MinusIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -182,10 +292,15 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
+  const mainImage =
+    selectedVariant?.hinh_anh
+      ? getVariantImage(selectedVariant.hinh_anh)
+      : productImages[selectedImage] || "/placeholder.svg";
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-     
+
 
       {/* Breadcrumb */}
       <div className="bg-gray-50 py-3">
@@ -206,15 +321,15 @@ export default function ProductDetailclientPage() {
 
       {/* Product Detail */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-12">
           {/* Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative bg-gray-50 rounded-lg overflow-hidden">
               <img
-                src={productImages[selectedImage] || "/placeholder.svg"}
-                alt="Áo thun thể thao Nike Dri-FIT"
-                className="w-full h-96 lg:h-[600px] object-cover"
+                src={mainImage}
+                alt={product.ten}
+                className="aspect-[4/3] object-cover rounded-lg"
               />
               <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                 -25%
@@ -237,21 +352,22 @@ export default function ProductDetailclientPage() {
 
             {/* Thumbnail Images */}
             <div className="grid grid-cols-4 gap-3">
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`border-2 rounded-lg overflow-hidden transition-colors ${
-                    selectedImage === index ? "border-blue-500" : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={`Product ${index + 1}`}
-                    className="w-full h-20 object-cover"
-                  />
-                </button>
-              ))}
+              {variantThumbnails.map((variant, idx) => {
+                const img = getVariantImage(variant.hinh_anh);
+                const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
+                const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
+                const isActive = selectedVariant?.id === variant.id;
+                return (
+                  <button
+                    key={variant.id}
+                    onClick={() => handleSelectVariantImage(variant, idx)}
+                    className={`border-2 rounded-lg overflow-hidden transition-colors ${isActive ? "border-blue-500" : "border-gray-200 hover:border-gray-300"}`}
+                    title={`Màu: ${color}, Size: ${size}`}
+                  >
+                    <img src={img} alt={`Variant ${idx + 1}`} className="aspect-square w-full object-cover rounded" />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -262,7 +378,7 @@ export default function ProductDetailclientPage() {
               <div className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mb-3">
                 Áo thể thao
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">Áo thun thể thao Nike Dri-FIT</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.ten}</h1>
 
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-4">
@@ -279,55 +395,93 @@ export default function ProductDetailclientPage() {
 
             {/* Price */}
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-blue-600">599.000đ</span>
-              <span className="text-xl text-gray-500 line-through">799.000đ</span>
-              <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">-25%</div>
+              <span className="text-3xl font-bold text-blue-600">
+                {selectedVariant
+                  ? `${safeLocaleString(selectedVariant.gia)}đ`
+                  : product?.gia
+                    ? `${safeLocaleString(product.gia)}đ`
+                    : isAllAttributesSelected
+                      ? "Liên hệ"
+                      : "Vui lòng chọn đầy đủ thuộc tính"}
+              </span>
+              {giaKhuyenMai && (
+                <>
+                  <span className="text-xl text-gray-500 line-through">{safeLocaleString(giaKhuyenMai)}đ</span>
+                  <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                    -{gia && giaKhuyenMai ? Math.round(100 - (Number(giaKhuyenMai) / Number(gia)) * 100) : 0}%
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 leading-relaxed">
-              Áo thun thể thao Nike Dri-FIT với công nghệ thấm hút mồ hôi tiên tiến, giúp bạn luôn khô ráo và thoải mái
-              trong suốt quá trình tập luyện.
-            </p>
+            <p className="text-gray-600 leading-relaxed">{product.mo_ta}</p>
 
-            {/* Size Selection */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Kích thước:</h3>
-              <div className="flex space-x-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 border-2 rounded-lg font-semibold transition-colors ${
-                      selectedSize === size
-                        ? "border-blue-500 bg-blue-50 text-blue-600"
-                        : "border-gray-200 text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+
+            {/* Attributes Selection */}
+            <div className="space-y-4">
+              {attributeNames.map((attr) => {
+                const values = Array.from(
+                  new Set(
+                    product.variants.flatMap((v) =>
+                      v.thuoc_tinh.filter((a) => a.ten === attr).map((a) => a.gia_tri)
+                    )
+                  )
+                );
+
+                return (
+                  <div key={attr}>
+                    <h3 className="font-semibold text-gray-900 mb-3">{attr}:</h3>
+                    <div className="flex space-x-3 mb-2">
+                      {values.map((value) => {
+                        const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
+                        const hypotheticalSelected = { ...selectedAttributes, [attr]: value };
+                        const matchingVariants = product.variants.filter((v) =>
+                          attributeNames.every((a) =>
+                            hypotheticalSelected[a]
+                              ? v.thuoc_tinh.some((t) => t.ten === a && t.gia_tri === hypotheticalSelected[a])
+                              : true
+                          )
+                        );
+                        const isOutOfStock = matchingVariants.length === 0 || matchingVariants.every((v) => v.so_luong === 0);
+
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => {
+                              if (isOutOfStock) return;
+                              setSelectedAttributes((prev) => {
+                                if (prev[attr] === value) {
+                                  const newAttrs = { ...prev };
+                                  delete newAttrs[attr];
+                                  return newAttrs;
+                                }
+                                return { ...prev, [attr]: value };
+                              });
+                            }}
+                            disabled={isOutOfStock}
+                            className={
+                              isColor
+                                ? `w-10 h-10 rounded-full border-4 transition-colors flex items-center justify-center
+                                    ${selectedAttributes[attr] === value ? "border-blue-500" : "border-gray-200 hover:border-gray-300"}
+                                    ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`
+                                : `border-2 rounded-lg px-4 py-2 font-semibold transition-colors
+                                    ${selectedAttributes[attr] === value ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-200 text-gray-700 hover:border-gray-300"}
+                                    ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`
+                            }
+                            style={isColor ? { backgroundColor: value } : {}}
+                            title={isColor ? value : undefined}
+                          >
+                            {isColor ? "" : value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Color Selection */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Màu sắc:</h3>
-              <div className="flex space-x-3">
-                {colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-10 h-10 rounded-full border-4 transition-colors ${
-                      selectedColor === color.name ? "border-blue-500" : "border-gray-200"
-                    }`}
-                    style={{ backgroundColor: color.value }}
-                  >
-                    {color.name === "white" && <div className="w-full h-full rounded-full border border-gray-200" />}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Quantity */}
             <div>
@@ -341,26 +495,38 @@ export default function ProductDetailclientPage() {
                     <MinusIcon />
                   </button>
                   <span className="px-4 py-2 font-semibold">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                    className="p-2 hover:bg-gray-50 transition-colors"
+                  >
                     <PlusIcon />
                   </button>
                 </div>
-                <span className="text-gray-600">Còn lại 47 sản phẩm</span>
+                <span className="text-gray-600">Còn lại {safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm</span>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+              <button
+                onClick={handleAddToCart}
+                className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+              >
                 <ShoppingCartIcon />
-                <span>Thêm vào giỏ hàng</span>
+                <span className="text-sm">Thêm vào giỏ hàng</span>
               </button>
+
+              <button
+                onClick={handleBuyNow}
+                className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                <ShoppingCartIcon />
+                <span className="text-sm">Mua ngay</span>
+              </button>
+
               <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <HeartIcon />
               </button>
-              <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ShareIcon />
-              </button>
+
             </div>
 
             {/* Service Info */}
@@ -408,11 +574,10 @@ export default function ProductDetailclientPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -618,90 +783,7 @@ export default function ProductDetailclientPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-100 py-12 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">S</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">Sportigo</span>
-              </div>
-              <p className="text-gray-600 mb-4">
-                Cửa hàng đồ thể thao trực tuyến hàng đầu Việt Nam với hàng ngàn sản phẩm chất lượng từ các thương hiệu
-                uy tín.
-              </p>
-            </div>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Liên kết nhanh</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Về chúng tôi
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Sản phẩm
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Khuyến mãi
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Liên hệ
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Hỗ trợ khách hàng</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Trung tâm trợ giúp
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Chính sách giao hàng
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Đổi trả hàng
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-600 transition-colors">
-                    Bảo hành sản phẩm
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Liên hệ</h3>
-              <div className="space-y-2 text-gray-600">
-                <p>📞 1900 2024</p>
-                <p>✉️ support@sportigo.vn</p>
-                <p>📍 456 Lê Văn Việt, Quận 9, TP.HCM</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
-            <p>© 2024 Sportigo. Tất cả quyền được bảo lưu.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

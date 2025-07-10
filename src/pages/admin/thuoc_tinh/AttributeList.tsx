@@ -1,15 +1,25 @@
 import React from 'react';
 import { Table, Button, Popconfirm, Tag, Space } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
-import { PlusOutlined, DeleteOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EyeOutlined, EditOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { useDeleteAttribute, useList } from '../../../hooks/useAttribute';
 
-const AttributeListPage = () => {
+// Định nghĩa kiểu dữ liệu của 1 attribute
+interface Attribute {
+  id: number;
+  ten: string;
+  deleted_at: string | null;
+  isLoading:any;
+
+}
+
+const AttributeListPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: attributes, isLoading } = useList();
+  const { data: attributes = [], isLoading } = useList();
   const { mutate: deleteAttribute, isLoading: isDeleting } = useDeleteAttribute();
 
-  const columns = [
+  const columns: ColumnsType<Attribute> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -25,7 +35,7 @@ const AttributeListPage = () => {
       title: 'Trạng thái',
       dataIndex: 'deleted_at',
       key: 'status',
-      render: (deleted_at) => (
+      render: (deleted_at: string | null) => (
         <Tag color={deleted_at ? 'red' : 'green'}>
           {deleted_at ? 'Đã xóa' : 'Đang hoạt động'}
         </Tag>
@@ -34,16 +44,23 @@ const AttributeListPage = () => {
     {
       title: 'Hành động',
       key: 'actions',
-      width: 150,
+      width: 200,
       render: (_, record) => (
         <Space>
-          {/* Nút chỉnh sửa nếu cần */}
+          {/* Nút xem giá trị thuộc tính */}
+          <Button
+            icon={<DatabaseOutlined />}
+            size="small"
+            onClick={() => navigate(`/admin/gia-tri/thuoc-tinh/${record.id}`)}
+          />
+          {/* Nút chỉnh sửa */}
           <Button
             type="primary"
             icon={<EditOutlined />}
             size="small"
             onClick={() => navigate(`/admin/thuoc-tinh/${record.id}/edit`)}
           />
+          {/* Nút xóa */}
           <Popconfirm
             title="Bạn có chắc muốn xóa thuộc tính này?"
             onConfirm={() => deleteAttribute(record.id)}

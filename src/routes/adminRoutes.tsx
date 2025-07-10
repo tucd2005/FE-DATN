@@ -5,7 +5,7 @@ import QuanLyDanhMuc from "../pages/admin/danh_muc/QuanLyDanhMuc";
 import DanhMucDaXoa from "../pages/admin/danh_muc/DanhMucDaXoa";
 import QuanLyDonHang from "../pages/admin/don_hang/QuanLyDonHang";
 import QuanLyKichThuoc from "../pages/admin/kich_thuoc/QuanLyKichThuoc";
-import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/QuanLyMaGiamGia";
+import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/DiscountCodeList";
 import QuanLyMauSac from "../pages/admin/mau_sac/QuanLyMauSac";
 
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
@@ -27,6 +27,19 @@ import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
 import QuanLyBienThe from '../pages/admin/bien_the/QuanLyBienThe';
 import AttributeEditPage from "../pages/admin/thuoc_tinh/AttributeEdit";
 import AttributeDeletedListPage from "../pages/admin/thuoc_tinh/AttributeDeletedListPage";
+import OrderListPage from "../pages/admin/oder/OrderListPage";
+import OrderDetailPage from "../pages/admin/oder/OrderDetailPage";
+import ReviewListPage from "../pages/admin/danh-gia/ReviewListPage";
+import ReviewDetailPage from "../pages/admin/danh-gia/ReviewDetailPage";
+import AttributeValueListPage from "../pages/admin/gia_tri_thuoc_tinh/AttributeValueListPage";
+import AddAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/AddAttributeValuePage";
+import EditAttributeValuePage from "../pages/admin/gia_tri_thuoc_tinh/EditAttributeValuePage";
+import DeletedListPage from "../pages/admin/gia_tri_thuoc_tinh/DeletedListPage";
+import StaffManagementPage from "../pages/admin/tai_khoan/liststuff";
+import StaffAddPage from "../pages/admin/tai_khoan/Formadd";
+import AddDiscountCodePage from "../pages/admin/ma_giam_gia/AddDiscountCodePage";
+import EditDiscountCodePage from "../pages/admin/ma_giam_gia/EditDiscountCodePage";
+import DeletedDiscountCodeList from "../pages/admin/ma_giam_gia/DeletedDiscountCodeList";
 
 export const adminRouter = {
   path: "/admin",
@@ -48,6 +61,8 @@ export const adminRouter = {
         // Tài khoản
         { path: "account_admin", element: <ListAccountAdminPage /> },
         { path: "account_user", element: <ListAccountUsePage /> },
+        { path: "account_staff", element: <StaffManagementPage /> },
+        { path: "accounts/add", element: <StaffAddPage /> },
 
         // Sản phẩm
         { path: "san-pham", element: <QuanLySanPham /> },
@@ -70,18 +85,31 @@ export const adminRouter = {
         // Banner
         { path: "banner", element: <QuanLyBanner /> },
 
+
+        { path: "danh-gia", element: <ReviewListPage /> },
+        { path: "danh-gia/:id", element: <ReviewDetailPage /> },
+
+
         // Các thuộc tính khác
         { path: "ma-giam-gia", element: <QuanLyMaGiamGia /> },
-        { path: "don-hang", element: <QuanLyDonHang /> },
-        { path: "kich-thuoc", element: <QuanLyKichThuoc /> },
-        { path: "mau-sac", element: <QuanLyMauSac /> },
+        { path: "ma-giam-gia/add", element: <AddDiscountCodePage /> },
+        { path: "ma-giam-gia/edit/:id", element: <EditDiscountCodePage /> },
+        { path: "ma-giam-gia/list/delete", element: <DeletedDiscountCodeList /> },
+
+        { path: "don-hang", element: <OrderListPage /> },   
+        { path: "don-hang/:id", element: <OrderDetailPage /> }, 
+      
 
         // Thuộc tính
         { path: "thuoc-tinh", element: <AttributeList /> },
         { path: "thuoc-tinh/add", element: <AttributeAddPage /> },
         { path: "thuoc-tinh/deleted", element: <AttributeDeletedListPage /> },
         { path: "thuoc-tinh/:id/edit", element: <AttributeEditPage /> },
-
+        { path: "gia-tri/thuoc-tinh/:attributeId", element: <AttributeValueListPage /> },
+        { path: "gia-tri/thuoc-tinh/:attributeId/add", element: <AddAttributeValuePage /> },
+        { path: "gia-tri/thuoc-tinh/:id/edit", element: <EditAttributeValuePage /> },
+        { path: "gia-tri/thuoc-tinh/:attributeId/deleted", element: <DeletedListPage /> }
+      
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },
       ],

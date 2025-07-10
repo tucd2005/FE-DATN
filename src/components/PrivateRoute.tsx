@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 export default function PrivateRoute({ children }: { children: ReactNode }) {
 
-  const token = localStorage.getItem("token"); // 👈 Kiểm tra token
+  const token = localStorage.getItem("accessToken"); // 👈 Kiểm tra token
 
   return token ? children : <Navigate to="/admin/login" replace />;
 }

@@ -1,7 +1,7 @@
 import { Button, Popconfirm, Tag, Table } from 'antd';
 import React from 'react';
 import { useAccountListuser, useBlockUser, useUnblockUser } from '../../../hooks/useAccount';
-import { LockOutlined, PlusOutlined, UnlockOutlined } from '@ant-design/icons';
+import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 const ListAccountUsePage = () => {

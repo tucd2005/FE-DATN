@@ -34,4 +34,48 @@ export const attributeService = {
     const res = await instanceAxios.delete(`/admin/attributes/force-delete/${id}`);
     return res.data;
   },
+  
 };
+
+// Lấy danh sách giá trị thuộc tính theo thuộc tính
+export const getAttributeValuesByAttributeId = async (id: number) => {
+  const response = await instanceAxios.get(`admin/attribute-values/attribute/${id}`);
+  return response.data.data; 
+};
+
+
+export const createAttributeValue = async (attributeId: number, gia_tri: string) => {
+  const response = await instanceAxios.post(
+    `/admin/attribute-values/attribute/${attributeId}`,
+    { gia_tri }
+  );
+  return response.data.data;
+};
+export const updateAttributeValue = async (id: number, gia_tri: string) => {
+  const response = await instanceAxios.put(
+    `/admin/attribute-values/${id}`,
+    { gia_tri }
+  );
+  return response.data.data;
+};
+
+export const getAttributeValueById = async (id: number) => {
+  const response = await instanceAxios.get(`/admin/attribute-values/${id}`);
+  return response.data.data;
+};
+
+export const softDeleteAttributeValue = async (id: number) => {
+  const response = await instanceAxios.delete(`/admin/attribute-values/${id}`);
+  return response.data;
+};
+
+// Lấy list đã xoá mềm (backend phải cung cấp endpoint này)
+export const getDeletedAttributeValuesByAttributeId = async (attributeId: number) => {
+  const response = await instanceAxios.get(`/admin/attribute-values/trash/list`);
+  return response.data.data;
+};
+export const restoreAttributeValue = async (id: number) => {
+  const response = await instanceAxios.post(`/admin/attribute-values/restore/${id}`);
+  return response.data;
+};
+

@@ -1,34 +1,79 @@
 import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import { sendOtpApi, verifyOtpApi } from "../../../api/authClientApi";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 
-export default function VerifyOtp({ email, setTab, onClose }: {
-   email: string;
-    setTab: (tab: "login" | "register" | "verify") => void
-    onClose: ()=> void;
-  })
- {
-  const { 
+interface VerifyOtpProps {
+  email: string;
+  onClose: () => void;
+}
+
+interface OtpForm {
+  otp: string;
+}
+
+export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
+  const {
     register,
-     handleSubmit,
-      reset,
-       formState: { isSubmitting }
-      } = useForm();
+    handleSubmit,
+    reset,
+    formState: { isSubmitting }
+  } = useForm<OtpForm>();
 
-  const onSubmit = async (data: any) => {
+  const navigate = useNavigate()
+
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const [counter, setCounter] = useState(60);
+
+  // Đồng hồ đếm ngược 60s
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (isResendDisabled) {
+      timer = setInterval(() => {
+        setCounter((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsResendDisabled(false);
+            return 60;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isResendDisabled]);
+
+  const onSubmit = async (data: OtpForm) => {
     try {
       const res = await verifyOtpApi({ email, otp: data.otp });
-      console.log("RESPONSE:", res);
-
       if (res.data?.access_token) {
         localStorage.setItem("accessToken", res.data.access_token);
         message.success("Xác minh thành công!");
         reset();
-        onClose()
+        onClose?.();
+        navigate("/")
       }
-    } catch (err: any) {
-      message.error(err.response?.data?.message || "Lỗi xác minh");
-      console.log("Bắt lỗi:", err);
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        message.error(err.response?.data?.message || "Lỗi xác minh");
+      } else {
+        message.error("Lỗi xác minh");
+      }
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      await sendOtpApi({ email });
+      message.success("Mã OTP đã được gửi lại.");
+      setIsResendDisabled(true);
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        message.error(err.response?.data?.message || "Không gửi được OTP");
+      } else {
+        message.error("Không gửi được OTP");
+      }
     }
   };
 
@@ -38,20 +83,17 @@ export default function VerifyOtp({ email, setTab, onClose }: {
         {...register("otp", { required: "Vui lòng nhập mã OTP." })}
         placeholder="Nhập mã OTP"
         className="p-2 border rounded"
-      /><button
-      type="button"
-      className="text-blue-600 underline text-sm"
-      onClick={async () => {
-        try {
-          await sendOtpApi({ email });
-          message.success("Mã OTP đã được gửi lại.");
-        } catch (err) {
-          message.error(err?.response?.data?.message || "Không gửi được OTP");
-        }
-      }}
-    >
-      Gửi lại mã OTP
-    </button>
+      />
+
+      <button
+        type="button"
+        className="text-blue-600 underline text-sm disabled:opacity-50"
+        onClick={handleResend}
+        disabled={isResendDisabled}
+      >
+        {isResendDisabled ? `Gửi lại sau ${counter}s` : "Gửi lại mã OTP"}
+      </button>
+
       <button
         type="submit"
         className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
@@ -62,4 +104,3 @@ export default function VerifyOtp({ email, setTab, onClose }: {
     </form>
   );
 }
-
