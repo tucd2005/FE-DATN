@@ -1,4 +1,3 @@
-"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { useLocation } from "react-router-dom"
@@ -98,38 +97,40 @@ export default function PaymentResultPage() {
     )
   }
 
-  if (!data || data.code !== "00" || !data.order) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
-          <div className="mb-6">
-            <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4 animate-pulse" />
-            <h1 className="text-2xl font-bold text-red-600 mb-3">Thanh toán thất bại!</h1>
-            <div className="bg-red-50 rounded-lg p-4 mb-6">
-              <p className="text-red-700 font-medium">{data?.message || "Không xác định"}</p>
-              {data?.code && (
-                <p className="text-red-500 text-sm mt-2">
-                  Mã lỗi: <span className="font-mono bg-red-100 px-2 py-1 rounded">{data.code}</span>
-                </p>
-              )}
-            </div>
-          </div>
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200"
-          >
-            <Home className="w-4 h-4" />
-            Về trang chủ
-          </a>
-        </div>
-      </div>
-    )
-  }
+const order = data?.order
+const isPaid = order?.trang_thai_thanh_toan === "da_thanh_toan"
+const isCancelled = order?.trang_thai_don_hang === "da_huy"
 
-  const order = data.order
+if (!data || !order || !isPaid) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
+        <div className="mb-6">
+          <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4 animate-pulse" />
+          <h1 className="text-2xl font-bold text-red-600 mb-3">Thanh toán thất bại!</h1>
+          <div className="bg-red-50 rounded-lg p-4 mb-6">
+          
+            {data?.code && (
+              <p className="text-red-500 text-sm mt-2">
+                Mã lỗi: <span className="font-mono bg-red-100 px-2 py-1 rounded">{data.code}</span>
+              </p>
+            )}
+          </div>
+        </div>
+        <a
+          href="/"
+          className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200"
+        >
+          <Home className="w-4 h-4" />
+          Về trang chủ
+        </a>
+      </div>
+    </div>
+  )
+}
+
   // Lấy chi tiết sản phẩm từ backend mới
   const productDetails = order?.order_detail || []
-  const isCancelled = order.trang_thai_don_hang === "da_huy"
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat("vi-VN").format(amount)
 

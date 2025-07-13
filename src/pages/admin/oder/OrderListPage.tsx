@@ -20,8 +20,11 @@ const ORDER_STATUS_OPTIONS = [
   { value: "dang_chuan_bi", label: "Đang chuẩn bị" },
   { value: "dang_van_chuyen", label: "Đang vận chuyển" },
   { value: "da_giao", label: "Đã giao" },
+  { value: "yeu_cau_tra_hang", label: "Yêu cầu trả hàng" },
+  { value: "cho_xac_nhan_tra_hang", label: "Chờ xác nhận trả hàng" },
+  { value: "tra_hang_thanh_cong", label: "Trả hàng thành công" },
+  { value: "cho_xac_nhan_huy", label: "Chờ xác nhận huỷ" },
   { value: "da_huy", label: "Đã huỷ" },
-  { value: "tra_hang", label: "Trả hàng" },
 ];
 
 // Constant: mapping để hiển thị Tag
@@ -30,8 +33,12 @@ const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   dang_chuan_bi: { color: "purple", label: "Đang chuẩn bị" },
   dang_van_chuyen: { color: "cyan", label: "Đang vận chuyển" },
   da_giao: { color: "green", label: "Đã giao" },
+  yeu_cau_tra_hang: { color: "magenta", label: "Yêu cầu trả hàng" },
+  cho_xac_nhan_tra_hang: { color: "geekblue", label: "Chờ xác nhận trả hàng" },
+  tra_hang_thanh_cong: { color: "lime", label: "Trả hàng thành công" },
+  yeu_cau_huy_hang: { color: "volcano", label: "Yêu cầu huỷ đơn" },
+  cho_xac_nhan_huy: { color: "gold", label: "Chờ xác nhận huỷ" },
   da_huy: { color: "red", label: "Đã huỷ" },
-  tra_hang: { color: "magenta", label: "Trả hàng" },
 };
 
 // Constant: mapping trạng thái thanh toán
@@ -41,6 +48,7 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
   that_bai: { color: "red", label: "Thất bại" },
   hoan_tien: { color: "blue", label: "Hoàn tiền" },
   da_huy: { color: "red", label: "Đã huỷ" },
+  cho_hoan_tien: { color: "purple", label: "Chờ hoàn tiền" },
 };
 
 const OrderListPage: React.FC = () => {
@@ -48,8 +56,7 @@ const OrderListPage: React.FC = () => {
   const { data: orders, isLoading } = useOrderList();
   const updateStatusMutation = useUpdateOrderStatus();
 
-  const sortedOrders = orders?.slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
-
+  const sortedOrders = orders?.slice().sort((a: Order, b: Order) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
 
   const handleChangeStatus = (id: number, value: string) => {
     updateStatusMutation.mutate(
@@ -103,11 +110,11 @@ const OrderListPage: React.FC = () => {
     {
       title: "Cập nhật trạng thái",
       dataIndex: "update_status",
-      render: (_: any, record: Order) => (
+      render: (_: unknown, record: Order) => (
         <Select
           size="small"
           value={record.trang_thai_don_hang}
-          style={{ width: 140 }}
+          style={{ width: 160 }}
           onChange={(value) => handleChangeStatus(record.id, value)}
           disabled={updateStatusMutation.isPending}
           options={ORDER_STATUS_OPTIONS}
@@ -116,7 +123,7 @@ const OrderListPage: React.FC = () => {
     },
     {
       title: "Hành động",
-      render: (_: any, record: Order) => (
+      render: (_: unknown, record: Order) => (
         <Space>
           <Tooltip title="Xem chi tiết">
             <Button
