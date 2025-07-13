@@ -68,3 +68,15 @@ export const getOrderDetail = async (orderId: number | string) => {
   const { data } = await instanceAxios.get(`/client/orders/${orderId}`)
   return data
 }
+
+// Hủy đơn hàng
+export const cancelOrder = async (orderId: number | string) => {
+  const { data } = await instanceAxios.post(`/order/huy-don/${orderId}`)
+  return data
+}
+
+// Trả hàng
+export const returnOrder = async (orderId: number | string) => {
+  const { data } = await instanceAxios.post(`/order/tra-hang/${orderId}`)
+  return data
+}

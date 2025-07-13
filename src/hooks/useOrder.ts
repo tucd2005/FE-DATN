@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { getOrderDetail, getOrders, orderService, cancelOrder, returnOrder } from "../services/orderService";
 
 // Lấy danh sách đơn hàng
 export const useOrderList = () => {
@@ -48,3 +48,33 @@ export const useOrderDetailclient = (orderId: number | string) => {
   queryFn: () => getOrderDetail(orderId),
 })
 }
+
+// Hook để hủy đơn hàng
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (orderId: number | string) => cancelOrder(orderId),
+    onSuccess: (data, orderId) => {
+      // Invalidate và refetch order detail
+      queryClient.invalidateQueries({ queryKey: ["order-detail", orderId] });
+      // Invalidate danh sách đơn hàng
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+};
+
+// Hook để trả hàng
+export const useReturnOrder = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (orderId: number | string) => returnOrder(orderId),
+    onSuccess: (data, orderId) => {
+      // Invalidate và refetch order detail
+      queryClient.invalidateQueries({ queryKey: ["order-detail", orderId] });
+      // Invalidate danh sách đơn hàng
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+};

@@ -172,9 +172,7 @@ export default function OrderHistory() {
                           >
                             Xem chi tiết
                           </button>
-                          {order.trang_thai_don_hang === "dang_chuan_bi" && (
-                            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">Theo dõi đơn hàng</button>
-                          )}
+                         
                           {order.trang_thai_don_hang === "da_giao" && (
                             <button className="text-sm text-green-600 hover:text-green-700 font-medium">Đánh giá sản phẩm</button>
                           )}

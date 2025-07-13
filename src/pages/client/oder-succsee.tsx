@@ -11,10 +11,19 @@ interface OrderDetail {
   don_gia: string
   tong_tien: string
   thuoc_tinh_bien_the: string
-  product: {
+  product?: {
     id: number
     ten: string
     hinh_anh: string
+  }
+  variant?: {
+    id: number
+    hinh_anh?: string
+    san_pham?: {
+      id: number
+      ten: string
+      hinh_anh: string
+    }
   }
 }
 
@@ -38,6 +47,8 @@ interface Order {
     name: string
     email: string
   }
+  chi_tiet_san_pham?: any[] // Thêm trường này để lấy chi tiết sản phẩm
+  ten_nguoi_dat?: string // <-- Thêm dòng này!
 }
 
 interface PaymentData {
@@ -116,7 +127,8 @@ export default function PaymentResultPage() {
   }
 
   const order = data.order
-  const orderDetails = order?.order_detail || []
+  // Lấy chi tiết sản phẩm từ backend mới
+  const productDetails = order?.order_detail || []
   const isCancelled = order.trang_thai_don_hang === "da_huy"
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat("vi-VN").format(amount)
@@ -156,7 +168,7 @@ export default function PaymentResultPage() {
   const parseProductAttributes = (str: string) => {
     try {
       const attrs = JSON.parse(str)
-      return attrs.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
+      return attrs.map((a: { thuoc_tinh: string; gia_tri: string }) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
     } catch {
       return ""
     }
@@ -224,23 +236,32 @@ export default function PaymentResultPage() {
             </div>
           </div>
           <div className="p-6 space-y-4">
-            {orderDetails.map((item, index) => (
+            {productDetails.map((item: any, idx: number) => (
               <div
-                key={item.id}
+                key={idx}
                 className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
               >
+                {/* Nếu backend trả về hinh_anh thì hiển thị, không thì để icon */}
                 <div className="flex-shrink-0">
-                  <img
-                    src={`http://127.0.0.1:8000/storage/${item.product.hinh_anh}`}
-                    alt={item.product.ten}
-                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
-                  />
+                  {item.hinh_anh ? (
+                    <img
+                      src={`http://127.0.0.1:8000/storage/${item.hinh_anh}`}
+                      alt={item.ten_san_pham || "Sản phẩm"}
+                      className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-gray-200 rounded-lg border-2 border-gray-100 flex items-center justify-center">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-gray-800 text-lg">{item.product.ten}</h4>
-                  {parseProductAttributes(item.thuoc_tinh_bien_the) && (
+                  <h4 className="font-semibold text-gray-800 text-lg">
+                    {item.product?.ten || item.ten_san_pham || "Sản phẩm không xác định"}
+                  </h4>
+                  {item.thuoc_tinh_bien_the && Array.isArray(item.thuoc_tinh_bien_the) && item.thuoc_tinh_bien_the.length > 0 && (
                     <p className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full inline-block">
-                      {parseProductAttributes(item.thuoc_tinh_bien_the)}
+                      {item.thuoc_tinh_bien_the.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")}
                     </p>
                   )}
                   <div className="flex flex-wrap gap-4 text-sm">
@@ -248,10 +269,10 @@ export default function PaymentResultPage() {
                       Số lượng: {item.so_luong}
                     </span>
                     <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
-                      Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
+                      Đơn giá: {formatCurrency(Number(item.don_gia))} VNĐ
                     </span>
                     <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
-                      Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
+                      Thành tiền: {formatCurrency(Number(item.tong_tien))} VNĐ
                     </span>
                   </div>
                 </div>
@@ -315,7 +336,7 @@ export default function PaymentResultPage() {
               <User className="w-5 h-5 text-gray-600 mt-1" />
               <div className="space-y-1">
                 <p className="text-sm text-gray-600">Thông tin khách hàng</p>
-                <p className="font-medium text-gray-800">{order.user?.name ?? "Không xác định"}</p>
+                <p className="font-medium text-gray-800">{order.ten_nguoi_dat || order.user?.name || "Không xác định"}</p>
                 <p className="text-gray-700">{order.user?.email ?? order.email_nguoi_dat}</p>
 
               </div>

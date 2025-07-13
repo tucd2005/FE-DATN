@@ -32,7 +32,7 @@ const CheckoutPage = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  // const [formError, setFormError] = useState<string | null>(null); // Unused
 
   // Lấy dữ liệu truyền sang
   const state = location.state || {};
@@ -71,7 +71,11 @@ const CheckoutPage = () => {
   };
 
   // Xử lý dữ liệu đơn hàng
-  let orderItems: Array<{
+  interface OrderItemAttribute {
+    ten: string;
+    gia_tri: string;
+  }
+  interface OrderItem {
     san_pham_id: number;
     bien_the_id: number | null;
     name: string;
@@ -82,9 +86,12 @@ const CheckoutPage = () => {
     discountPrice: number | null;
     image: string;
     description: string;
-    attributes?: Array<{ ten: string; gia_tri: string }>;
-    bien_the?: any;
-  }> = [];
+    attributes?: OrderItemAttribute[];
+    bien_the?: unknown;
+    ten_san_pham?: string;
+    thuoc_tinh_bien_the?: OrderItemAttribute[];
+  }
+  let orderItems: OrderItem[] = [];
 
   if (productOrder) {
     orderItems = [
@@ -104,13 +111,25 @@ const CheckoutPage = () => {
     ];
   } else if (cartItems && cartItems.length > 0) {
     console.log("Cart items:", cartItems);
-    orderItems = cartItems.map((item) => {
+    orderItems = cartItems.map((item: {
+      san_pham_id: number;
+      bien_the?: {
+        id?: number;
+        hinh_anh?: string | string[];
+        thuoc_tinh?: { ten_thuoc_tinh: string; gia_tri: string }[];
+      };
+      ten_san_pham: string;
+      so_luong: number;
+      gia_san_pham: number;
+      hinh_anh: string;
+      attributes?: OrderItemAttribute[];
+    }) => {
       return {
         san_pham_id: item.san_pham_id,
-        bien_the_id: item.bien_the?.id || null,
+        bien_the_id: item.bien_the && typeof item.bien_the.id === 'number' ? item.bien_the.id : null,
         name: item.ten_san_pham,
-        size: item.bien_the?.thuoc_tinh?.find((t) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
-        color: item.bien_the?.thuoc_tinh?.find((t) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
+        size: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Kích cỡ")?.gia_tri || "",
+        color: item.bien_the?.thuoc_tinh?.find((t: { ten_thuoc_tinh: string; gia_tri: string }) => t.ten_thuoc_tinh === "Màu sắc")?.gia_tri || "",
         quantity: item.so_luong,
         price: item.gia_san_pham,
         discountPrice: null,
@@ -332,15 +351,18 @@ const CheckoutPage = () => {
     setProvinces(provincesData);
   }, []);
 
-  const getBienTheImg = (bien_the: any) => {
-    let img = bien_the?.hinh_anh;
+  const getBienTheImg = (bien_the: { hinh_anh?: string | string[] } | undefined) => {
+    if (!bien_the) return null;
+    const img = bien_the.hinh_anh;
     if (!img) return null;
     if (Array.isArray(img)) return img[0];
     if (typeof img === "string" && img.startsWith("[")) {
       try {
         const arr = JSON.parse(img);
         if (Array.isArray(arr) && arr.length > 0) return arr[0];
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     return img;
   };
@@ -404,9 +426,9 @@ const CheckoutPage = () => {
                       placeholder="Nhập họ và tên"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
-                    {formError && formError.includes("họ và tên") && (
+                    {/* {formError && formError.includes("họ và tên") && (
                       <p className="text-xs text-red-500 mt-1">{formError}</p>
-                    )}
+                    )} */}
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
@@ -420,9 +442,9 @@ const CheckoutPage = () => {
                       placeholder="Nhập số điện thoại"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
-                    {formError && formError.includes("số điện thoại") && (
+                    {/* {formError && formError.includes("số điện thoại") && (
                       <p className="text-xs text-red-500 mt-1">{formError}</p>
-                    )}
+                    )} */}
                   </div>
 
                 </div>
@@ -438,9 +460,9 @@ const CheckoutPage = () => {
                     placeholder="Nhập địa chỉ email"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
-                  {formError && formError.includes("email") && (
+                  {/* {formError && formError.includes("email") && (
                     <p className="text-xs text-red-500 mt-1">{formError}</p>
-                  )}
+                  )} */}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700">
@@ -454,9 +476,9 @@ const CheckoutPage = () => {
                     placeholder="Số nhà, tên đường..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
-                  {formError && formError.includes("địa chỉ") && (
+                  {/* {formError && formError.includes("địa chỉ") && (
                     <p className="text-xs text-red-500 mt-1">{formError}</p>
-                  )}
+                  )} */}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -476,9 +498,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
-                    {formError && formError.includes("tỉnh/thành phố") && (
+                    {/* {formError && formError.includes("tỉnh/thành phố") && (
                       <p className="text-xs text-red-500 mt-1">{formError}</p>
-                    )}
+                    )} */}
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Quận/Huyện *</label>
@@ -498,9 +520,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
-                    {formError && formError.includes("quận/huyện") && (
+                    {/* {formError && formError.includes("quận/huyện") && (
                       <p className="text-xs text-red-500 mt-1">{formError}</p>
-                    )}
+                    )} */}
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Phường/Xã *</label>
@@ -520,9 +542,9 @@ const CheckoutPage = () => {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
-                    {formError && formError.includes("phường/xã") && (
+                    {/* {formError && formError.includes("phường/xã") && (
                       <p className="text-xs text-red-500 mt-1">{formError}</p>
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -641,7 +663,7 @@ const CheckoutPage = () => {
               <div className="p-6 space-y-4">
                 {/* Danh sách sản phẩm */}
                 <div className="space-y-4">
-                  {orderItems.map((item) => {
+                  {orderItems.map((item: OrderItem) => {
                     const bienTheImg = getBienTheImg(item.bien_the);
                     const imgSrc =
                       bienTheImg
@@ -655,7 +677,7 @@ const CheckoutPage = () => {
                           : "/placeholder.svg";
 
                     return (
-                      <div key={item.bien_the_id} className="flex gap-4 p-3 bg-gray-50 rounded-lg">
+                      <div key={item.san_pham_id + '-' + (item.bien_the_id ?? '')} className="flex gap-4 p-3 bg-gray-50 rounded-lg">
                         <div className="relative">
                           <img
                             src={imgSrc}
