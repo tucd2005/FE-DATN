@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import instanceAxios from "../utils/axios";
 
 interface CreateDiscountCodePayload {
@@ -55,4 +56,8 @@ export const getDeletedDiscountCodes = async (page: number) => {
 export const restoreDiscountCode = async (id: number) => {
   const res = await instanceAxios.post(`/admin/discount-codes/restore/${id}`);
   return res.data.data;
+};
+
+export const sendDiscountCode = (id: number, payload: { kieu: string; so_luong?: number }) => {
+  return instanceAxios.post(`/admin/discount-codes/${id}/send`, payload);
 };

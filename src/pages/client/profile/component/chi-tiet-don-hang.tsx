@@ -73,7 +73,6 @@ export default function OrderTracking() {
   }
 
   const order = data.order
-  const firstItem = order.items[0]
   const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
 
   return (
@@ -287,44 +286,46 @@ export default function OrderTracking() {
                 </h3>
               </div>
               <div className="p-6">
-                <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                  <div className="relative">
-                    <img
-                      src={`http://localhost:8000/storage/${firstItem.san_pham_id}.jpg`}
-                      alt={firstItem.ten_san_pham}
-                      className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
-                    />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">{firstItem.so_luong}</span>
+                {order.items.map((item, idx) => (
+                  <div key={item.id || idx} className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4">
+                    <div className="relative">
+                      <img
+                        src={`http://localhost:8000/storage/${item.san_pham_id}.jpg`}
+                        alt={item.ten_san_pham}
+                        className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
+                      />
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">{item.so_luong}</span>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 text-lg mb-2">{item.ten_san_pham}</h4>
+                      <div className="flex gap-2 mb-3 flex-wrap">
+                        {item.thuoc_tinh_bien_the.map((attr, idx) =>
+                          attr.gia_tri.startsWith("#") ? (
+                            <div
+                              key={idx}
+                              className="w-6 h-6 rounded-full border-2 border-white shadow-md"
+                              style={{ backgroundColor: attr.gia_tri }}
+                              title={attr.ten_thuoc_tinh}
+                            />
+                          ) : (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
+                            >
+                              {attr.ten_thuoc_tinh}: {attr.gia_tri}
+                            </span>
+                          )
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
+                        <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 text-lg mb-2">{firstItem.ten_san_pham}</h4>
-                    <div className="flex gap-2 mb-3 flex-wrap">
-                      {firstItem.thuoc_tinh_bien_the.map((attr, idx) =>
-                        attr.gia_tri.startsWith("#") ? (
-                          <div
-                            key={idx}
-                            className="w-6 h-6 rounded-full border-2 border-white shadow-md"
-                            style={{ backgroundColor: attr.gia_tri }}
-                            title={attr.ten_thuoc_tinh}
-                          />
-                        ) : (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
-                          >
-                            {attr.ten_thuoc_tinh}: {attr.gia_tri}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Số lượng: {firstItem.so_luong}</span>
-                      <span className="text-lg font-bold text-teal-600">{formatPrice(firstItem.don_gia)}</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>

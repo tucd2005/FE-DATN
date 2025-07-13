@@ -1,15 +1,20 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createDiscountCode, getDeletedDiscountCodes, getDiscountCodeDetail, getDiscountCodes, restoreDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createDiscountCode, getDeletedDiscountCodes, getDiscountCodeDetail, restoreDiscountCode, sendDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+import instanceAxios from "../utils/axios";
+
 
 // hook gọi API lấy danh sách mã giảm giá
-export const useDiscountCodes = (page = 1) => {
+export const useDiscountCodes = () => {
   return useQuery({
-    queryKey: ["discountCodes", page],
-    queryFn: () => getDiscountCodes(page),
-    placeholderData: keepPreviousData,  // ✅ v5 dùng placeholderData
+    queryKey: ["discountCodes"],
+    queryFn: async () => {
+      const res = await instanceAxios.get("/admin/discount-codes");
+      // Nếu response là { data: [...] }
+      return res.data.data || res.data;
+    }
   });
 };
 
@@ -103,3 +108,9 @@ export const useRestoreDiscountCode = () => {
   });
 };
 
+export const useSendDiscountCode = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: { kieu: string; so_luong?: number } }) =>
+      sendDiscountCode(id, payload),
+  });
+};
