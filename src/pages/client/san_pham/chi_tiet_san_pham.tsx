@@ -259,9 +259,9 @@ export default function ChiTietSanPham() {
             >
               {products.map((product) => {
                 const variant = product.variants?.[0]
-                const price = variant?.gia
-                const originalPrice = variant?.gia_khuyen_mai
-                const discount = calculateDiscount(price || "0", originalPrice || "0")
+                const originalPrice = variant?.gia
+                const salePrice = variant?.gia_khuyen_mai
+                const discount = calculateDiscount(originalPrice || "0", salePrice || "0")
                 const isFavorite = favorites.includes(product.id)
 
                 const imgPath = product.hinh_anh
@@ -320,15 +320,19 @@ export default function ChiTietSanPham() {
                       </div>
 
                       <div className="flex items-center gap-3 mb-6">
-                        {originalPrice && Number(originalPrice) > 0 ? (
+                        {salePrice && Number(salePrice) > 0 ? (
                           <>
                             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-                              {formatPrice(price)}
+                              {formatPrice(salePrice)}
                             </span>
-                            <span className="text-sm text-gray-400 line-through font-medium">{formatPrice(originalPrice)}</span>
+                            <span className="text-sm text-gray-400 line-through font-medium">
+                              {formatPrice(originalPrice)}
+                            </span>
                           </>
                         ) : (
-                          <span className="text-2xl font-bold text-gray-800">{formatPrice(price)}</span>
+                          <span className="text-2xl font-bold text-gray-800">
+                            {formatPrice(originalPrice)}
+                          </span>
                         )}
                       </div>
 
