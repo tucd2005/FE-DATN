@@ -1,32 +1,43 @@
-import { Button, Popconfirm, Tag, Table, Modal, Select, Radio, InputNumber } from 'antd';
+import { Button, Popconfirm, Tag, Table, Modal, Select, Radio, InputNumber, message } from 'antd';
 import React, { useState } from 'react';
 import { useAccountListuser, useBlockUser, useUnblockUser } from '../../../hooks/useAccount';
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useSendDiscountCode } from '../../../hooks/useDiscountCodes';
-import { message } from 'antd';
-import { useDiscountCodes } from '../../../hooks/useDiscountCodes';
+import { useSendDiscountCode, useDiscountCodes } from '../../../hooks/useDiscountCodes';
 
 const ListAccountUsePage = () => {
-  const { data: accounts = [], isLoading } = useAccountListuser();
-  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
-  const { mutate: unblockUser, isPending: isUnblocking } = useUnblockUser();
   const navigate = useNavigate();
 
+  // Lấy danh sách user
+  const { data: accounts = [], isLoading } = useAccountListuser();
+
+  // Block / unblock user
+  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutate: unblockUser, isPending: isUnblocking } = useUnblockUser();
+
+  // Modal gửi mã
   const [sendModal, setSendModal] = useState<{ open: boolean, user?: any }>({ open: false });
   const [selectedCode, setSelectedCode] = useState<number | null>(null);
   const [sendType, setSendType] = useState<'tat_ca' | 'ngau_nhien'>('tat_ca');
   const [soLuong, setSoLuong] = useState<number>(1);
-  const { mutate: sendDiscount, isPending } = useSendDiscountCode();
 
-  const { data: discountCodes = [], isLoading: isLoadingDiscountCodes } = useDiscountCodes();
+  // Lấy danh sách mã giảm giá
+  const { data: discountCodesData, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
+  const discountCodes = discountCodesData?.data || [];  // Lấy mảng mã giảm giá
 
+  // Mutation gửi mã
+  const { mutate: sendDiscount, isPending: isSending } = useSendDiscountCode();
+
+  // Xử lý gửi
   const handleSend = () => {
     if (!selectedCode) return;
     sendDiscount(
       {
         id: selectedCode,
-        payload: { kieu: sendType, so_luong: sendType === 'ngau_nhien' ? soLuong : undefined }
+        payload: {
+          kieu: sendType,
+          so_luong: sendType === 'ngau_nhien' ? soLuong : undefined
+        }
       },
       {
         onSuccess: () => {
@@ -64,16 +75,10 @@ const ListAccountUsePage = () => {
               okText="Khóa"
               cancelText="Hủy"
               onConfirm={() =>
-                blockUser({
-                  id: record.id,
-                  data: { ly_do_block: 'Khóa bởi admin', block_den_ngay: null }
-                })
+                blockUser({ id: record.id, data: { ly_do_block: 'Khóa bởi admin', block_den_ngay: null } })
               }
             >
-              <Button
-                icon={<LockOutlined />}
-                loading={isBlocking}
-              >
+              <Button icon={<LockOutlined />} loading={isBlocking}>
                 Khóa
               </Button>
             </Popconfirm>
@@ -84,11 +89,7 @@ const ListAccountUsePage = () => {
               cancelText="Hủy"
               onConfirm={() => unblockUser(record.id)}
             >
-              <Button
-                type="primary"
-                icon={<UnlockOutlined />}
-                loading={isUnblocking}
-              >
+              <Button type="primary" icon={<UnlockOutlined />} loading={isUnblocking}>
                 Mở khóa
               </Button>
             </Popconfirm>
@@ -105,8 +106,8 @@ const ListAccountUsePage = () => {
     <div className="p-6 bg-white rounded shadow">
       <div className="flex justify-between mb-4 items-center">
         <h2 className="text-xl font-semibold">Danh sách tài khoản người dùng</h2>
-      
       </div>
+
       <Table
         columns={columns}
         dataSource={accounts}
@@ -119,7 +120,7 @@ const ListAccountUsePage = () => {
         open={sendModal.open}
         onCancel={() => setSendModal({ open: false })}
         onOk={handleSend}
-        confirmLoading={isPending}
+        confirmLoading={isSending}
         title="Gửi mã giảm giá"
       >
         <Select
