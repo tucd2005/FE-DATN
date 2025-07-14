@@ -394,23 +394,39 @@ export default function ProductDetailclientPage() {
             </div>
 
             {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-blue-600">
-                {selectedVariant
-                  ? `${safeLocaleString(selectedVariant.gia)}đ`
-                  : product?.gia
-                    ? `${safeLocaleString(product.gia)}đ`
-                    : isAllAttributesSelected
-                      ? "Liên hệ"
-                      : "Vui lòng chọn đầy đủ thuộc tính"}
-              </span>
-              {giaKhuyenMai && (
+           <div className="flex items-center space-x-4">
+              {giaKhuyenMai && giaKhuyenMai < gia ? (
                 <>
-                  <span className="text-xl text-gray-500 line-through">{safeLocaleString(giaKhuyenMai)}đ</span>
+                  {/* Giá khuyến mãi - in đậm, không gạch */}
+                  <span className="text-3xl font-bold text-gray-900">
+                    {safeLocaleString(giaKhuyenMai)}đ
+                  </span>
+
+                  {/* Giá gốc - bị gạch */}
+                  <span className="text-xl text-blue-600 line-through">
+                    {safeLocaleString(gia)}đ
+                  </span>
+
+                  {/* Phần trăm giảm giá */}
                   <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                    -{gia && giaKhuyenMai ? Math.round(100 - (Number(giaKhuyenMai) / Number(gia)) * 100) : 0}%
+                    -
+                    {Math.round(
+                      ((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100
+                    )}
+                    %
                   </div>
                 </>
+              ) : (
+                // Trường hợp không có khuyến mãi
+                <span className="text-3xl font-bold text-gray-900">
+                  {selectedVariant
+                    ? `${safeLocaleString(selectedVariant.gia)}đ`
+                    : product?.gia
+                    ? `${safeLocaleString(product.gia)}đ`
+                    : isAllAttributesSelected
+                    ? "Liên hệ"
+                    : "Vui lòng chọn đầy đủ thuộc tính"}
+                </span>
               )}
             </div>
 
