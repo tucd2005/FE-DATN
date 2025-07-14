@@ -27,30 +27,24 @@ const AttributeValueListPage: React.FC = () => {
 
   return (
     <div className="p-4 bg-white rounded shadow max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">
-          Danh sách giá trị thuộc tính (ID: {attributeId})
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Giá trị thuộc tính:{" "}
+          <span className="text-blue-600">{data?.[0]?.thuoc_tinh_ten || "Không xác định"}</span>
         </h2>
-        <div className="space-x-2">
-          <Button
-            icon={<EyeOutlined />}
-            onClick={() => navigate(`/admin/gia-tri/thuoc-tinh/${attributeId}/deleted`)}
+        <div className="flex gap-2">
+          <Button icon={<EyeOutlined />}onClick={() =>navigate(`/admin/gia-tri/thuoc-tinh/${attributeId}/deleted`)}
           >
             Đã xoá mềm
           </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => navigate(`/admin/gia-tri/thuoc-tinh/${attributeId}/add`)}
-          >
-            Thêm giá trị mới
+          <Button type="primary"icon={<PlusOutlined />}onClick={() =>navigate(`/admin/gia-tri/thuoc-tinh/${attributeId}/add`)}>Thêm giá trị
           </Button>
         </div>
       </div>
       <ul className="space-y-2">
         {data?.map((item: AttributeValue) => (
           <li key={item.id} className="p-2 border rounded flex justify-between items-center">
-            <span>{item.gia_tri} (id: {item.id})</span>
+            <span>{item.gia_tri}</span>
             <div className="space-x-2">
               <Button
                 type="primary"
