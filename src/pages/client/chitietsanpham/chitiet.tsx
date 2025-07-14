@@ -42,7 +42,23 @@ export default function ProductDetailclientPage() {
   const attributeNames: string[] = product?.variants?.length
     ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
     : [];
+  //Tự động chọn biến thể đầu tiên nếu chưa chọn gì
+  useEffect(() => {
+    if (
+     product?.variants?.length &&
+     attributeNames.length &&
+      Object.keys(selectedAttributes).length === 0
+  ) {
+    const firstVariant = product.variants[0];
+    const defaultAttributes: { [key: string]: string } = {};
 
+    firstVariant.thuoc_tinh.forEach((attr) => {
+      defaultAttributes[attr.ten] = attr.gia_tri;
+    });
+
+    setSelectedAttributes(defaultAttributes);
+  }
+  }, [product, attributeNames]);
   const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
