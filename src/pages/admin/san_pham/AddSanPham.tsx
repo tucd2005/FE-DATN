@@ -108,7 +108,7 @@ const AddProduct: React.FC = () => {
         <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
-      <Form.Item label="Giá">
+      {/* <Form.Item label="Giá">
         <Controller name="gia" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
@@ -118,7 +118,7 @@ const AddProduct: React.FC = () => {
 
       <Form.Item label="Tổng số lượng">
         <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item label="Mô tả">
         <Controller name="mo_ta" control={control} render={({ field }) => <TextArea rows={4} {...field} />} />
@@ -183,11 +183,13 @@ const AddProduct: React.FC = () => {
       >
         {variantFields.map((variant, variantIndex) => (
           <Space key={variant.id} direction="vertical" className="w-full p-4 border rounded mb-4">
-            <h4>Biến thể #{variantIndex + 1}</h4>
+            <h4>Biến thể {variantIndex + 1}</h4>
 <span>Giá gốc</span>
-            <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Giá" {...field} />} />
-          z  <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Giá KM" {...field} />} />
-            <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" {...field} />} />
+            <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Nhập giá sản phẩm" type='number' />} />
+<span>Giá khuyến mãi</span>
+            <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Nhập giá khuyến mãi" type='number' />} />
+<span>Số lượng</span>
+            <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" type='number' />} />
 
             <Form.Item label="Ảnh biến thể">
               <Controller
