@@ -411,25 +411,27 @@ export default function ProductDetailclientPage() {
 
             {/* Price */}
            <div className="flex items-center space-x-4">
-              {giaKhuyenMai && giaKhuyenMai < gia ? (
+              {giaKhuyenMai !== undefined &&
+                gia !== undefined &&
+                !isNaN(Number(giaKhuyenMai)) &&
+                !isNaN(Number(gia)) &&
+                Number(giaKhuyenMai) > 0 &&
+                Number(giaKhuyenMai) < Number(gia) ? (
                 <>
                   {/* Giá khuyến mãi - in đậm, không gạch */}
                   <span className="text-3xl font-bold text-gray-900">
-                    {safeLocaleString(giaKhuyenMai)}đ
+                    {safeLocaleString(Number(giaKhuyenMai))}đ
                   </span>
 
                   {/* Giá gốc - bị gạch */}
                   <span className="text-xl text-blue-600 line-through">
-                    {safeLocaleString(gia)}đ
+                    {safeLocaleString(Number(gia))}đ
                   </span>
 
                   {/* Phần trăm giảm giá */}
                   <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                     -
-                    {Math.round(
-                      ((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100
-                    )}
-                    %
+                    {Math.round(((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100)}%
                   </div>
                 </>
               ) : (
