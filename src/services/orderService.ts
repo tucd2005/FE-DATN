@@ -52,6 +52,17 @@ export const orderService = {
   getOrderById: (id: number) =>
     instanceAxios.get(`/admin/orders/${id}`).then((res) => res.data),
 
+  // Hủy đơn hàng (client)
+  cancelOrder: (orderId: number | string) =>
+    instanceAxios.post(`/order/huy-don/${orderId}`),
+
+  // Trả hàng (client)
+  returnOrder: (orderId: number | string) =>
+    instanceAxios.post(`/order/tra-hang/${orderId}`),
+
+  // Đánh dấu đã giao (admin)
+  markOrderAsDelivered: (orderId: number | string) =>
+    instanceAxios.post(`/order/da-giao/${orderId}`),
 
 };
 

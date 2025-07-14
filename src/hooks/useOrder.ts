@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { toast } from "react-toastify";
 
 // Lấy danh sách đơn hàng
 export const useOrderList = () => {
@@ -48,3 +49,29 @@ export const useOrderDetailclient = (orderId: number | string) => {
   queryFn: () => getOrderDetail(orderId),
 })
 }
+
+// Hook hủy đơn hàng (client)
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.cancelOrder(orderId),
+    onSuccess: () => {
+      toast.success("Hủy đơn hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+    },
+  });
+};
+
+// Hook trả hàng (client)
+export const useReturnOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.returnOrder(orderId),
+    onSuccess: () => {
+      toast.success("Trả hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+    },
+  });
+};
