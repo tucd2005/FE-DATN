@@ -44,50 +44,59 @@ export default function LayoutAdmin() {
         </div>
 
         <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          onClick={({ key }) => navigate(key)}
-          className="flex-1"
-          style={{ fontSize: '16px' }}
+        theme="dark"
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        onClick={({ key }) => navigate(key)}
+        className="flex-1"
+        style={{ fontSize: '16px' }}
+      >
+        {/* 1. Dashboard */}
+        <Menu.Item key="/admin" icon={<DashboardOutlined style={{ fontSize: 18 }} />}>
+          Dashboard
+        </Menu.Item>
+
+        {/* 2. Quản lý sản phẩm */}
+        <Menu.Item key="/admin/danh-muc" icon={<AppstoreOutlined style={{ fontSize: 18 }} />}>
+          Danh mục
+        </Menu.Item>
+        <Menu.Item key="/admin/san-pham" icon={<TagsOutlined style={{ fontSize: 18 }} />}>
+          Sản phẩm
+        </Menu.Item>
+        {/* <Menu.Item key="/admin/bien-the" icon={<BranchesOutlined style={{ fontSize: 18 }} />}>
+          Biến thể
+        </Menu.Item> */}
+        <Menu.Item key="/admin/thuoc-tinh" icon={<BgColorsOutlined style={{ fontSize: 18 }} />}>
+          Thuộc tính
+        </Menu.Item>
+
+        {/* 3. Mã giảm giá & Banner */}
+        <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined style={{ fontSize: 18 }} />}>
+          Mã giảm giá
+        </Menu.Item>
+        <Menu.Item key="/admin/banner" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
+          Banner
+        </Menu.Item>
+
+        {/* 4. Quản lý đơn hàng & đánh giá */}
+        <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>
+          Đơn hàng
+        </Menu.Item>
+        <Menu.Item key="/admin/danh-gia" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>
+          Đánh giá
+        </Menu.Item>
+
+        {/* 5. Tài khoản */}
+        <SubMenu
+          key="account"
+          icon={<UserOutlined style={{ fontSize: 18 }} />}
+          title={<span className="text-base">Tài khoản</span>}
         >
-          <Menu.Item key="/admin" icon={<DashboardOutlined style={{ fontSize: 18 }} />}>
-            Dashboard
-          </Menu.Item>
-          <Menu.Item key="/admin/danh-muc" icon={<AppstoreOutlined style={{ fontSize: 18 }} />}>
-            Danh mục
-          </Menu.Item>
-          <Menu.Item key="/admin/san-pham" icon={<TagsOutlined style={{ fontSize: 18 }} />}>
-            Sản phẩm
-          </Menu.Item>
-          <Menu.Item key="/admin/bien-the" icon={<BranchesOutlined style={{ fontSize: 18 }} />}>
-            Biến thể
-          </Menu.Item>
-          <SubMenu
-            key="account"
-            icon={<UserOutlined style={{ fontSize: 18 }} />}
-            title={<span className="text-base">Tài khoản</span>}
-          >
-            <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
-            <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
-            <Menu.Item key="/admin/account_staff">Nhân viên</Menu.Item>
-          </SubMenu>
-          <Menu.Item key="/admin/banner" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
-            Banner
-          </Menu.Item>
-          <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined style={{ fontSize: 18 }} />}>
-            Mã giảm giá
-          </Menu.Item>
-          <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>
-            Đơn hàng
-          </Menu.Item>
-          <Menu.Item key="/admin/danh-gia" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>
-            Đánh giá
-          </Menu.Item>
-          <Menu.Item key="/admin/thuoc-tinh" icon={<BgColorsOutlined style={{ fontSize: 18 }} />}>
-            Thuộc tính
-          </Menu.Item>
-        </Menu>
+          <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
+          <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
+          <Menu.Item key="/admin/account_staff">Nhân viên</Menu.Item>
+        </SubMenu>
+      </Menu>
       </aside>
 
       {/* Main content */}
