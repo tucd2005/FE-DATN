@@ -64,16 +64,19 @@ export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
   };
 
   const handleResend = async () => {
+    if (isResendDisabled) return; // Chặn nếu đã disable (phòng trường hợp double click cực nhanh)
+    setIsResendDisabled(true); // Chặn ngay lập tức
     try {
       await sendOtpApi({ email });
       message.success("Mã OTP đã được gửi lại.");
-      setIsResendDisabled(true);
+      // setIsResendDisabled(true); // Đã set ở trên
     } catch (err: unknown) {
       if (typeof err === 'object' && err !== null && 'response' in err) {
         message.error(err.response?.data?.message || "Không gửi được OTP");
       } else {
         message.error("Không gửi được OTP");
       }
+      setIsResendDisabled(false); // Nếu lỗi thì mở lại nút
     }
   };
 
