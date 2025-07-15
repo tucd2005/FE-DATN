@@ -3,10 +3,11 @@ import { getOrderDetail, getOrders, orderService } from "../services/orderServic
 import { toast } from "react-toastify";
 
 // Lấy danh sách đơn hàng
-export const useOrderList = () => {
+export const useOrderList = (page: number = 1) => {
   return useQuery({
-    queryKey: ["orders"],
-    queryFn: () => orderService.getAllOrders().then(res => res.data.data), // <-- res.data.data mới là mảng
+    queryKey: ["orders", page],
+    queryFn: () =>
+      orderService.getAllOrders(page).then((res) => res.data), 
   });
 };
 

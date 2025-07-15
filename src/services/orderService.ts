@@ -43,7 +43,10 @@ export interface GetOrdersResponse {
 
 export const orderService = {
   // Lấy danh sách đơn hàng
-  getAllOrders: () => instanceAxios.get("/admin/orders"), // trả về { data: [...] }
+  // getAllOrders: () => instanceAxios.get("/admin/orders"), // trả về { data: [...] }
+  getAllOrders: (page = 1) => {
+  return instanceAxios.get(`admin/orders?page=${page}`);
+  },
 
 
   // Cập nhật trạng thái đơn hàng
