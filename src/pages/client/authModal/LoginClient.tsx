@@ -5,6 +5,8 @@ import VerifyOtp from './VerifyOtp'
 import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { Mail, Lock } from 'lucide-react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { loginSchema } from '../../../validations/authSchema'
 
 interface ILoginPayload {
   email: string
@@ -20,7 +22,9 @@ const LoginClient = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ILoginPayload>()
+  } = useForm<ILoginPayload>({
+    resolver: zodResolver(loginSchema),
+  })
 
   const onSubmit = async (data: ILoginPayload) => {
     try {
@@ -58,7 +62,7 @@ const LoginClient = () => {
                 id="email"
                 type="email"
                 placeholder="Email"
-                {...register('email', { required: 'Vui lòng nhập email.' })}
+                {...register('email')}
                 className="pl-10 py-2 px-4 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition"
               />
             </div>
@@ -74,7 +78,7 @@ const LoginClient = () => {
                 id="password"
                 type="password"
                 placeholder="Mật khẩu"
-                {...register('password', { required: 'Vui lòng nhập mật khẩu.' })}
+                {...register('password')}
                 className="pl-10 py-2 px-4 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition"
               />
             </div>

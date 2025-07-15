@@ -1,34 +1,43 @@
 import { z } from "zod";
 
+// Regex: Cho phép chữ cái có dấu, khoảng trắng, dấu nháy, chấm, gạch nối
+const nameWithVietnameseRegex = /^[\p{L}\p{M}\s'.-]+$/u;
+
 export const loginSchema = z.object({
   email: z
     .string()
-    .email("Email khong hop le")
-    .min(6, "Email phai co toi thieu 6 ky tu"),
+    .email("Email không hợp lệ")
+    .min(6, "Email phải có tối thiểu 6 ký tự"),
   password: z
-    .string({ required_error: "required !" })
-    .min(6, "Mat khau phai co toi thieu 6 ky tu")
-    .max(20, "Mat khau khong duoc qua dai"),
+    .string({ required_error: "Vui lòng nhập mật khẩu" })
+    .min(6, "Mật khẩu phải có tối thiểu 6 ký tự")
+    .max(20, "Mật khẩu không được quá dài"),
 });
 
 export const registerSchema = z
   .object({
-    name: z.string().min(3, "Ten phai co toi thieu 3 ky tu"),
+    name: z
+      .string()
+      .min(3, "Tên phải có tối thiểu 3 ký tự")
+      .regex(
+        nameWithVietnameseRegex,
+        "Tên chỉ được chứa chữ cái và khoảng trắng"
+      ),
     email: z
       .string()
-      .email("Email khong hop le")
-      .min(6, "Email phai co toi thieu 6 ky tu"),
+      .email("Email không hợp lệ")
+      .min(6, "Email phải có tối thiểu 6 ký tự"),
     password: z
       .string()
-      .min(6, "Mat khau phai co toi thieu 6 ky tu")
-      .max(20, "Mat khau khong duoc qua dai"),
+      .min(6, "Mật khẩu phải có tối thiểu 6 ký tự")
+      .max(20, "Mật khẩu không được quá dài"),
     password_confirmation: z
       .string()
-      .min(6, "Mat khau xac nhan phai co toi thieu 6 ky tu")
-      .max(20, "Mat khau xac nhan khong duoc qua dai"),
+      .min(6, "Mật khẩu xác nhận phải có tối thiểu 6 ký tự")
+      .max(20, "Mật khẩu xác nhận không được quá dài"),
   })
   .refine((data) => data.password === data.password_confirmation, {
-    message: "Mat khau khong khop",
+    message: "Mật khẩu không khớp",
     path: ["password_confirmation"],
   });
 

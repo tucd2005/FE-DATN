@@ -5,6 +5,8 @@ import { message } from "antd"
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import { registerApi } from "../../../api/authClientApi"
 import type { IRegisterPayload } from "../../../types/auth"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { registerSchema } from '../../../validations/authSchema'
 
 const RegisterClient = () => {
   const navigate = useNavigate()
@@ -16,7 +18,9 @@ const RegisterClient = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<IRegisterPayload>()
+  } = useForm<IRegisterPayload>({
+    resolver: zodResolver(registerSchema),
+  })
 
   const onSubmit = async (data: IRegisterPayload) => {
     try {
