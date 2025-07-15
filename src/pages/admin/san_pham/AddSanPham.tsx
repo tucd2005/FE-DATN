@@ -184,12 +184,68 @@ const AddProduct: React.FC = () => {
         {variantFields.map((variant, variantIndex) => (
           <Space key={variant.id} direction="vertical" className="w-full p-4 border rounded mb-4">
             <h4>Biến thể {variantIndex + 1}</h4>
-<span>Giá gốc</span>
-            <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Nhập giá sản phẩm" type='number' />} />
-<span>Giá khuyến mãi</span>
-            <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Nhập giá khuyến mãi" type='number' />} />
-<span>Số lượng</span>
-            <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" type='number' />} />
+            <span>Giá gốc</span>
+            <Controller
+              name={`variants.${variantIndex}.gia`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Nhập giá sản phẩm"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
+
+            <span>Giá khuyến mãi</span>
+            <Controller
+              name={`variants.${variantIndex}.gia_khuyen_mai`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Nhập giá khuyến mãi"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
+
+            <span>Số lượng</span>
+            <Controller
+              name={`variants.${variantIndex}.so_luong`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Số lượng"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
 
             <Form.Item label="Ảnh biến thể">
               <Controller
