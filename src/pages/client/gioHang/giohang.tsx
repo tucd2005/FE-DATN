@@ -135,7 +135,7 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -148,7 +148,7 @@ export default function CartPage() {
                     Áp dụng
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <button
                 onClick={handleCheckout}
