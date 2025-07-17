@@ -16,6 +16,7 @@ import { useListCategory as useCategoryList } from '../../../hooks/useCategory';
 import { useAllAttributeValues, useList as useAttributeList } from '../../../hooks/useAttribute';
 import { useCreateProduct } from '../../../hooks/useProduct';
 import type { Category } from '../../../types/categorys/category';
+import { useNavigate } from 'react-router-dom';
 
 const { TextArea } = Input;
 
@@ -47,6 +48,7 @@ const AddProduct: React.FC = () => {
   const { data: categories = [] } = useCategoryList();
   const { data: attributes = [] } = useAttributeList();
   const createProduct = useCreateProduct();
+  const navigate = useNavigate();
 
   const attributeIds = attributes.map(attr => attr.id);
   const attributeValuesQueries = useAllAttributeValues(attributeIds);
@@ -92,7 +94,10 @@ const AddProduct: React.FC = () => {
     });
 
     createProduct.mutate(formData, {
-      onSuccess: () => message.success('Thêm sản phẩm thành công!'),
+      onSuccess: () => {
+        message.success('Thêm sản phẩm thành công!');
+        navigate('/admin/san-pham');
+      },
       onError: (err) => {
         console.error('Lỗi gửi form:', err?.response?.data);
         message.error('Thêm sản phẩm thất bại!');
