@@ -55,8 +55,13 @@ export default function CartPage() {
     await removeFromCart(id);
   }
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("vi-VN") + "đ";
+  const formatPrice = (price: number | string | undefined | null) => {
+    const num = typeof price === "number"
+      ? price
+      : typeof price === "string" && !isNaN(Number(price))
+        ? Number(price)
+        : 0;
+    return num.toLocaleString("vi-VN") + "đ";
   }
 
   const subtotal = totalPrice;
@@ -109,7 +114,12 @@ export default function CartPage() {
               )}
 
               {cartItems.map((item) => (
-                <CartItem item={item} formatPrice={formatPrice} handleRemoveItem={handleRemoveItem} handleUpdateQuantity={handleUpdateQuantity} />
+                <CartItem 
+                key={item.id}
+                item={item} 
+                formatPrice={formatPrice}
+                 handleRemoveItem={handleRemoveItem} 
+                 handleUpdateQuantity={handleUpdateQuantity} />
               ))}
             </div>
           </div>
