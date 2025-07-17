@@ -1,5 +1,5 @@
 import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createDiscountCode, getDeletedDiscountCodes, getDiscountCodeDetail, restoreDiscountCode, sendDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
+import { createDiscountCode, discountCodeService, getDeletedDiscountCodes, getDiscountCodeDetail, restoreDiscountCode, sendDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -113,3 +113,16 @@ export const useSendDiscountCode = () => {
       sendDiscountCode(id, payload),
   });
 };
+
+export const useCheckDiscountCode = () =>
+  useMutation({
+    mutationFn: (payload: { ma_giam_gia: string; tong_tien: number; san_pham_id?: number }) =>
+      discountCodeService.check(payload).then(res => res.data),
+  });
+
+// Hook lấy danh sách mã giảm giá của user
+export const useUserDiscountCodes = () =>
+  useQuery({
+    queryKey: ["user-discount-codes"],
+    queryFn: () => discountCodeService.getUserDiscounts().then((res: any) => res.data.data),
+  });

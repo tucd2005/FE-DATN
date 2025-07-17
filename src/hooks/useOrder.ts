@@ -56,10 +56,12 @@ export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (orderId: number | string) => orderService.cancelOrder(orderId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Hủy đơn hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      // Trả về dữ liệu đơn hàng mới nhất cho callback
+      return data;
     },
   });
 };
@@ -69,10 +71,26 @@ export const useReturnOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (orderId: number | string) => orderService.returnOrder(orderId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Trả hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      // Trả về dữ liệu đơn hàng mới nhất cho callback
+      return data;
+    },
+  });
+};
+
+// Hook xác nhận đã nhận hàng (client)
+export const useMarkOrderAsDelivered = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.markOrderAsDelivered(orderId),
+    onSuccess: (data) => {
+      toast.success("Xác nhận đã nhận hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      return data;
     },
   });
 };

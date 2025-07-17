@@ -56,16 +56,22 @@ export const orderService = {
     instanceAxios.get(`/admin/orders/${id}`).then((res) => res.data),
 
   // Hủy đơn hàng (client)
-  cancelOrder: (orderId: number | string) =>
-    instanceAxios.post(`/order/huy-don/${orderId}`),
+  cancelOrder: async (orderId: number | string) => {
+    const res = await instanceAxios.post(`/order/huy-don/${orderId}`);
+    return res.data; // trả về dữ liệu đơn hàng mới nhất
+  },
 
   // Trả hàng (client)
-  returnOrder: (orderId: number | string) =>
-    instanceAxios.post(`/order/tra-hang/${orderId}`),
+  returnOrder: async (orderId: number | string) => {
+    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`);
+    return res.data; // trả về dữ liệu đơn hàng mới nhất
+  },
 
   // Đánh dấu đã giao (admin)
   markOrderAsDelivered: (orderId: number | string) =>
     instanceAxios.post(`/order/da-giao/${orderId}`),
+
+
 
 };
 

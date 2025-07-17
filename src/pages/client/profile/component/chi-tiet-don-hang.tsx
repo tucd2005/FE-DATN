@@ -5,7 +5,8 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useOrderDetailclient, useReturnOrder } from "../../../../hooks/useOrder"
 import { useCancelOrder } from "../../../../hooks/useOrder"
 import { ArrowLeft, X, CheckCircle, Clock, BadgeCheck, Truck } from "lucide-react"
-import type { OrderItem, ThuocTinhBienThe } from "../../../../services/orderService"
+import type { OrderItem } from "../../../../services/orderService"
+import { useMarkOrderAsDelivered } from "../../../../hooks/useOrder"
 
 export default function OrderTracking() {
   const { id } = useParams<{ id: string }>()
@@ -15,12 +16,15 @@ export default function OrderTracking() {
   const [orderStatus, setOrderStatus] = useState<string | null>(null)
   const { mutate: returnOrder, isPending: isReturning } = useReturnOrder()
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder()
+  const { mutate: markAsDelivered, isPending } = useMarkOrderAsDelivered();
 
   const trackingSteps = [
     { id: "cho_xac_nhan", title: "Chờ xác nhận", icon: Clock, color: "from-amber-400 to-orange-500" },
     { id: "dang_chuan_bi", title: "Đang chuẩn bị", icon: BadgeCheck, color: "from-blue-400 to-blue-600" },
     { id: "dang_van_chuyen", title: "Đang vận chuyển", icon: Truck, color: "from-purple-400 to-purple-600" },
     { id: "da_giao", title: "Đã giao", icon: CheckCircle, color: "from-green-400 to-green-600" },
+    { id: "yeu_cau_huy_hang", title: "Yêu cầu hủy", icon: X, color: "from-red-400 to-red-600" },
+    { id: "yeu_cau_tra_hang", title: "Yêu cầu trả hàng", icon: ArrowLeft, color: "from-gray-400 to-gray-600" },
     { id: "da_huy", title: "Đã huỷ", icon: X, color: "from-red-400 to-red-600" },
     { id: "tra_hang", title: "Trả hàng", icon: ArrowLeft, color: "from-gray-400 to-gray-600" },
   ]
@@ -76,7 +80,27 @@ export default function OrderTracking() {
 
   const order = data.order
   const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
-console.log("Order data:", order);
+  console.log("Order data:", order);
+
+  // Hàm ép kiểu về string an toàn để render
+  const toDisplayString = (val: unknown) => {
+    if (typeof val === 'string' || typeof val === 'number') return String(val);
+    if (val === null || val === undefined) return '';
+    if (Array.isArray(val)) return val.map(toDisplayString).join(', ');
+    if (typeof val === 'object') {
+      // Nếu object có trường 'ten', ưu tiên lấy trường này
+      if ('ten' in val && typeof val.ten === 'string') return val.ten;
+      // Nếu object có trường 'name', ưu tiên lấy trường này
+      if ('name' in val && typeof val.name === 'string') return val.name;
+      // Nếu object, stringify (chỉ dùng cho debug, không nên render)
+      try {
+        return '[object]';
+      } catch {
+        return '';
+      }
+    }
+    return String(val);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50">
@@ -113,6 +137,16 @@ console.log("Order data:", order);
                 >
                   <X className="w-4 h-4 mr-2" />
                   Hủy đơn hàng
+                </button>
+              )}
+              {orderStatus === "dang_van_chuyen" && (
+                <button
+                  onClick={() => markAsDelivered(order.id)}
+                  disabled={isPending}
+                  className="flex items-center px-6 py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-medium rounded-xl hover:from-green-500 hover:to-emerald-600 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all duration-200 border border-white/20 ml-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  {isPending ? "Đang xác nhận..." : "Xác nhận đã nhận hàng"}
                 </button>
               )}
               {orderStatus === "da_giao" && (
@@ -157,14 +191,13 @@ console.log("Order data:", order);
                     <div
                       className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
                       style={{
-                        width: `${
-                          orderStatus === "tra_hang"
+                        width: `${orderStatus === "tra_hang"
                             ? 100
                             : (
-                                getCurrentStepIndex() /
-                                  (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
-                              ) * 100
-                        }%`,
+                              getCurrentStepIndex() /
+                              (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
+                            ) * 100
+                          }%`,
                       }}
                     />
                   </div>
@@ -178,21 +211,19 @@ console.log("Order data:", order);
                       return (
                         <div key={step.id} className="flex flex-col items-center group">
                           <div
-                            className={`w-16 h-16 flex items-center justify-center rounded-full border-4 transition-all duration-500 ${
-                              active
+                            className={`w-16 h-16 flex items-center justify-center rounded-full border-4 transition-all duration-500 ${active
                                 ? `bg-gradient-to-r ${step.color} text-white border-white shadow-2xl scale-110 animate-pulse`
                                 : completed
                                   ? "bg-gradient-to-r from-teal-400 to-emerald-400 text-white border-teal-200 shadow-lg"
                                   : "bg-white text-gray-400 border-gray-300 shadow-md"
-                            } group-hover:scale-105`}
+                              } group-hover:scale-105`}
                           >
                             <Icon className={`w-7 h-7 transition-all duration-300 ${active ? "animate-bounce" : ""}`} />
                           </div>
                           <div className="mt-4 text-center">
                             <p
-                              className={`text-sm font-semibold transition-all duration-300 ${
-                                active ? "text-teal-600 scale-110" : completed ? "text-emerald-600" : "text-gray-400"
-                              }`}
+                              className={`text-sm font-semibold transition-all duration-300 ${active ? "text-teal-600 scale-110" : completed ? "text-emerald-600" : "text-gray-400"
+                                }`}
                             >
                               {step.title}
                             </p>
@@ -238,7 +269,7 @@ console.log("Order data:", order);
                       </svg>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{order.user.ten}</p>
+                      <p className="font-semibold text-gray-800">{order.ten_nguoi_dat || order.user?.ten || order.user?.name}</p>
                       {order.sdt_nguoi_dat && <p className="text-gray-600">{order.sdt_nguoi_dat}</p>}
                     </div>
                   </div>
@@ -279,7 +310,11 @@ console.log("Order data:", order);
                     </div>
                     <div>
                       <p className="text-gray-600">Địa chỉ giao hàng</p>
-                      <p className="font-medium text-gray-800">{order.dia_chi}</p>
+                      <p className="font-medium text-gray-800">
+                        {[order.dia_chi, order.xa || order.phuong_xa, order.huyen, order.thanh_pho]
+                          .filter(Boolean)
+                          .join(', ')}
+                      </p>
                     </div>
                   </div>
 
@@ -296,7 +331,9 @@ console.log("Order data:", order);
                     </div>
                     <div>
                       <p className="text-gray-600">Phương thức thanh toán</p>
-                      <p className="font-medium text-gray-800">{order.phuong_thuc_thanh_toan}</p>
+                      <p className="font-medium text-gray-800">
+                        {order.phuong_thuc_thanh_toan?.ten || "Không xác định"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -327,23 +364,19 @@ console.log("Order data:", order);
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 text-lg mb-2">{item.ten_san_pham}</h4>
                       <div className="flex gap-2 mb-3 flex-wrap">
-                        {item.thuoc_tinh_bien_the && item.thuoc_tinh_bien_the.map((attr: ThuocTinhBienThe, idx: number) =>
-                          attr.gia_tri.startsWith("#") ? (
-                            <div
-                              key={idx}
-                              className="w-6 h-6 rounded-full border-2 border-white shadow-md"
-                              style={{ backgroundColor: attr.gia_tri }}
-                              title={attr.ten_thuoc_tinh}
-                            />
-                          ) : (
+                        {Array.isArray(item.thuoc_tinh_bien_the) && item.thuoc_tinh_bien_the.map((attr, idx) => {
+                          const ten = toDisplayString(attr?.ten_thuoc_tinh);
+                          const giaTri = toDisplayString(attr?.gia_tri);
+                          if (!ten && !giaTri) return null;
+                          return (
                             <span
                               key={idx}
                               className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
                             >
-                              {attr.ten_thuoc_tinh}: {attr.gia_tri}
+                              {ten}: {giaTri}
                             </span>
-                          )
-                        )}
+                          );
+                        })}
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
@@ -419,6 +452,20 @@ console.log("Order data:", order);
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {orderStatus === "yeu_cau_huy_hang" && (
+        <div className="flex justify-center my-6">
+          <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
+            Đã gửi yêu cầu hủy, chờ xác nhận từ người bán
+          </div>
+        </div>
+      )}
+      {orderStatus === "yeu_cau_tra_hang" && (
+        <div className="flex justify-center my-6">
+          <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
+            Đã gửi yêu cầu trả hàng, chờ xác nhận từ người bán
           </div>
         </div>
       )}
