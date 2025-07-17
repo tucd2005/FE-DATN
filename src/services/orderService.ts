@@ -43,7 +43,10 @@ export interface GetOrdersResponse {
 
 export const orderService = {
   // Lấy danh sách đơn hàng
-  getAllOrders: () => instanceAxios.get("/admin/orders"), // trả về { data: [...] }
+  // getAllOrders: () => instanceAxios.get("/admin/orders"), // trả về { data: [...] }
+  getAllOrders: (page = 1) => {
+  return instanceAxios.get(`admin/orders?page=${page}`);
+  },
 
 
   // Cập nhật trạng thái đơn hàng
@@ -51,6 +54,23 @@ export const orderService = {
     instanceAxios.put(`/admin/orders/${id}`, data),
   getOrderById: (id: number) =>
     instanceAxios.get(`/admin/orders/${id}`).then((res) => res.data),
+
+  // Hủy đơn hàng (client)
+  cancelOrder: async (orderId: number | string) => {
+    const res = await instanceAxios.post(`/order/huy-don/${orderId}`);
+    return res.data; // trả về dữ liệu đơn hàng mới nhất
+  },
+
+  // Trả hàng (client)
+  returnOrder: async (orderId: number | string) => {
+    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`);
+    return res.data; // trả về dữ liệu đơn hàng mới nhất
+  },
+
+  // Đánh dấu đã giao (admin)
+  markOrderAsDelivered: (orderId: number | string) =>
+    instanceAxios.post(`/order/da-giao/${orderId}`),
+
 
 
 };

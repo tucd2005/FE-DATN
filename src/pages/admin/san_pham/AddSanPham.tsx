@@ -16,6 +16,7 @@ import { useListCategory as useCategoryList } from '../../../hooks/useCategory';
 import { useAllAttributeValues, useList as useAttributeList } from '../../../hooks/useAttribute';
 import { useCreateProduct } from '../../../hooks/useProduct';
 import type { Category } from '../../../types/categorys/category';
+import { useNavigate } from 'react-router-dom';
 
 const { TextArea } = Input;
 
@@ -47,6 +48,7 @@ const AddProduct: React.FC = () => {
   const { data: categories = [] } = useCategoryList();
   const { data: attributes = [] } = useAttributeList();
   const createProduct = useCreateProduct();
+  const navigate = useNavigate();
 
   const attributeIds = attributes.map(attr => attr.id);
   const attributeValuesQueries = useAllAttributeValues(attributeIds);
@@ -92,7 +94,10 @@ const AddProduct: React.FC = () => {
     });
 
     createProduct.mutate(formData, {
-      onSuccess: () => message.success('Thêm sản phẩm thành công!'),
+      onSuccess: () => {
+        message.success('Thêm sản phẩm thành công!');
+        navigate('/admin/san-pham');
+      },
       onError: (err) => {
         console.error('Lỗi gửi form:', err?.response?.data);
         message.error('Thêm sản phẩm thất bại!');
@@ -108,7 +113,7 @@ const AddProduct: React.FC = () => {
         <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
-      <Form.Item label="Giá">
+      {/* <Form.Item label="Giá">
         <Controller name="gia" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
@@ -118,7 +123,7 @@ const AddProduct: React.FC = () => {
 
       <Form.Item label="Tổng số lượng">
         <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item label="Mô tả">
         <Controller name="mo_ta" control={control} render={({ field }) => <TextArea rows={4} {...field} />} />
@@ -183,11 +188,69 @@ const AddProduct: React.FC = () => {
       >
         {variantFields.map((variant, variantIndex) => (
           <Space key={variant.id} direction="vertical" className="w-full p-4 border rounded mb-4">
-            <h4>Biến thể #{variantIndex + 1}</h4>
-<span>Giá gốc</span>
-            <Controller name={`variants.${variantIndex}.gia`} control={control} render={({ field }) => <Input placeholder="Giá" {...field} />} />
-          z  <Controller name={`variants.${variantIndex}.gia_khuyen_mai`} control={control} render={({ field }) => <Input placeholder="Giá KM" {...field} />} />
-            <Controller name={`variants.${variantIndex}.so_luong`} control={control} render={({ field }) => <Input placeholder="Số lượng" {...field} />} />
+            <h4>Biến thể {variantIndex + 1}</h4>
+            <span>Giá gốc</span>
+            <Controller
+              name={`variants.${variantIndex}.gia`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Nhập giá sản phẩm"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
+
+            <span>Giá khuyến mãi</span>
+            <Controller
+              name={`variants.${variantIndex}.gia_khuyen_mai`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Nhập giá khuyến mãi"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
+
+            <span>Số lượng</span>
+            <Controller
+              name={`variants.${variantIndex}.so_luong`}
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Số lượng"
+                  value={field.value === 0 ? '' : field.value ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || Number(val) >= 0) {
+                      field.onChange(val);
+                    }
+                  }}
+                />
+              )}
+            />
 
             <Form.Item label="Ảnh biến thể">
               <Controller

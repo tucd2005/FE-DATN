@@ -168,21 +168,8 @@ export default function ProfilePage() {
                         <h3 className="text-3xl font-bold text-gray-900 mb-2">{profile?.name || "Chưa có tên"}</h3>
                         <p className="text-xl text-gray-600 mb-2">{profile?.email}</p>
                         <p className="text-sm text-gray-500 flex items-center justify-center lg:justify-start">
-                          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a2 2 0 012-2h4a2 2 0 012 2v1M8 7h8m-8 0v10a2 2 0 002 2h4a2 2 0 002-2V7"
-                            />
-                          </svg>
-                          Thành viên từ{" "}
-                          {profile?.created_at
-                            ? new Date(profile.created_at).toLocaleDateString("vi-VN", {
-                                year: "numeric",
-                                month: "long",
-                              })
-                            : "N/A"}
+                       
+                        
                         </p>
                       </div>
 

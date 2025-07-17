@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { toast } from "react-toastify";
 
 // Lấy danh sách đơn hàng
-export const useOrderList = () => {
+export const useOrderList = (page: number = 1) => {
   return useQuery({
-    queryKey: ["orders"],
-    queryFn: () => orderService.getAllOrders().then(res => res.data.data), // <-- res.data.data mới là mảng
+    queryKey: ["orders", page],
+    queryFn: () =>
+      orderService.getAllOrders(page).then((res) => res.data), 
   });
 };
 
@@ -48,3 +50,47 @@ export const useOrderDetailclient = (orderId: number | string) => {
   queryFn: () => getOrderDetail(orderId),
 })
 }
+
+// Hook hủy đơn hàng (client)
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.cancelOrder(orderId),
+    onSuccess: (data) => {
+      toast.success("Hủy đơn hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      // Trả về dữ liệu đơn hàng mới nhất cho callback
+      return data;
+    },
+  });
+};
+
+// Hook trả hàng (client)
+export const useReturnOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.returnOrder(orderId),
+    onSuccess: (data) => {
+      toast.success("Trả hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      // Trả về dữ liệu đơn hàng mới nhất cho callback
+      return data;
+    },
+  });
+};
+
+// Hook xác nhận đã nhận hàng (client)
+export const useMarkOrderAsDelivered = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: number | string) => orderService.markOrderAsDelivered(orderId),
+    onSuccess: (data) => {
+      toast.success("Xác nhận đã nhận hàng thành công");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order-detail"] });
+      return data;
+    },
+  });
+};

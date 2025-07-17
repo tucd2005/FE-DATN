@@ -5,7 +5,7 @@ import type { Variant } from "../../../types/product.type"
 import { Modal, notification } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
 
-export default function ProductDetailclientPage() {
+const ProductDetailclientPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: product, isLoading, error } = useProductDetail(Number(id));
   const navigate = useNavigate();
@@ -30,8 +30,8 @@ export default function ProductDetailclientPage() {
     product && Array.isArray(product.hinh_anh)
       ? product.hinh_anh.map(getImageUrl)
       : product && typeof product.hinh_anh === "string"
-      ? [getImageUrl(product.hinh_anh)]
-      : ["/placeholder.svg?height=1200&width=1200"];
+        ? [getImageUrl(product.hinh_anh)]
+        : ["/placeholder.svg?height=1200&width=1200"];
 
   // Lấy tối đa 4 biến thể có ảnh
   const variantThumbnails = (product?.variants || [])
@@ -42,18 +42,34 @@ export default function ProductDetailclientPage() {
   const attributeNames: string[] = product?.variants?.length
     ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
     : [];
+  //Tự động chọn biến thể đầu tiên nếu chưa chọn gì
+  useEffect(() => {
+    if (
+      product?.variants?.length &&
+      attributeNames.length &&
+      Object.keys(selectedAttributes).length === 0
+    ) {
+      const firstVariant = product.variants[0];
+      const defaultAttributes: { [key: string]: string } = {};
 
+      firstVariant.thuoc_tinh.forEach((attr) => {
+        defaultAttributes[attr.ten] = attr.gia_tri;
+      });
+
+      setSelectedAttributes(defaultAttributes);
+    }
+  }, [product, attributeNames]);
   const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
   const selectedVariant = product?.variants?.length
     ? product.variants.find((v) =>
-        attributeNames.every((attr) =>
-          selectedAttributes[attr]
-            ? v.thuoc_tinh.some((a) => a.ten === attr && a.gia_tri === selectedAttributes[attr])
-            : false
-        )
+      attributeNames.every((attr) =>
+        selectedAttributes[attr]
+          ? v.thuoc_tinh.some((a) => a.ten === attr && a.gia_tri === selectedAttributes[attr])
+          : false
       )
+    )
     : null;
 
   const gia = selectedVariant ? selectedVariant.gia : product?.gia;
@@ -65,8 +81,8 @@ export default function ProductDetailclientPage() {
     typeof value === "number"
       ? value.toLocaleString("vi-VN")
       : typeof value === "string" && !isNaN(Number(value))
-      ? Number(value).toLocaleString("vi-VN")
-      : "0";
+        ? Number(value).toLocaleString("vi-VN")
+        : "0";
 
   const handleAddToCart = async () => {
     if (!product) {
@@ -234,7 +250,7 @@ export default function ProductDetailclientPage() {
     </svg>
   )
 
- 
+
   const MinusIcon = () => (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -395,22 +411,40 @@ export default function ProductDetailclientPage() {
 
             {/* Price */}
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-blue-600">
-                {selectedVariant
-                  ? `${safeLocaleString(selectedVariant.gia)}đ`
-                  : product?.gia
-                    ? `${safeLocaleString(product.gia)}đ`
-                    : isAllAttributesSelected
-                      ? "Liên hệ"
-                      : "Vui lòng chọn đầy đủ thuộc tính"}
-              </span>
-              {giaKhuyenMai && (
+              {giaKhuyenMai !== undefined &&
+                gia !== undefined &&
+                !isNaN(Number(giaKhuyenMai)) &&
+                !isNaN(Number(gia)) &&
+                Number(giaKhuyenMai) > 0 &&
+                Number(giaKhuyenMai) < Number(gia) ? (
                 <>
-                  <span className="text-xl text-gray-500 line-through">{safeLocaleString(giaKhuyenMai)}đ</span>
+                  {/* Giá khuyến mãi - in đậm, không gạch */}
+                  <span className="text-3xl font-bold text-gray-900">
+                    {safeLocaleString(Number(giaKhuyenMai))}đ
+                  </span>
+
+                  {/* Giá gốc - bị gạch */}
+                  <span className="text-xl text-blue-600 line-through">
+                    {safeLocaleString(Number(gia))}đ
+                  </span>
+
+                  {/* Phần trăm giảm giá */}
                   <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                    -{gia && giaKhuyenMai ? Math.round(100 - (Number(giaKhuyenMai) / Number(gia)) * 100) : 0}%
+                    -
+                    {Math.round(((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100)}%
                   </div>
                 </>
+              ) : (
+                // Trường hợp không có khuyến mãi
+                <span className="text-3xl font-bold text-gray-900">
+                  {selectedVariant
+                    ? `${safeLocaleString(selectedVariant.gia)}đ`
+                    : product?.gia
+                      ? `${safeLocaleString(product.gia)}đ`
+                      : isAllAttributesSelected
+                        ? "Liên hệ"
+                        : "Vui lòng chọn đầy đủ thuộc tính"}
+                </span>
               )}
             </div>
 
@@ -787,3 +821,4 @@ export default function ProductDetailclientPage() {
     </div>
   )
 }
+export default ProductDetailclientPage

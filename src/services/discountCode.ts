@@ -1,3 +1,4 @@
+
 import instanceAxios from "../utils/axios";
 
 interface CreateDiscountCodePayload {
@@ -55,4 +56,16 @@ export const getDeletedDiscountCodes = async (page: number) => {
 export const restoreDiscountCode = async (id: number) => {
   const res = await instanceAxios.post(`/admin/discount-codes/restore/${id}`);
   return res.data.data;
+};
+
+export const sendDiscountCode = (id: number, payload: { kieu: string; so_luong?: number }) => {
+  return instanceAxios.post(`/admin/discount-codes/${id}/send`, payload);
+};
+
+export const discountCodeService = {
+  check: (payload: { ma_giam_gia: string; tong_tien: number; san_pham_id?: number }) =>
+    instanceAxios.post("/client/discount-code/check", payload),
+
+  getUserDiscounts: () =>
+    instanceAxios.get("/client/discount-codes"),
 };

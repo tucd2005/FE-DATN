@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table, Tag, Space, Button, Tooltip, Spin, Select, message } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -45,10 +45,11 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
 
 const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: orders, isLoading } = useOrderList();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useOrderList(page); 
   const updateStatusMutation = useUpdateOrderStatus();
 
-  const sortedOrders = orders?.slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+  
 
 
   const handleChangeStatus = (id: number, value: string) => {
@@ -141,8 +142,14 @@ const OrderListPage: React.FC = () => {
      <Table
   rowKey="id"
   columns={columns}
-  dataSource={sortedOrders}
-  pagination={{ pageSize: sortedOrders.length, showSizeChanger: true, pageSizeOptions: ['10', '20', '50', '100'] }}
+  dataSource={data?.data || []}
+pagination={{
+  current: data?.current_page || 1,
+  pageSize: data?.per_page || 10,
+  total: data?.total || 0,
+  onChange: (page) => setPage(page),
+  showSizeChanger: false,
+}}
 />
     )}
   </div>

@@ -36,7 +36,13 @@ export default function ChiTietSanPham() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>(["Tất cả"])
   const [priceRange, setPriceRange] = useState([0, 4000000])
   const [favorites, setFavorites] = useState<number[]>([])
-
+  const [currentPage, setCurrentPage] = useState(1)
+  const [meta, setMeta] = useState<{
+    current_page: number
+    last_page: number
+    total: number
+    per_page: number
+  } | null>(null)
 
   const navigate = useNavigate();
 
@@ -45,19 +51,21 @@ export default function ChiTietSanPham() {
 
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await productService.getAll()
-        setProducts(data)
-      } catch (error) {
-        console.error("Error fetching products:", error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchProducts = async () => {
+    setLoading(true)
+    try {
+      const res = await productService.getPaginated({ page: currentPage })
+      setProducts(res.data)
+      setMeta(res.meta)
+    } catch (error) {
+      console.error("Error fetching products:", error)
+    } finally {
+      setLoading(false)
+    }
     }
 
     fetchProducts()
-  }, [])
+  }, [currentPage])
 
   const formatPrice = (price?: string | number) => {
     const num = Number(price)
@@ -210,7 +218,7 @@ export default function ChiTietSanPham() {
               <div>
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">Sản phẩm thể thao</h1>
                 <p className="text-gray-600 font-medium">
-                  <span className="text-teal-600 font-bold">{products.length}</span> sản phẩm được tìm thấy
+                  <span className="text-teal-600 font-bold">{meta?.total || products.length}</span> sản phẩm được tìm thấy
                 </p>
               </div>
 
@@ -254,14 +262,12 @@ export default function ChiTietSanPham() {
               </div>
             </div>
 
-            <div
-              className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}
-            >
+            <div className={`grid gap-6 min-h-[600px] ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
               {products.map((product) => {
                 const variant = product.variants?.[0]
-                const price = variant?.gia
-                const originalPrice = variant?.gia_khuyen_mai
-                const discount = calculateDiscount(price || "0", originalPrice || "0")
+                const originalPrice = variant?.gia
+                const salePrice = variant?.gia_khuyen_mai
+                const discount = calculateDiscount(originalPrice || "0", salePrice || "0")
                 const isFavorite = favorites.includes(product.id)
 
                 const imgPath = product.hinh_anh
@@ -320,15 +326,19 @@ export default function ChiTietSanPham() {
                       </div>
 
                       <div className="flex items-center gap-3 mb-6">
-                        {originalPrice && Number(originalPrice) > 0 ? (
+                        {salePrice && Number(salePrice) > 0 ? (
                           <>
                             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-                              {formatPrice(price)}
+                              {formatPrice(salePrice)}
                             </span>
-                            <span className="text-sm text-gray-400 line-through font-medium">{formatPrice(originalPrice)}</span>
+                            <span className="text-sm text-gray-400 line-through font-medium">
+                              {formatPrice(originalPrice)}
+                            </span>
                           </>
                         ) : (
-                          <span className="text-2xl font-bold text-gray-800">{formatPrice(price)}</span>
+                          <span className="text-2xl font-bold text-gray-800">
+                            {formatPrice(originalPrice)}
+                          </span>
                         )}
                       </div>
 
@@ -348,6 +358,45 @@ export default function ChiTietSanPham() {
                 )
               })}
             </div>
+            {meta && meta.last_page > 1 && (
+                <div className="flex justify-end mt-10 px-4">
+                  <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow border border-gray-200">
+                    {/* Previous Button */}
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold border border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-500 disabled:opacity-40"
+                    >
+                      &lt;
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold transition-all duration-200
+                          ${
+                            page === currentPage
+                              ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow"
+                              : "border border-gray-300 text-gray-700 hover:border-teal-500 hover:text-teal-600"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    {/* Next Button */}
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.min(meta.last_page, prev + 1))}
+                      disabled={currentPage === meta.last_page}
+                      className="w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold border border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-500 disabled:opacity-40"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
       </div>

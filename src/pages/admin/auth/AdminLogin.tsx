@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Form, Input, Button, Alert, Card, Typography } from "antd"
-import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons"
+import { Button, Alert, Card, Typography } from "antd"
+import { UserOutlined, LockOutlined } from "@ant-design/icons"
 import instanceAxios from "../../../utils/axios"
 import { useForm } from "react-hook-form"
+import type { FieldErrors } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema } from "../../../validations/authSchema"
 import { useNavigate } from "react-router-dom"
@@ -27,7 +28,7 @@ export default function AdminLogin() {
     resolver: zodResolver(loginSchema)
   })
 
-  const onError = (error: FieldErrors) => {
+  const onError = (error: FieldErrors<LoginFormValues>) => {
     console.log(error)
   }
 
@@ -39,16 +40,36 @@ export default function AdminLogin() {
       const { data } = await instanceAxios.post("/admin/login", values);
       console.log(data, values)
       if (data.token) {
+        // Lưu role vào localStorage, ưu tiên data.role, nếu không có thì lấy từ data.user.role
+        const role = data.role || (data.user && data.user.role) || "admin";
+        if (role !== "admin") {
+          setLoading(false);
+          // Thông báo lỗi và chuyển hướng về home
+          import("antd").then(({ message }) => {
+            message.error("Bạn không có quyền truy cập trang quản trị!");
+          });
+          nav("/");
+          return;
+        }
         setLoading(false)
         localStorage.setItem("accessToken", data.token)
+        localStorage.setItem("role", role)
         nav("/admin")
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.")
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        // @ts-expect-error: err có thể là AxiosError
+        setError(err.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.")
+      } else {
+        setError("Đã xảy ra lỗi. Vui lòng thử lại.")
+      }
+
+      // 👇 Redirect về trang client sau khi thất bại
+      nav("/")
     }
   }
 
- 
+
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">

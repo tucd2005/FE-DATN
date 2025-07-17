@@ -1,15 +1,19 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createDiscountCode, getDeletedDiscountCodes, getDiscountCodeDetail, getDiscountCodes, restoreDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createDiscountCode, discountCodeService, getDeletedDiscountCodes, getDiscountCodeDetail, restoreDiscountCode, sendDiscountCode, softDeleteDiscountCode, updateDiscountCode, updateDiscountCodeStatus } from "../services/discountCode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+
+import instanceAxios from "../utils/axios";
 
 
 // hook gọi API lấy danh sách mã giảm giá
 export const useDiscountCodes = (page = 1) => {
   return useQuery({
     queryKey: ["discountCodes", page],
-    queryFn: () => getDiscountCodes(page),
-    placeholderData: keepPreviousData,  // ✅ v5 dùng placeholderData
+    queryFn: async () => {
+      const res = await instanceAxios.get(`/admin/discount-codes?page=${page}`);
+      return res.data; // Giữ nguyên { data, meta, links }
+    }
   });
 };
 
@@ -103,3 +107,22 @@ export const useRestoreDiscountCode = () => {
   });
 };
 
+export const useSendDiscountCode = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: { kieu: string; so_luong?: number } }) =>
+      sendDiscountCode(id, payload),
+  });
+};
+
+export const useCheckDiscountCode = () =>
+  useMutation({
+    mutationFn: (payload: { ma_giam_gia: string; tong_tien: number; san_pham_id?: number }) =>
+      discountCodeService.check(payload).then(res => res.data),
+  });
+
+// Hook lấy danh sách mã giảm giá của user
+export const useUserDiscountCodes = () =>
+  useQuery({
+    queryKey: ["user-discount-codes"],
+    queryFn: () => discountCodeService.getUserDiscounts().then((res: any) => res.data.data),
+  });

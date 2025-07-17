@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import dayjs from "dayjs"
 import { useProfile, useUpdateProfile } from "../../../hooks/useProfile"
 
@@ -23,6 +23,8 @@ export default function EditProfilePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [avatar, setAvatar] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Khi data có -> set form value
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function EditProfilePage() {
         name: data.name || "",
         email: data.email || "",
         phone: data.phone || "",
-        ngay_sinh: data.ngay_sinh ? dayjs(data.ngay_sinh).format("YYYY-MM-DD") : "",
+        ngay_sinh: data.ngay_sinh && dayjs(data.ngay_sinh).isValid() ? dayjs(data.ngay_sinh).format("YYYY-MM-DD") : "",
         gioi_tinh: data.gioi_tinh || "",
         tinhThanh: data.address?.tinhThanh || "",
         quanHuyen: data.address?.quanHuyen || "",
@@ -40,6 +42,8 @@ export default function EditProfilePage() {
       })
     }
   }, [data])
+console.log("Form Data:", formData);
+console.log("Data:", data);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -75,21 +79,20 @@ export default function EditProfilePage() {
       return
     }
 
+    const form = new FormData()
+    form.append("name", formData.name)
+    form.append("email", formData.email)
+    form.append("phone", formData.phone)
+    form.append("gioi_tinh", formData.gioi_tinh)
+    form.append("ngay_sinh", formData.ngay_sinh || "")
+    form.append("tinh_thanh", formData.tinhThanh)
+    form.append("quan_huyen", formData.quanHuyen)
+    form.append("phuong_xa", formData.phuongXa)
+    form.append("dia_chi_chi_tiet", formData.chiTiet)
+    if (avatar) form.append("anh_dai_dien", avatar)
+
     try {
-      await updateProfile.mutateAsync({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        gioi_tinh: formData.gioi_tinh,
-        ngay_sinh: formData.ngay_sinh || null,
-        address: {
-          tinhThanh: formData.tinhThanh,
-          quanHuyen: formData.quanHuyen,
-          phuongXa: formData.phuongXa,
-          chiTiet: formData.chiTiet,
-          macDinh: 1,
-        },
-      })
+      await updateProfile.mutateAsync(form)
       setMessage({ type: "success", text: "Cập nhật thành công!" })
       setTimeout(() => setMessage(null), 3000)
     } catch (error) {
@@ -108,11 +111,33 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full mb-4">
-            <span className="text-2xl font-bold text-white">S</span>
+          <div className="inline-flex items-center justify-center w-36 h-36 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full mb-4 overflow-hidden cursor-pointer"
+               onClick={() => fileInputRef.current?.click()}>
+            {avatar ? (
+              <img
+                src={URL.createObjectURL(avatar)}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : data?.anh_dai_dien ? (
+              <img
+                src={data.anh_dai_dien.startsWith('http') ? data.anh_dai_dien : `/path/to/${data.anh_dai_dien}`}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-2xl font-bold text-white">Ss</span>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={e => setAvatar(e.target.files?.[0] || null)}
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Chỉnh sửa hồ sơ</h1>
           <p className="text-gray-600">Cập nhật thông tin cá nhân của bạn</p>

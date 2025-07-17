@@ -1,14 +1,53 @@
-import { Button, Popconfirm, Tag, Table } from 'antd';
-import React from 'react';
+import { Button, Popconfirm, Tag, Table, Modal, Select, Radio, InputNumber, message } from 'antd';
+import React, { useState } from 'react';
 import { useAccountListuser, useBlockUser, useUnblockUser } from '../../../hooks/useAccount';
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useSendDiscountCode, useDiscountCodes } from '../../../hooks/useDiscountCodes';
 
 const ListAccountUsePage = () => {
+  const navigate = useNavigate();
+
+  // Lấy danh sách user
   const { data: accounts = [], isLoading } = useAccountListuser();
+
+  // Block / unblock user
   const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
   const { mutate: unblockUser, isPending: isUnblocking } = useUnblockUser();
-  const navigate = useNavigate();
+
+  // Modal gửi mã
+  const [sendModal, setSendModal] = useState<{ open: boolean, user?: any }>({ open: false });
+  const [selectedCode, setSelectedCode] = useState<number | null>(null);
+  const [sendType, setSendType] = useState<'tat_ca' | 'ngau_nhien'>('tat_ca');
+  const [soLuong, setSoLuong] = useState<number>(1);
+
+  // Lấy danh sách mã giảm giá
+  const { data: discountCodesData, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
+  const discountCodes = discountCodesData?.data || [];  // Lấy mảng mã giảm giá
+
+  // Mutation gửi mã
+  const { mutate: sendDiscount, isPending: isSending } = useSendDiscountCode();
+
+  // Xử lý gửi
+  const handleSend = () => {
+    if (!selectedCode) return;
+    sendDiscount(
+      {
+        id: selectedCode,
+        payload: {
+          kieu: sendType,
+          so_luong: sendType === 'ngau_nhien' ? soLuong : undefined
+        }
+      },
+      {
+        onSuccess: () => {
+          message.success("Đã gửi mã giảm giá!");
+          setSendModal({ open: false });
+        },
+        onError: () => message.error("Gửi thất bại!")
+      }
+    );
+  };
 
   const columns = [
     { title: 'Tên', dataIndex: 'name', key: 'name' },
@@ -36,16 +75,10 @@ const ListAccountUsePage = () => {
               okText="Khóa"
               cancelText="Hủy"
               onConfirm={() =>
-                blockUser({
-                  id: record.id,
-                  data: { ly_do_block: 'Khóa bởi admin', block_den_ngay: null }
-                })
+                blockUser({ id: record.id, data: { ly_do_block: 'Khóa bởi admin', block_den_ngay: null } })
               }
             >
-              <Button
-                icon={<LockOutlined />}
-                loading={isBlocking}
-              >
+              <Button icon={<LockOutlined />} loading={isBlocking}>
                 Khóa
               </Button>
             </Popconfirm>
@@ -56,15 +89,14 @@ const ListAccountUsePage = () => {
               cancelText="Hủy"
               onConfirm={() => unblockUser(record.id)}
             >
-              <Button
-                type="primary"
-                icon={<UnlockOutlined />}
-                loading={isUnblocking}
-              >
+              <Button type="primary" icon={<UnlockOutlined />} loading={isUnblocking}>
                 Mở khóa
               </Button>
             </Popconfirm>
           )}
+          <Button onClick={() => setSendModal({ open: true, user: record })}>
+            Gửi mã giảm giá
+          </Button>
         </>
       )
     }
@@ -74,8 +106,8 @@ const ListAccountUsePage = () => {
     <div className="p-6 bg-white rounded shadow">
       <div className="flex justify-between mb-4 items-center">
         <h2 className="text-xl font-semibold">Danh sách tài khoản người dùng</h2>
-      
       </div>
+
       <Table
         columns={columns}
         dataSource={accounts}
@@ -83,6 +115,46 @@ const ListAccountUsePage = () => {
         loading={isLoading}
         pagination={{ pageSize: 10 }}
       />
+
+      <Modal
+        open={sendModal.open}
+        onCancel={() => setSendModal({ open: false })}
+        onOk={handleSend}
+        confirmLoading={isSending}
+        title="Gửi mã giảm giá"
+      >
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Chọn mã giảm giá"
+          onChange={setSelectedCode}
+          loading={isLoadingDiscountCodes}
+          options={discountCodes.map(code => ({
+            value: code.id,
+            label: `${code.ma} - ${code.ten} (${code.so_luong_con_lai ?? code.so_luong ?? ''} lượt)`
+          }))}
+          showSearch
+          filterOption={(input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+        />
+        <Radio.Group
+          value={sendType}
+          onChange={e => setSendType(e.target.value)}
+          style={{ marginTop: 16 }}
+        >
+          <Radio value="tat_ca">Gửi tất cả</Radio>
+          <Radio value="ngau_nhien">Ngẫu nhiên</Radio>
+        </Radio.Group>
+        {sendType === 'ngau_nhien' && (
+          <InputNumber
+            min={1}
+            value={soLuong}
+            onChange={setSoLuong}
+            style={{ marginTop: 16, width: '100%' }}
+            placeholder="Số lượng"
+          />
+        )}
+      </Modal>
     </div>
   );
 };
