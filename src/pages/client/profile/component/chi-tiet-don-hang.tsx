@@ -17,6 +17,7 @@ export default function OrderTracking() {
   const { mutate: returnOrder, isPending: isReturning } = useReturnOrder()
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder()
   const { mutate: markAsDelivered, isPending } = useMarkOrderAsDelivered();
+  const [isRequestingCancel, setIsRequestingCancel] = useState(false);
 
   const trackingSteps = [
     { id: "cho_xac_nhan", title: "Chờ xác nhận", icon: Clock, color: "from-amber-400 to-orange-500" },
@@ -40,10 +41,18 @@ export default function OrderTracking() {
   const isStepActive = (idx: number) => idx === getCurrentStepIndex()
 
   const handleCancelOrder = () => {
-    console.log("Bấm xác nhận hủy, order id:", order?.id);
     if (!order?.id) return;
+    setIsRequestingCancel(true);
     cancelOrder(order.id, {
-      onSuccess: () => setShowCancelModal(false)
+      onSuccess: () => {
+        setIsRequestingCancel(false);
+        setOrderStatus("da_huy"); // cập nhật trạng thái đơn hàng thành đã hủy
+        setShowCancelModal(false);
+      },
+      onError: () => {
+        setIsRequestingCancel(false);
+        // Có thể hiện thông báo lỗi nếu muốn
+      }
     });
   }
 
@@ -130,7 +139,7 @@ export default function OrderTracking() {
                 </div>
                 <p className="text-teal-100">Đặt hàng lúc: {new Date(order.created_at).toLocaleString("vi-VN")}</p>
               </div>
-              {(orderStatus === "cho_xac_nhan" || orderStatus === "dang_chuan_bi") && (
+              {(orderStatus === "cho_xac_nhan" || orderStatus === "dang_chuan_bi") && !isRequestingCancel && orderStatus !== "da_huy" && (
                 <button
                   onClick={() => setShowCancelModal(true)}
                   className="flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/25 transition-all duration-200 border border-white/20"
@@ -170,22 +179,128 @@ export default function OrderTracking() {
             </h2>
 
             <div className="relative">
-              {/* Progress Line */}
-              {orderStatus === "da_huy" ? (
-                <div className="flex justify-center relative z-10">
-                  <div className="flex flex-col items-center group">
-                    <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-                      <X className="w-7 h-7 animate-bounce" />
+              {["yeu_cau_huy_hang", "da_huy"].includes(orderStatus || "") ? (
+                <div className="flex justify-center items-center relative z-10">
+                  {/* Yêu cầu hủy hàng */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                      ${orderStatus === "yeu_cau_huy_hang" ? "bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                    `}>
+                      {/* icon hủy */}
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </div>
                     <div className="mt-4 text-center">
-                      <p className="text-sm font-semibold text-red-600 scale-110">Đã huỷ</p>
-                      <div className="mt-2 px-3 py-1 bg-gradient-to-r from-red-100 to-red-200 rounded-full">
-                        <span className="text-xs font-medium text-red-700">Hiện tại</span>
-                      </div>
+                      <p className={`text-sm font-semibold ${orderStatus === "yeu_cau_huy_hang" ? "text-red-600 scale-110" : "text-gray-400"}`}>Yêu cầu hủy hàng</p>
+                      {orderStatus === "yeu_cau_huy_hang" && (
+                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-red-100 to-red-200 rounded-full">
+                          <span className="text-xs font-medium text-red-700">Hiện tại</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Thanh kết nối đỏ */}
+                  <div className="h-1 w-24 bg-red-500 rounded-full -ml-2 -mr-2" />
+
+                  {/* Đã hủy */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                      ${orderStatus === "da_huy" ? "bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                    `}>
+                      {/* icon hủy */}
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className={`text-sm font-semibold ${orderStatus === "da_huy" ? "text-red-600 scale-110" : "text-gray-400"}`}>Đã hủy</p>
+                      {orderStatus === "da_huy" && (
+                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-red-100 to-red-200 rounded-full">
+                          <span className="text-xs font-medium text-red-700">Hiện tại</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : ["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "tra_hang_thanh_cong"].includes(orderStatus || "") ? (
+                // --- Timeline trả hàng ---
+                <div className="flex justify-center items-center relative z-10">
+                  {/* Yêu cầu trả hàng */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                      ${orderStatus === "yeu_cau_tra_hang" ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                    `}>
+                      {/* icon trả hàng */}
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className={`text-sm font-semibold ${orderStatus === "yeu_cau_tra_hang" ? "text-yellow-700 scale-110" : "text-gray-400"}`}>Yêu cầu trả hàng</p>
+                      {orderStatus === "yeu_cau_tra_hang" && (
+                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
+                          <span className="text-xs font-medium text-yellow-700">Hiện tại</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Thanh kết nối */}
+                  <div className="h-1 w-24 bg-yellow-400 rounded-full -ml-2 -mr-2" />
+
+                  {/* Chờ xác nhận trả hàng */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                      ${orderStatus === "cho_xac_nhan_tra_hang" ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                    `}>
+                      {/* icon chờ xác nhận */}
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Chờ xác nhận trả hàng</p>
+                      {orderStatus === "cho_xac_nhan_tra_hang" && (
+                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
+                          <span className="text-xs font-medium text-blue-700">Hiện tại</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Thanh kết nối */}
+                  <div className="h-1 w-24 bg-green-400 rounded-full -ml-2 -mr-2" />
+
+                  {/* Trả hàng thành công */}
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                      ${orderStatus === "tra_hang_thanh_cong" ? "bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                    `}>
+                      {/* icon thành công */}
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className={`text-sm font-semibold ${orderStatus === "tra_hang_thanh_cong" ? "text-green-700 scale-110" : "text-gray-400"}`}>Trả hàng thành công</p>
+                      {orderStatus === "tra_hang_thanh_cong" && (
+                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full">
+                          <span className="text-xs font-medium text-green-700">Hiện tại</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ) : (
+                // --- Timeline mặc định ---
                 <>
                   <div className="absolute top-8 left-0 right-0 h-1 bg-gray-200 rounded-full overflow-hidden">
                     <div
@@ -349,42 +464,79 @@ export default function OrderTracking() {
                 </h3>
               </div>
               <div className="p-6">
-                {order.items.map((item: OrderItem, idx: number) => (
-                  <div key={idx} className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4">
-                    <div className="relative">
-                      <img
-                        src={`http://localhost:8000/storage/${item.san_pham_id}.jpg`}
-                        alt={item.ten_san_pham}
-                        className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
-                      />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-white">{item.so_luong}</span>
+                {order.items.map((item: OrderItem, idx: number) => {
+                  // Lấy hình ảnh sản phẩm
+                  const productImage = item.product?.hinh_anh
+                    ? `http://localhost:8000/storage/${item.product.hinh_anh}`
+                    : null;
+
+                  // Lấy hình ảnh biến thể (nếu muốn ưu tiên biến thể)
+                  let variantImage = null;
+                  if (item.variant?.hinh_anh) {
+                    try {
+                      const arr = JSON.parse(item.variant.hinh_anh);
+                      if (Array.isArray(arr) && arr.length > 0) {
+                        variantImage = `http://localhost:8000/storage/${arr[0]}`;
+                      }
+                    } catch (e) {
+                      // Không parse được, bỏ qua
+                    }
+                  }
+
+                  // Parse thuộc tính biến thể
+                  let attributes: { thuoc_tinh: string; gia_tri: string }[] = [];
+                  if (typeof item.thuoc_tinh_bien_the === "string") {
+                    try {
+                      attributes = JSON.parse(item.thuoc_tinh_bien_the);
+                    } catch (e) {
+                      // Không parse được, bỏ qua
+                    }
+                  }
+
+                  return (
+                    <div key={idx} className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4">
+                      <div className="relative">
+                        <img
+                          src={variantImage || productImage}
+                          alt={item.ten_san_pham}
+                          className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
+                        />
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">{item.so_luong}</span>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 text-lg mb-2">{item.ten_san_pham}</h4>
+                        <div className="flex gap-2 mb-3 flex-wrap">
+                          {attributes.map((attr, idx) => {
+                            const isColor = typeof attr.gia_tri === "string" && attr.gia_tri.startsWith("#") && (attr.gia_tri.length === 7 || attr.gia_tri.length === 4);
+                            return (
+                              <span
+                                key={idx}
+                                className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700 flex items-center gap-2"
+                              >
+                                {attr.thuoc_tinh}:
+                                {isColor ? (
+                                  <span
+                                    className="inline-block w-5 h-5 rounded-full border border-gray-300 ml-1"
+                                    style={{ backgroundColor: attr.gia_tri }}
+                                    title={attr.gia_tri}
+                                  />
+                                ) : (
+                                  <span className="ml-1">{attr.gia_tri}</span>
+                                )}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
+                          <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-lg mb-2">{item.ten_san_pham}</h4>
-                      <div className="flex gap-2 mb-3 flex-wrap">
-                        {Array.isArray(item.thuoc_tinh_bien_the) && item.thuoc_tinh_bien_the.map((attr, idx) => {
-                          const ten = toDisplayString(attr?.ten_thuoc_tinh);
-                          const giaTri = toDisplayString(attr?.gia_tri);
-                          if (!ten && !giaTri) return null;
-                          return (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
-                            >
-                              {ten}: {giaTri}
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
-                        <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -445,27 +597,78 @@ export default function OrderTracking() {
                 </button>
                 <button
                   onClick={handleCancelOrder}
-                  disabled={isCancelling}
+                  disabled={isCancelling || isRequestingCancel}
                   className="flex-1 py-3 px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-medium rounded-xl hover:from-red-600 hover:to-pink-600 focus:ring-4 focus:ring-red-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isCancelling ? "Đang hủy..." : "Xác nhận hủy"}
+                  {isCancelling || isRequestingCancel ? "Đang xử lý..." : "Xác nhận hủy"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-      {orderStatus === "yeu_cau_huy_hang" && (
+      {isRequestingCancel && orderStatus !== "da_huy" && (
         <div className="flex justify-center my-6">
           <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
-            Đã gửi yêu cầu hủy, chờ xác nhận từ người bán
+            Đang yêu cầu hủy hàng...
+          </div>
+        </div>
+      )}
+      {orderStatus === "da_huy" && (
+        <div className="flex justify-center my-6">
+          <div className="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
+            Đã hủy hàng
           </div>
         </div>
       )}
       {orderStatus === "yeu_cau_tra_hang" && (
-        <div className="flex justify-center my-6">
-          <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
-            Đã gửi yêu cầu trả hàng, chờ xác nhận từ người bán
+        <div className="flex flex-col items-center justify-center my-12">
+          <div className="flex items-center">
+            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-lg font-semibold text-yellow-700 mb-2">Đã gửi yêu cầu trả hàng</p>
+            <p className="text-gray-600">Chờ xác nhận từ người bán</p>
+          </div>
+        </div>
+      )}
+
+      {orderStatus === "cho_xac_nhan_tra_hang" && (
+        <div className="flex flex-col items-center justify-center my-12">
+          <div className="flex items-center">
+            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-lg font-semibold text-blue-700 mb-2">Yêu cầu trả hàng đang chờ xác nhận...</p>
+          </div>
+        </div>
+      )}
+
+      {orderStatus === "tra_hang_thanh_cong" && (
+        <div className="flex flex-col items-center justify-center my-12">
+          <div className="flex items-center">
+            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-lg font-semibold text-green-700 mb-2">Trả hàng thành công!</p>
           </div>
         </div>
       )}
