@@ -1,13 +1,15 @@
-"use client"
-
 import { useState } from "react"
 import { useOrders } from "../../../../hooks/useOrder"
 import { useNavigate } from "react-router-dom"
+import { Pagination } from "antd"
 
 export default function OrderHistory() {
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const { data, isLoading, error } = useOrders(1)   // page = 1
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 5
+
+  const { data, isLoading, error } = useOrders(1) // lấy tất cả đơn hàng từ BE
   const navigate = useNavigate()
   const orders = data?.orders || []
 
@@ -23,30 +25,27 @@ export default function OrderHistory() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "cho_xac_nhan":
-        return "bg-yellow-100 text-yellow-800"
-      case "dang_chuan_bi":
-        return "bg-blue-100 text-blue-800"
-      case "dang_van_chuyen":
-        return "bg-cyan-100 text-cyan-800"
-      case "da_giao":
-        return "bg-green-100 text-green-800"
-      case "da_huy":
-        return "bg-red-100 text-red-800"
-      case "tra_hang":
-        return "bg-pink-100 text-pink-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+      case "cho_xac_nhan": return "bg-yellow-100 text-yellow-800"
+      case "dang_chuan_bi": return "bg-blue-100 text-blue-800"
+      case "dang_van_chuyen": return "bg-cyan-100 text-cyan-800"
+      case "da_giao": return "bg-green-100 text-green-800"
+      case "da_huy": return "bg-red-100 text-red-800"
+      case "tra_hang": return "bg-pink-100 text-pink-800"
+      default: return "bg-gray-100 text-gray-800"
     }
   }
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesStatus = selectedStatus === "all" || order.trang_thai_don_hang === selectedStatus
-    const matchesSearch =
-      order.ma_don_hang.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) => item.ten_san_pham.toLowerCase().includes(searchTerm.toLowerCase()))
-    return matchesStatus && matchesSearch
-  })
+  const filteredOrders = orders
+    .filter((order) => {
+      const matchesStatus = selectedStatus === "all" || order.trang_thai_don_hang === selectedStatus
+      const matchesSearch =
+        order.ma_don_hang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.items.some((item) => item.ten_san_pham.toLowerCase().includes(searchTerm.toLowerCase()))
+      return matchesStatus && matchesSearch
+    })
+    .sort((a, b) => new Date(b.ngay_dat).getTime() - new Date(a.ngay_dat).getTime())
+
+  const paginatedOrders = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,7 +67,10 @@ export default function OrderHistory() {
                   type="text"
                   placeholder="Mã đơn hàng, tên sản phẩm..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setPage(1)
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
@@ -79,11 +81,15 @@ export default function OrderHistory() {
                   {statusOptions.map((option) => (
                     <button
                       key={option.value}
-                      onClick={() => setSelectedStatus(option.value)}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${selectedStatus === option.value
-                        ? "bg-teal-50 text-teal-700 border border-teal-200"
-                        : "text-gray-700 hover:bg-gray-50"
-                        }`}
+                      onClick={() => {
+                        setSelectedStatus(option.value)
+                        setPage(1)
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                        selectedStatus === option.value
+                          ? "bg-teal-50 text-teal-700 border border-teal-200"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
                     >
                       <span>{option.label}</span>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{option.count}</span>
@@ -102,7 +108,7 @@ export default function OrderHistory() {
               <div className="text-center text-red-500 py-12">Có lỗi xảy ra</div>
             ) : (
               <div className="space-y-6">
-                {filteredOrders.map((order) => (
+                {paginatedOrders.map((order) => (
                   <div key={order.id} className="bg-white rounded-lg shadow">
                     {/* Order Header */}
                     <div className="px-6 py-4 border-b border-gray-200">
@@ -113,7 +119,9 @@ export default function OrderHistory() {
                             <p className="text-sm text-gray-500">Đặt ngày {order.ngay_dat}</p>
                           </div>
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.trang_thai_don_hang)}`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                              order.trang_thai_don_hang
+                            )}`}
                           >
                             {order.trang_thai_don_hang}
                           </span>
@@ -137,7 +145,7 @@ export default function OrderHistory() {
                           <div className="flex-1">
                             <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
                             <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {item.thuoc_tinh_bien_the.map((tt, i) => (
+                              {item.thuoc_tinh_bien_the.map((tt, i) =>
                                 tt.gia_tri.startsWith("#") ? (
                                   <span key={i} className="flex items-center gap-1">
                                     {tt.ten_thuoc_tinh}:
@@ -152,14 +160,12 @@ export default function OrderHistory() {
                                     {tt.ten_thuoc_tinh}: {tt.gia_tri}
                                   </span>
                                 )
-                              ))}
+                              )}
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900">{item.don_gia}₫</div>
                         </div>
                       ))}
-
-
                     </div>
 
                     {/* Order Actions */}
@@ -172,7 +178,6 @@ export default function OrderHistory() {
                           >
                             Xem chi tiết
                           </button>
-                         
                           {order.trang_thai_don_hang === "da_giao" && (
                             <button className="text-sm text-green-600 hover:text-green-700 font-medium">Đánh giá sản phẩm</button>
                           )}
@@ -188,6 +193,18 @@ export default function OrderHistory() {
                 {filteredOrders.length === 0 && (
                   <div className="bg-white rounded-lg shadow p-12 text-center">
                     <p className="text-gray-500">Không tìm thấy đơn hàng</p>
+                  </div>
+                )}
+
+                {filteredOrders.length > 0 && (
+                  <div className="flex justify-end pt-4">
+                    <Pagination
+                      current={page}
+                      total={filteredOrders.length}
+                      pageSize={PAGE_SIZE}
+                      onChange={(p) => setPage(p)}
+                      showSizeChanger={false}
+                    />
                   </div>
                 )}
               </div>

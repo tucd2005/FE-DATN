@@ -59,6 +59,7 @@ export const restoreDiscountCode = async (id: number) => {
 };
 
 export const sendDiscountCode = (id: number, payload: { kieu: string; so_luong?: number }) => {
+
   return instanceAxios.post(`/admin/discount-codes/${id}/send`, payload);
 };
 
@@ -69,3 +70,4 @@ export const discountCodeService = {
   getUserDiscounts: () =>
     instanceAxios.get("/client/discount-codes"),
 };
+
