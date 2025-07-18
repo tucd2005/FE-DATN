@@ -233,13 +233,13 @@
           await clearCart(); 
           if (selectedPayment === "vnpay") {
             try {
-              if (!data.id) {
+              if (!data.order || !data.order.id) {
                 toast.error("Không lấy được ID đơn hàng từ server!");
                 return;
               }
         
               const vnpayPayload = {
-                don_hang_id: data.id,  // ✅ dùng id
+                don_hang_id: data.order.id,  // ✅ dùng id
                 phuong_thuc_thanh_toan_id: 2,
                 ngon_ngu: "vn"
               };

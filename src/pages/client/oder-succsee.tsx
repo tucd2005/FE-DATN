@@ -38,6 +38,7 @@ interface Order {
     name: string
     email: string
   }
+  ten_nguoi_dat?: string // add this to match backend
 }
 
 interface PaymentData {
@@ -153,14 +154,16 @@ export default function PaymentResultPage() {
     return colorMap[status] || "bg-gray-100 text-gray-800"
   }
 
-  const parseProductAttributes = (str: string) => {
+  const parseProductAttributes = (str: string): string => {
+    if (!str) return "";
     try {
-      const attrs = JSON.parse(str)
-      return attrs.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
+      const attrs: Array<{ thuoc_tinh: string; gia_tri: string }> = JSON.parse(str);
+      if (!Array.isArray(attrs)) return "";
+      return attrs.map((a) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ");
     } catch {
-      return ""
+      return "";
     }
-  }
+  };
 
   const copyOrderCode = () => {
     if (order?.ma_don_hang) {
@@ -170,7 +173,27 @@ export default function PaymentResultPage() {
     }
   }
 
-  const fullAddress = `${order.dia_chi}, ${order.xa}, ${order.huyen}, ${order.thanh_pho}`
+  const fullAddress = [order.dia_chi, order.xa, order.huyen, order.thanh_pho].filter(Boolean).join(", ");
+
+ function getImageUrl(hinh_anh: string | undefined): string {
+  if (!hinh_anh) return "/placeholder.svg";
+
+  try {
+    // Nếu là mảng JSON thì parse
+    const parsed = JSON.parse(hinh_anh);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return `http://127.0.0.1:8000/storage/${parsed[0]}`;
+    }
+  } catch {
+    // Nếu không phải JSON hoặc lỗi khi parse, tiếp tục kiểm tra định dạng string
+    if (hinh_anh.startsWith("http")) {
+      return hinh_anh;
+    }
+    return `http://127.0.0.1:8000/storage/${hinh_anh}`;
+  }
+
+  return "/placeholder.svg";
+}
 
   return (
     <div
@@ -195,7 +218,6 @@ export default function PaymentResultPage() {
             </p>
           </div>
 
-          {/* Payment Amount */}
           {/* Payment Amount */}
           {!isCancelled && (
             <div className="p-8">
@@ -224,39 +246,50 @@ export default function PaymentResultPage() {
             </div>
           </div>
           <div className="p-6 space-y-4">
-            {orderDetails.map((item, index) => (
-              <div
-                key={item.id}
-                className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex-shrink-0">
-                  <img
-                    src={`http://127.0.0.1:8000/storage/${item.product.hinh_anh}`}
-                    alt={item.product.ten}
-                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
-                  />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-gray-800 text-lg">{item.product.ten}</h4>
-                  {parseProductAttributes(item.thuoc_tinh_bien_the) && (
-                    <p className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full inline-block">
-                      {parseProductAttributes(item.thuoc_tinh_bien_the)}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
-                      Số lượng: {item.so_luong}
-                    </span>
-                    <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
-                      Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
-                    </span>
-                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
-                      Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
-                    </span>
+            {orderDetails.map((item) => {
+              const product = item.product || { ten: "Sản phẩm không xác định", hinh_anh: "" };
+              const imgSrc = getImageUrl(product.hinh_anh);
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex-shrink-0">
+                    <img
+                      src={imgSrc}
+                      alt={product.ten}
+                      className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
+                      onError={e => {
+                        const target = e.target as HTMLImageElement;
+                        if (!target.src.endsWith('/placeholder.svg')) {
+                          target.src = '/placeholder.svg';
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <h4 className="font-semibold text-gray-800 text-lg">{product.ten}</h4>
+                    {parseProductAttributes(item.thuoc_tinh_bien_the) && (
+                      <p className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full inline-block">
+                        {parseProductAttributes(item.thuoc_tinh_bien_the)}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
+                        Số lượng: {item.so_luong}
+                      </span>
+                      <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
+                        Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
+                      </span>
+                      <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
+                        Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -315,9 +348,8 @@ export default function PaymentResultPage() {
               <User className="w-5 h-5 text-gray-600 mt-1" />
               <div className="space-y-1">
                 <p className="text-sm text-gray-600">Thông tin khách hàng</p>
-                <p className="font-medium text-gray-800">{order.user?.name ?? "Không xác định"}</p>
-                <p className="text-gray-700">{order.user?.email ?? order.email_nguoi_dat}</p>
-
+                <p className="font-medium text-gray-800">{order.ten_nguoi_dat || order.user?.name || "Không xác định"}</p>
+                <p className="text-gray-700">{order.email_nguoi_dat || order.user?.email || ""}</p>
               </div>
             </div>
 
