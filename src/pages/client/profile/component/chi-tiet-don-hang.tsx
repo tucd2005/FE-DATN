@@ -5,8 +5,42 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useOrderDetailclient, useReturnOrder } from "../../../../hooks/useOrder"
 import { useCancelOrder } from "../../../../hooks/useOrder"
 import { ArrowLeft, X, CheckCircle, Clock, BadgeCheck, Truck } from "lucide-react"
-import type { OrderItem } from "../../../../services/orderService"
 import { useMarkOrderAsDelivered } from "../../../../hooks/useOrder"
+
+// Cập nhật interface để phù hợp với cấu trúc dữ liệu thực tế
+interface OrderItem {
+  id: number
+  san_pham_id: number
+  bien_the_id: number
+  so_luong: number
+  don_gia: string
+  tong_tien: string
+  so_tien_duoc_giam: string
+  thuoc_tinh_bien_the: string
+  created_at: string
+  updated_at: string
+  product: {
+    id: number
+    ten: string
+    hinh_anh: string
+    mo_ta: string
+    so_luong: number
+    so_luong_da_ban: number
+    created_at: string
+    updated_at: string
+  }
+  variant: {
+    id: number
+    san_pham_id: number
+    so_luong: number
+    hinh_anh: string
+    so_luong_da_ban: number
+    gia: string
+    gia_khuyen_mai: string
+    created_at: string
+    updated_at: string
+  }
+}
 
 export default function OrderTracking() {
   const { id } = useParams<{ id: string }>()
@@ -91,24 +125,36 @@ export default function OrderTracking() {
   const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
   console.log("Order data:", order);
 
-  // Hàm ép kiểu về string an toàn để render
-  const toDisplayString = (val: unknown) => {
-    if (typeof val === 'string' || typeof val === 'number') return String(val);
-    if (val === null || val === undefined) return '';
-    if (Array.isArray(val)) return val.map(toDisplayString).join(', ');
-    if (typeof val === 'object') {
-      // Nếu object có trường 'ten', ưu tiên lấy trường này
-      if ('ten' in val && typeof val.ten === 'string') return val.ten;
-      // Nếu object có trường 'name', ưu tiên lấy trường này
-      if ('name' in val && typeof val.name === 'string') return val.name;
-      // Nếu object, stringify (chỉ dùng cho debug, không nên render)
+  // Hàm lấy URL hình ảnh
+  const getImageUrl = (hinh_anh: string | string[] | undefined): string => {
+    if (!hinh_anh) return "/placeholder.svg";
+
+    // Nếu là array
+    if (Array.isArray(hinh_anh)) {
+      if (hinh_anh.length > 0) {
+        return `http://127.0.0.1:8000/storage/${hinh_anh[0]}`;
+      }
+      return "/placeholder.svg";
+    }
+
+    // Nếu là string
+    if (typeof hinh_anh === 'string') {
       try {
-        return '[object]';
+        // Nếu là mảng JSON thì parse
+        const parsed = JSON.parse(hinh_anh);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return `http://127.0.0.1:8000/storage/${parsed[0]}`;
+        }
       } catch {
-        return '';
+        // Nếu không phải JSON hoặc lỗi khi parse, tiếp tục kiểm tra định dạng string
+        if (hinh_anh.startsWith("http")) {
+          return hinh_anh;
+        }
+        return `http://127.0.0.1:8000/storage/${hinh_anh}`;
       }
     }
-    return String(val);
+
+    return "/placeholder.svg";
   };
 
   return (
@@ -139,7 +185,7 @@ export default function OrderTracking() {
                 </div>
                 <p className="text-teal-100">Đặt hàng lúc: {new Date(order.created_at).toLocaleString("vi-VN")}</p>
               </div>
-              {(orderStatus === "cho_xac_nhan" || orderStatus === "dang_chuan_bi") && !isRequestingCancel && orderStatus !== "da_huy" && (
+              {(orderStatus === "cho_xac_nhan" || orderStatus === "dang_chuan_bi") && !isRequestingCancel && (
                 <button
                   onClick={() => setShowCancelModal(true)}
                   className="flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/25 transition-all duration-200 border border-white/20"
@@ -465,30 +511,20 @@ export default function OrderTracking() {
               </div>
               <div className="p-6">
                 {order.items.map((item: OrderItem, idx: number) => {
-                  // Lấy hình ảnh sản phẩm
-                  const productImage = item.product?.hinh_anh
-                    ? `http://localhost:8000/storage/${item.product.hinh_anh}`
-                    : null;
-
-                  // Lấy hình ảnh biến thể (nếu muốn ưu tiên biến thể)
-                  let variantImage = null;
-                  if (item.variant?.hinh_anh) {
-                    try {
-                      const arr = JSON.parse(item.variant.hinh_anh);
-                      if (Array.isArray(arr) && arr.length > 0) {
-                        variantImage = `http://localhost:8000/storage/${arr[0]}`;
-                      }
-                    } catch (e) {
-                      // Không parse được, bỏ qua
-                    }
-                  }
+                  // Lấy hình ảnh từ variant hoặc product
+                  const variantImage = getImageUrl(item.variant?.hinh_anh);
+                  const productImage = getImageUrl(item.product?.hinh_anh);
+                  const imgSrc = variantImage !== "/placeholder.svg" ? variantImage : productImage;
+                  
+                  // Lấy tên sản phẩm từ product hoặc order
+                  const productName = item.product?.ten || order.ten_san_pham || "Sản phẩm không xác định";
 
                   // Parse thuộc tính biến thể
                   let attributes: { thuoc_tinh: string; gia_tri: string }[] = [];
                   if (typeof item.thuoc_tinh_bien_the === "string") {
                     try {
                       attributes = JSON.parse(item.thuoc_tinh_bien_the);
-                    } catch (e) {
+                    } catch {
                       // Không parse được, bỏ qua
                     }
                   }
@@ -497,16 +533,22 @@ export default function OrderTracking() {
                     <div key={idx} className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4">
                       <div className="relative">
                         <img
-                          src={variantImage || productImage}
-                          alt={item.ten_san_pham}
+                          src={imgSrc}
+                          alt={productName}
                           className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
+                          onError={e => {
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.endsWith('/placeholder.svg')) {
+                              target.src = '/placeholder.svg';
+                            }
+                          }}
                         />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
                           <span className="text-xs font-bold text-white">{item.so_luong}</span>
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 text-lg mb-2">{item.ten_san_pham}</h4>
+                        <h4 className="font-semibold text-gray-900 text-lg mb-2">{productName}</h4>
                         <div className="flex gap-2 mb-3 flex-wrap">
                           {attributes.map((attr, idx) => {
                             const isColor = typeof attr.gia_tri === "string" && attr.gia_tri.startsWith("#") && (attr.gia_tri.length === 7 || attr.gia_tri.length === 4);
@@ -554,7 +596,7 @@ export default function OrderTracking() {
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="text-gray-600">Tổng tiền hàng:</span>
                   <span className="font-semibold text-gray-800">
-                    {formatPrice(order.tong_tien || order.so_tien_thanh_toan)}
+                    {formatPrice(order.so_tien_thanh_toan)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
