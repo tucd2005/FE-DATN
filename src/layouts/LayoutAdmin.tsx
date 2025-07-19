@@ -74,7 +74,7 @@ export default function LayoutAdmin() {
         <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined style={{ fontSize: 18 }} />}>
           Mã giảm giá
         </Menu.Item>
-        <Menu.Item key="/admin/banner" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
+        <Menu.Item key="/admin/banners" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
           Banner
         </Menu.Item>
 

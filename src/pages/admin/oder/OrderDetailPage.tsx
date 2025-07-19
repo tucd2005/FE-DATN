@@ -7,6 +7,8 @@ const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useOrderDetail(Number(id));
 
+ 
+  
   const columns = [
     {
       title: "Tên sản phẩm",
@@ -20,19 +22,29 @@ const OrderDetailPage = () => {
         const variantImage = record.variant?.hinh_anh;
         const productImage = record.product?.hinh_anh;
         let img: any = variantImage || productImage || "no-image.png";
-
+    
         // Nếu backend trả object thay vì string, lấy trường 'url'
         if (typeof img === "object" && img !== null && img.url) {
           img = img.url;
         }
-
+    
+        // Nếu img là chuỗi JSON mảng => parse và lấy phần tử đầu
+        if (typeof img === "string" && img.startsWith("[")) {
+          try {
+            const arr = JSON.parse(img);
+            img = arr[0] ?? "no-image.png";
+          } catch {
+            img = "no-image.png";
+          }
+        }
+    
         // ép img thành string, rồi mới gọi startsWith
         const safeImg = String(img ?? "");
-
+    
         const fullUrl = safeImg.startsWith("http")
           ? safeImg
           : `http://localhost:8000/storage/${safeImg}`;
-
+    
         return (
           <Image
             width={60}
@@ -41,7 +53,7 @@ const OrderDetailPage = () => {
             fallback="/no-image.png"
           />
         );
-      },
+    },
     },
     {
       title: "Biến thể",
@@ -51,21 +63,47 @@ const OrderDetailPage = () => {
         try {
           const attrs = JSON.parse(json);
           if (!Array.isArray(attrs) || attrs.length === 0) return "-";
-
+    
           return (
             <Space wrap>
               {attrs.map((attr: any, idx: number) => {
                 let label = attr.thuoc_tinh;
+                const value = attr.gia_tri;
+    
+                // Tự động gán nhãn nếu "Không rõ"
                 if (label === "Không rõ") {
-                  if (["S", "M", "L", "XL", "XXL"].includes(attr.gia_tri)) {
+                  if (["S", "M", "L", "XL", "XXL"].includes(value)) {
                     label = "Size";
                   } else if (
-                    ["Đỏ", "Xanh", "Vàng", "Đen", "Trắng"].includes(attr.gia_tri)
+                    ["Đỏ", "Xanh", "Vàng", "Đen", "Trắng"].includes(value)
                   ) {
                     label = "Màu sắc";
                   }
                 }
-                return <Tag key={idx}>{`${label}: ${attr.gia_tri}`}</Tag>;
+    
+                // Nếu là mã màu hex thì chỉ hiện ô màu, bỏ chữ
+                if (
+                  typeof value === "string" &&
+                  value.startsWith("#") &&
+                  (value.length === 4 || value.length === 7)
+                ) {
+                  return (
+                    <Tag
+                      key={idx}
+                      style={{
+                        backgroundColor: value,
+                        width: 24,
+                        height: 24,
+                        padding: 0,
+                        borderRadius: 4,
+                        border: "1px solid #ccc",
+                      }}
+                    />
+                  );
+                }
+    
+                // Mặc định hiển thị label: value
+                return <Tag key={idx}>{`${label}: ${value}`}</Tag>;
               })}
             </Space>
           );
@@ -74,6 +112,7 @@ const OrderDetailPage = () => {
         }
       },
     },
+    ,
     {
       title: "Số lượng",
       dataIndex: "so_luong",
