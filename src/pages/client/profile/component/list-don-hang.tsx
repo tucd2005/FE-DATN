@@ -46,7 +46,7 @@ export default function OrderHistory() {
     .sort((a, b) => new Date(b.ngay_dat).getTime() - new Date(a.ngay_dat).getTime())
 
   const paginatedOrders = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
+console.log("data",filteredOrders);
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
@@ -127,7 +127,7 @@ export default function OrderHistory() {
                           </span>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-semibold text-gray-900">{order.tong_tien_thanh_toan}₫</p>
+                          <p className="text-lg font-semibold text-gray-900">{Number(order.tong_tien_thanh_toan).toLocaleString("vi-VN")}₫</p>
                           <p className="text-sm text-gray-500">{order.so_luong_mat_hang} sản phẩm</p>
                         </div>
                       </div>
@@ -163,7 +163,7 @@ export default function OrderHistory() {
                               )}
                             </div>
                           </div>
-                          <div className="text-sm font-medium text-gray-900">{item.don_gia}₫</div>
+                          <div className="text-sm font-medium text-gray-900">{Number(item.don_gia).toLocaleString("vi-VN")}₫</div>
                         </div>
                       ))}
                     </div>
