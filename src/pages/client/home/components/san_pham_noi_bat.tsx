@@ -17,11 +17,33 @@ export default function SanPhamNoiBat({ products }: Props) {
         <div className="grid grid-cols-4 gap-6">
           {products.slice(0, 8).map((product, index) => {
             const variant = product.variants?.[0];
-            const price = variant?.gia ? Number(variant.gia) : 0;
-            const originalPrice = variant?.gia_khuyen_mai ? Number(variant.gia_khuyen_mai) : 0;
-            const discount = originalPrice && price ? `-${Math.round(((originalPrice - price) / originalPrice) * 100)}%` : null;
-            let imgPath = Array.isArray(variant?.hinh_anh) ? variant.hinh_anh[0] : variant?.hinh_anh || product.hinh_anh || "";
-            let src = imgPath.startsWith("http") ? imgPath : `http://127.0.0.1:8000/storage/${imgPath}`;
+            const originalPrice = variant?.gia ? Number(variant.gia) : 0;
+            const discountPrice = variant?.gia_khuyen_mai ? Number(variant.gia_khuyen_mai) : 0;
+
+            const price = discountPrice > 0 ? discountPrice : originalPrice;
+            const discount = discountPrice > 0
+              ? `-${Math.round(((originalPrice - discountPrice) / originalPrice) * 100)}%`
+              : null;
+
+            let rawImage = variant?.hinh_anh || product.hinh_anh || "";
+            let imgPath: string = "";
+
+            try {
+              const parsed = JSON.parse(rawImage);
+              if (Array.isArray(parsed)) {
+                imgPath = parsed[0] || "";
+              } else if (typeof parsed === "string") {
+                imgPath = parsed;
+              }
+            } catch {
+              imgPath = rawImage;
+            }
+
+            const src = typeof imgPath === "string" && imgPath.startsWith("http")
+              ? imgPath
+              : `http://127.0.0.1:8000/storage/${imgPath}`;
+
+            console.log("Ảnh biến thể:", variant?.hinh_anh);
 
             return (
               <div key={index} className="group bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -47,7 +69,12 @@ export default function SanPhamNoiBat({ products }: Props) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg font-bold text-blue-600">{price.toLocaleString()}đ</span>
-                      {originalPrice > price && <span className="text-sm text-gray-500 line-through">{originalPrice.toLocaleString()}đ</span>}
+                      {discountPrice > 0 && (
+                        <span className="text-sm text-gray-500 line-through">
+                          {originalPrice.toLocaleString()}đ
+                        </span>
+                      )}
+
                     </div>
                     <div className="flex">
                       {Array.from({ length: 5 }).map((_, i) => (

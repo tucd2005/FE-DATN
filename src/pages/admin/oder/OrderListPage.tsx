@@ -14,50 +14,68 @@ interface Order {
   created_at: string;
 }
 
-// Constant: options cập nhật trạng thái đơn hàng
+// Tất cả trạng thái có thể có
 const ORDER_STATUS_OPTIONS = [
   { value: "cho_xac_nhan", label: "Chờ xác nhận" },
   { value: "dang_chuan_bi", label: "Đang chuẩn bị" },
   { value: "dang_van_chuyen", label: "Đang vận chuyển" },
   { value: "da_giao", label: "Đã giao" },
+  { value: "yeu_cau_tra_hang", label: "Yêu cầu trả hàng" },
+  { value: "cho_xac_nhan_tra_hang", label: "Chờ xác nhận trả hàng" },
+  { value: "tra_hang_thanh_cong", label: "Trả hàng thành công" },
+  { value: "yeu_cau_huy_hang", label: "Yêu cầu huỷ hàng" },
   { value: "da_huy", label: "Đã huỷ" },
-  { value: "tra_hang", label: "Trả hàng" },
 ];
 
-// Constant: mapping để hiển thị Tag
+// Cho hiển thị tag
 const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   cho_xac_nhan: { color: "orange", label: "Chờ xác nhận" },
   dang_chuan_bi: { color: "purple", label: "Đang chuẩn bị" },
   dang_van_chuyen: { color: "cyan", label: "Đang vận chuyển" },
   da_giao: { color: "green", label: "Đã giao" },
+  yeu_cau_tra_hang: { color: "magenta", label: "Yêu cầu trả hàng" },
+  cho_xac_nhan_tra_hang: { color: "gold", label: "Chờ xác nhận trả hàng" },
+  tra_hang_thanh_cong: { color: "lime", label: "Trả hàng thành công" },
+  yeu_cau_huy_hang: { color: "volcano", label: "Yêu cầu huỷ hàng" },
   da_huy: { color: "red", label: "Đã huỷ" },
-  tra_hang: { color: "magenta", label: "Trả hàng" },
 };
 
-// Constant: mapping trạng thái thanh toán
 const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
   da_thanh_toan: { color: "green", label: "Đã thanh toán" },
   cho_xu_ly: { color: "orange", label: "Chờ xử lý" },
   that_bai: { color: "red", label: "Thất bại" },
   hoan_tien: { color: "blue", label: "Hoàn tiền" },
   da_huy: { color: "red", label: "Đã huỷ" },
+  cho_hoan_tien: { color: "gold", label: "Chờ hoàn tiền" },
+};
+
+// Mapping trạng thái hợp lệ (giống backend)
+const ORDER_STATUS_FLOW: Record<string, string[]> = {
+  cho_xac_nhan: ["dang_chuan_bi", "da_huy"],
+  dang_chuan_bi: ["dang_van_chuyen", "da_huy"],
+  dang_van_chuyen: [],
+  da_giao: [],
+  yeu_cau_tra_hang: ["cho_xac_nhan_tra_hang"],
+  cho_xac_nhan_tra_hang: ["tra_hang_thanh_cong"],
+  tra_hang_thanh_cong: [],
+  yeu_cau_huy_hang: ["da_huy"],
+  da_huy: [],
 };
 
 const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useOrderList(page); 
+  const { data, isLoading } = useOrderList(page);
   const updateStatusMutation = useUpdateOrderStatus();
-
-  
-
 
   const handleChangeStatus = (id: number, value: string) => {
     updateStatusMutation.mutate(
       { id, trang_thai_don_hang: value },
       {
         onSuccess: () => message.success("Cập nhật trạng thái thành công"),
-        onError: () => message.error("Cập nhật thất bại"),
+        onError: (error: any) => {
+          message.error(error?.response?.data?.message || "Cập nhật thất bại");
+        },
       }
     );
   };
@@ -104,16 +122,25 @@ const OrderListPage: React.FC = () => {
     {
       title: "Cập nhật trạng thái",
       dataIndex: "update_status",
-      render: (_: any, record: Order) => (
-        <Select
-          size="small"
-          value={record.trang_thai_don_hang}
-          style={{ width: 140 }}
-          onChange={(value) => handleChangeStatus(record.id, value)}
-          disabled={updateStatusMutation.isPending}
-          options={ORDER_STATUS_OPTIONS}
-        />
-      ),
+      render: (_: any, record: Order) => {
+        const currentStatus = record.trang_thai_don_hang;
+        const allowedNextStatuses = ORDER_STATUS_FLOW[currentStatus] || [];
+    
+        return (
+          <Select
+            size="small"
+            value={currentStatus}
+            style={{ width: 180 }}
+            onChange={(value) => handleChangeStatus(record.id, value)}
+            disabled={updateStatusMutation.isPending}
+            options={ORDER_STATUS_OPTIONS.map((opt) => ({
+              ...opt,
+              disabled:
+                opt.value !== currentStatus && !allowedNextStatuses.includes(opt.value),
+            }))}
+          />
+        );
+      },
     },
     {
       title: "Hành động",
@@ -131,29 +158,29 @@ const OrderListPage: React.FC = () => {
     },
   ];
 
- return (
-  <div className="p-4">
-    <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h2>
-    {isLoading ? (
-      <div className="flex justify-center items-center py-8">
-        <Spin size="large" />
-      </div>
-    ) : (
-     <Table
-  rowKey="id"
-  columns={columns}
-  dataSource={data?.data || []}
-pagination={{
-  current: data?.current_page || 1,
-  pageSize: data?.per_page || 10,
-  total: data?.total || 0,
-  onChange: (page) => setPage(page),
-  showSizeChanger: false,
-}}
-/>
-    )}
-  </div>
-);
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h2>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={data?.data || []}
+          pagination={{
+            current: data?.current_page || 1,
+            pageSize: data?.per_page || 10,
+            total: data?.total || 0,
+            onChange: (page) => setPage(page),
+            showSizeChanger: false,
+          }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default OrderListPage;
