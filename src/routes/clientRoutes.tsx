@@ -15,6 +15,7 @@ import ProfilePage from "../pages/client/profile/profile";
 import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
+import PaymentResultZaloPage from "../pages/client/thanh-cong-xalo";
 
 
 
@@ -31,6 +32,7 @@ export const clientRouter = {
     { path: "gio-hang", element: <CartPage /> },
     { path: "thanh-toan", element: <CheckoutPage /> },
     { path: "payment/result", element: <PaymentResultPage /> },
+    { path: "payment/result/zalo", element: <PaymentResultZaloPage /> },
 
 
     { path: "san-pham/:id", element: <ProductDetailclientPage /> },
