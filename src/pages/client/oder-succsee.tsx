@@ -112,20 +112,30 @@ export default function PaymentResultPage() {
     )
   }
 
-  if (!data || data.code !== "00" || !data.order) {
+  if (
+    !data ||
+    data.code !== "00" ||
+    !data.order ||
+    data.order.trang_thai_thanh_toan !== "da_thanh_toan"
+  ) {
+    // Kiểm tra nếu là hủy thanh toán
+    const isUserCancel =
+      data?.code === "24" ||
+      (data?.message && data.message.toLowerCase().includes("hủy")) ||
+      data?.order?.trang_thai_thanh_toan !== "da_thanh_toan";
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
           <div className="mb-6">
             <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4 animate-pulse" />
-            <h1 className="text-2xl font-bold text-red-600 mb-3">Thanh toán thất bại!</h1>
+            <h1 className="text-2xl font-bold text-red-600 mb-3">
+              {isUserCancel ? "Bạn đã hủy thanh toán" : "Thanh toán thất bại!"}
+            </h1>
             <div className="bg-red-50 rounded-lg p-4 mb-6">
-              <p className="text-red-700 font-medium">{data?.message || "Không xác định"}</p>
-              {data?.code && (
-                <p className="text-red-500 text-sm mt-2">
-                  Mã lỗi: <span className="font-mono bg-red-100 px-2 py-1 rounded">{data.code}</span>
-                </p>
-              )}
+              <p className="text-red-700 font-medium">
+                {isUserCancel ? "Giao dịch đã bị hủy theo yêu cầu của bạn." : (data?.message || "Không xác định")}
+              </p>
+            
             </div>
           </div>
           <a
