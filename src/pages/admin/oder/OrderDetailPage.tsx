@@ -3,6 +3,24 @@ import { useParams } from "react-router-dom";
 import { Spin, Descriptions, Table, Tag, Image, Space } from "antd";
 import { useOrderDetail } from "../../../hooks/useOrder";
 
+// Định nghĩa kiểu dữ liệu cho order detail
+interface Product {
+  ten?: string;
+  hinh_anh?: string;
+}
+interface Variant {
+  hinh_anh?: string;
+}
+interface OrderDetailRow {
+  id: number;
+  product?: Product;
+  variant?: Variant;
+  thuoc_tinh_bien_the?: string | null;
+  so_luong: number;
+  don_gia: string;
+  tong_tien: string;
+}
+
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useOrderDetail(Number(id));
@@ -13,19 +31,19 @@ const OrderDetailPage = () => {
     {
       title: "Tên sản phẩm",
       dataIndex: "product",
-      render: (product: any) => product?.ten || "Không rõ",
+      render: (product: Product | undefined) => product?.ten || "Không rõ",
     },
     {
       title: "Hình ảnh",
       dataIndex: "variant",
-      render: (_: any, record: any) => {
+      render: (_: Variant | undefined, record: OrderDetailRow) => {
         const variantImage = record.variant?.hinh_anh;
         const productImage = record.product?.hinh_anh;
-        let img: any = variantImage || productImage || "no-image.png";
+        let img: string | undefined = variantImage || productImage || "no-image.png";
     
         // Nếu backend trả object thay vì string, lấy trường 'url'
-        if (typeof img === "object" && img !== null && img.url) {
-          img = img.url;
+        if (typeof img === "object" && img !== null && Object.prototype.hasOwnProperty.call(img, 'url')) {
+          img = (img as { url: string }).url;
         }
     
         // Nếu img là chuỗi JSON mảng => parse và lấy phần tử đầu
@@ -53,7 +71,7 @@ const OrderDetailPage = () => {
             fallback="/no-image.png"
           />
         );
-    },
+      },
     },
     {
       title: "Biến thể",
@@ -66,7 +84,7 @@ const OrderDetailPage = () => {
     
           return (
             <Space wrap>
-              {attrs.map((attr: any, idx: number) => {
+              {attrs.map((attr: { thuoc_tinh: string; gia_tri: string }, idx: number) => {
                 let label = attr.thuoc_tinh;
                 const value = attr.gia_tri;
     
@@ -112,7 +130,6 @@ const OrderDetailPage = () => {
         }
       },
     },
-    ,
     {
       title: "Số lượng",
       dataIndex: "so_luong",
@@ -155,8 +172,20 @@ const OrderDetailPage = () => {
           {order?.payment_method?.ten}
         </Descriptions.Item>
         <Descriptions.Item label="Trạng thái đơn hàng">
-          {order?.trang_thai_don_hang}
+           {(() => {
+             const status = order?.trang_thai_don_hang;
+             let color: string = 'geekblue';
+             if (["da_nhan", "tra_hang_thanh_cong"].includes(status)) color = 'green';
+             else if (["da_huy"].includes(status)) color = 'red';
+             else if (["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "da_giao", "dang_van_chuyen", "cho_xac_nhan", "dang_chuan_bi"].includes(status)) color = 'orange';
+             return <Tag color={color}>{status?.replace(/_/g, ' ')}</Tag>;
+           })()}
         </Descriptions.Item>
+        {order?.ly_do_tra_hang && (
+          <Descriptions.Item label="Lý do trả hàng">
+            <span style={{ color: '#d48806', fontWeight: 500 }}>{order.ly_do_tra_hang}</span>
+          </Descriptions.Item>
+        )}
         <Descriptions.Item label="Tổng tiền">
           {order?.so_tien_thanh_toan?.toLocaleString("vi-VN", {
             style: "currency",
@@ -168,7 +197,7 @@ const OrderDetailPage = () => {
       <h3 className="mt-6 mb-2 font-semibold">Danh sách sản phẩm</h3>
       <Table
         rowKey="id"
-        dataSource={order?.order_detail || []}
+        dataSource={order?.order_detail as OrderDetailRow[] || []}
         columns={columns}
         pagination={false}
       />

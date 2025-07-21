@@ -79,6 +79,16 @@ export default function OrderTracking() {
   const isStepCompleted = (idx: number) => idx <= getCurrentStepIndex()
   const isStepActive = (idx: number) => idx === getCurrentStepIndex()
 
+  // Thêm hàm kiểm tra còn trong 3 ngày kể từ khi nhận hàng
+  const canReturnOrder = () => {
+    if (orderStatus !== "da_nhan") return false;
+    if (!order.thoi_gian_nhan) return false;
+    const nhanDate = new Date(order.thoi_gian_nhan);
+    const now = new Date();
+    // 3 ngày = 3*24*60*60*1000 ms
+    return now.getTime() - nhanDate.getTime() <= 3 * 24 * 60 * 60 * 1000;
+  };
+
   const cancelReasons = [
     "Tôi đặt nhầm đơn hàng",
     "Tôi muốn thay đổi sản phẩm",
@@ -223,6 +233,7 @@ export default function OrderTracking() {
                 </div>
                 <p className="text-teal-100">Đặt hàng lúc: {new Date(order.created_at).toLocaleString("vi-VN")}</p>
               </div>
+              {/* Nút thao tác trạng thái đơn hàng */}
               {(orderStatus === "cho_xac_nhan" || orderStatus === "dang_chuan_bi") && !isRequestingCancel && (
                 <button
                   onClick={() => setShowCancelModal(true)}
@@ -232,7 +243,7 @@ export default function OrderTracking() {
                   Hủy đơn hàng
                 </button>
               )}
-              {orderStatus === "dang_van_chuyen" && (
+              {orderStatus === "da_giao" && (
                 <button
                   onClick={() => markAsDelivered(order.id)}
                   disabled={isPending}
@@ -242,7 +253,7 @@ export default function OrderTracking() {
                   {isPending ? "Đang xác nhận..." : "Xác nhận đã nhận hàng"}
                 </button>
               )}
-              {orderStatus === "da_giao" && (
+              {orderStatus === "da_nhan" && canReturnOrder() && (
                 <button
                   onClick={handleReturnOrder}
                   disabled={isReturning}
@@ -263,52 +274,8 @@ export default function OrderTracking() {
             </h2>
 
             <div className="relative">
-              {["yeu_cau_huy_hang", "da_huy"].includes(orderStatus || "") ? (
-                <div className="flex justify-center items-center relative z-10">
-                  {/* Yêu cầu hủy hàng */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-                      ${orderStatus === "yeu_cau_huy_hang" ? "bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-                    `}>
-                      {/* icon hủy */}
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "yeu_cau_huy_hang" ? "text-red-600 scale-110" : "text-gray-400"}`}>Yêu cầu hủy hàng</p>
-                      {orderStatus === "yeu_cau_huy_hang" && (
-                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-red-100 to-red-200 rounded-full">
-                          <span className="text-xs font-medium text-red-700">Hiện tại</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Thanh kết nối đỏ */}
-                  <div className="h-1 w-24 bg-red-500 rounded-full -ml-2 -mr-2" />
-
-                  {/* Đã hủy */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-                      ${orderStatus === "da_huy" ? "bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-                    `}>
-                      {/* icon hủy */}
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "da_huy" ? "text-red-600 scale-110" : "text-gray-400"}`}>Đã hủy</p>
-                      {orderStatus === "da_huy" && (
-                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-red-100 to-red-200 rounded-full">
-                          <span className="text-xs font-medium text-red-700">Hiện tại</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : ["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "tra_hang_thanh_cong"].includes(orderStatus || "") ? (
+              {/* Timeline trả hàng */}
+              {["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "tra_hang_thanh_cong"].includes(orderStatus || "") ? (
                 // --- Timeline trả hàng ---
                 <div className="flex justify-center items-center relative z-10">
                   {/* Yêu cầu trả hàng */}
@@ -351,7 +318,7 @@ export default function OrderTracking() {
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>đã xác nhận trả hàng</p>
+                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Đã xác nhận trả hàng</p>
                       {orderStatus === "cho_xac_nhan_tra_hang" && (
                         <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
                           <span className="text-xs font-medium text-blue-700">Hiện tại</span>

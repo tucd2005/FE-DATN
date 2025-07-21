@@ -25,16 +25,15 @@ interface Order {
   created_at: string;
 }
 
+// ✅ Ẩn các trạng thái chỉ do user cập nhật
 const ORDER_STATUS_OPTIONS = [
   { value: "cho_xac_nhan", label: "Chờ xác nhận" },
   { value: "dang_chuan_bi", label: "Đang chuẩn bị" },
   { value: "dang_van_chuyen", label: "Đang vận chuyển" },
   { value: "da_giao", label: "Đã giao" },
-  { value: "yeu_cau_tra_hang", label: "Yêu cầu trả hàng" },
   { value: "cho_xac_nhan_tra_hang", label: "Chờ xác nhận trả hàng" },
   { value: "tra_hang_thanh_cong", label: "Trả hàng thành công" },
-  { value: "tu_choi_tra_hang", label: "Từ chối trả hàng" }, // ✅
-  { value: "yeu_cau_huy_hang", label: "Yêu cầu huỷ hàng" },
+  { value: "tu_choi_tra_hang", label: "Từ chối trả hàng" },
   { value: "da_huy", label: "Đã huỷ" },
 ];
 
@@ -46,7 +45,7 @@ const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   yeu_cau_tra_hang: { color: "magenta", label: "Yêu cầu trả hàng" },
   cho_xac_nhan_tra_hang: { color: "gold", label: "Chờ xác nhận trả hàng" },
   tra_hang_thanh_cong: { color: "lime", label: "Trả hàng thành công" },
-  tu_choi_tra_hang: { color: "red", label: "Từ chối trả hàng" }, // ✅
+  tu_choi_tra_hang: { color: "red", label: "Từ chối trả hàng" },
   yeu_cau_huy_hang: { color: "volcano", label: "Yêu cầu huỷ hàng" },
   da_huy: { color: "red", label: "Đã huỷ" },
 };
@@ -60,11 +59,10 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
   cho_hoan_tien: { color: "gold", label: "Chờ hoàn tiền" },
 };
 
-// ✅ Đồng bộ đúng BE
 const ORDER_STATUS_FLOW: Record<string, string[]> = {
   cho_xac_nhan: ["dang_chuan_bi", "da_huy"],
   dang_chuan_bi: ["dang_van_chuyen", "da_huy"],
-  dang_van_chuyen: [],
+  dang_van_chuyen: ["da_giao"],
   da_giao: [],
   yeu_cau_tra_hang: ["cho_xac_nhan_tra_hang", "tu_choi_tra_hang"],
   cho_xac_nhan_tra_hang: ["tra_hang_thanh_cong"],
@@ -79,14 +77,13 @@ const OrderListPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useOrderList(page);
   const updateStatusMutation = useUpdateOrderStatus();
-
   const reasonRef = useRef("");
 
   const handleChangeStatus = (id: number, value: string) => {
     const requiresReason = value === "da_huy" || value === "tu_choi_tra_hang";
 
     if (requiresReason) {
-      reasonRef.current = ""; // reset lý do
+      reasonRef.current = "";
 
       Modal.confirm({
         title: value === "da_huy" ? "Lý do huỷ đơn hàng" : "Lý do từ chối trả hàng",
@@ -100,10 +97,9 @@ const OrderListPage: React.FC = () => {
         ),
         onOk: () => {
           const currentReason = reasonRef.current?.trim();
-
           if (!currentReason) {
             message.error("Vui lòng nhập lý do.");
-            return Promise.reject(); // Ngăn đóng modal nếu chưa nhập
+            return Promise.reject();
           }
 
           const payload: any = {
@@ -195,9 +191,7 @@ const OrderListPage: React.FC = () => {
             disabled={updateStatusMutation.isPending}
             options={ORDER_STATUS_OPTIONS.map((opt) => ({
               ...opt,
-              disabled:
-                opt.value !== currentStatus &&
-                !allowedNextStatuses.includes(opt.value),
+              disabled: !allowedNextStatuses.includes(opt.value),
             }))}
           />
         );
