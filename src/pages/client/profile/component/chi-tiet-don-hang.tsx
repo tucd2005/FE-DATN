@@ -47,6 +47,11 @@ export default function OrderTracking() {
   const navigate = useNavigate()
   const { data, isLoading } = useOrderDetailclient(id as string)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState(""); // Lý do hủy
+  const [returnReason, setReturnReason] = useState(""); // Lý do trả hàng
+  const [showReturnModal, setShowReturnModal] = useState(false); // Modal trả hàng
+  const [customCancelReason, setCustomCancelReason] = useState("");
+  const [customReturnReason, setCustomReturnReason] = useState("");
   const [orderStatus, setOrderStatus] = useState<string | null>(null)
   const { mutate: returnOrder, isPending: isReturning } = useReturnOrder()
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder()
@@ -74,25 +79,58 @@ export default function OrderTracking() {
   const isStepCompleted = (idx: number) => idx <= getCurrentStepIndex()
   const isStepActive = (idx: number) => idx === getCurrentStepIndex()
 
+  const cancelReasons = [
+    "Tôi đặt nhầm đơn hàng",
+    "Tôi muốn thay đổi sản phẩm",
+    "Tôi tìm thấy giá tốt hơn ở nơi khác",
+    "Thời gian giao hàng quá lâu",
+    "Khác"
+  ];
+  const returnReasons = [
+    "Sản phẩm bị lỗi/hỏng",
+    "Sản phẩm không đúng mô tả",
+    "Tôi không còn nhu cầu sử dụng",
+    "Khác"
+  ];
+
   const handleCancelOrder = () => {
     if (!order?.id) return;
+    if (!cancelReason || (cancelReason === "Khác" && !customCancelReason)) return;
     setIsRequestingCancel(true);
-    cancelOrder(order.id, {
+    cancelOrder({
+      id: order.id,
+      ly_do_huy: cancelReason === "Khác" ? customCancelReason : cancelReason
+    }, {
       onSuccess: () => {
         setIsRequestingCancel(false);
-        setOrderStatus("da_huy"); // cập nhật trạng thái đơn hàng thành đã hủy
+        setOrderStatus("da_huy");
         setShowCancelModal(false);
+        setCancelReason("");
+        setCustomCancelReason("");
       },
       onError: () => {
         setIsRequestingCancel(false);
-        // Có thể hiện thông báo lỗi nếu muốn
       }
     });
   }
 
   const handleReturnOrder = () => {
     if (!order?.id) return;
-    returnOrder(order.id);
+    setShowReturnModal(true);
+  }
+
+  const confirmReturnOrder = () => {
+    if (!returnReason || (returnReason === "Khác" && !customReturnReason)) return;
+    returnOrder({
+      id: order.id,
+      ly_do_tra_hang: returnReason === "Khác" ? customReturnReason : returnReason
+    }, {
+      onSuccess: () => {
+        setShowReturnModal(false);
+        setReturnReason("");
+        setCustomReturnReason("");
+      }
+    });
   }
 
   if (isLoading) {
@@ -313,7 +351,7 @@ export default function OrderTracking() {
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Chờ xác nhận trả hàng</p>
+                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>đã xác nhận trả hàng</p>
                       {orderStatus === "cho_xac_nhan_tra_hang" && (
                         <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
                           <span className="text-xs font-medium text-blue-700">Hiện tại</span>
@@ -630,6 +668,27 @@ export default function OrderTracking() {
             </div>
             <div className="p-6 space-y-6">
               <p className="text-gray-600">Bạn có chắc chắn muốn hủy đơn hàng này?</p>
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium">Chọn lý do hủy đơn hàng <span className="text-red-500">*</span></label>
+                <select
+                  className="w-full border rounded-lg px-3 py-2 mb-2"
+                  value={cancelReason}
+                  onChange={e => setCancelReason(e.target.value)}
+                >
+                  <option value="">-- Chọn lý do --</option>
+                  {cancelReasons.map((reason, idx) => (
+                    <option key={idx} value={reason}>{reason}</option>
+                  ))}
+                </select>
+                {cancelReason === "Khác" && (
+                  <textarea
+                    className="w-full border rounded-lg px-3 py-2 mt-2"
+                    placeholder="Nhập lý do khác..."
+                    value={customCancelReason}
+                    onChange={e => setCustomCancelReason(e.target.value)}
+                  />
+                )}
+              </div>
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => setShowCancelModal(false)}
@@ -639,10 +698,73 @@ export default function OrderTracking() {
                 </button>
                 <button
                   onClick={handleCancelOrder}
-                  disabled={isCancelling || isRequestingCancel}
+                  disabled={isCancelling || isRequestingCancel || !cancelReason || (cancelReason === "Khác" && !customCancelReason)}
                   className="flex-1 py-3 px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-medium rounded-xl hover:from-red-600 hover:to-pink-600 focus:ring-4 focus:ring-red-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCancelling || isRequestingCancel ? "Đang xử lý..." : "Xác nhận hủy"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Return Modal */}
+      {showReturnModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-white">Trả hàng</h3>
+                <button
+                  onClick={() => setShowReturnModal(false)}
+                  className="text-white/80 hover:text-white transition-colors duration-200"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-6">
+              <p className="text-gray-600">Vui lòng chọn lý do trả hàng:</p>
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium">Chọn lý do trả hàng <span className="text-red-500">*</span></label>
+                <select
+                  className="w-full border rounded-lg px-3 py-2 mb-2"
+                  value={returnReason}
+                  onChange={e => setReturnReason(e.target.value)}
+                >
+                  <option value="">-- Chọn lý do --</option>
+                  {returnReasons.map((reason, idx) => (
+                    <option key={idx} value={reason}>{reason}</option>
+                  ))}
+                </select>
+                {returnReason === "Khác" && (
+                  <textarea
+                    className="w-full border rounded-lg px-3 py-2 mt-2"
+                    placeholder="Nhập lý do khác..."
+                    value={customReturnReason}
+                    onChange={e => setCustomReturnReason(e.target.value)}
+                  />
+                )}
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowReturnModal(false)}
+                  className="flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Không trả hàng
+                </button>
+                <button
+                  onClick={confirmReturnOrder}
+                  disabled={!returnReason || (returnReason === "Khác" && !customReturnReason) || isReturning}
+                  className="flex-1 py-3 px-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 focus:ring-4 focus:ring-yellow-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isReturning && (
+                    <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    </svg>
+                  )}
+                  {isReturning ? "Đang xử lý..." : "Xác nhận trả hàng"}
                 </button>
               </div>
             </div>
