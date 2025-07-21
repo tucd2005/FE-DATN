@@ -62,7 +62,9 @@ const ProductDetailPage: React.FC = () => {
               src = getImageUrl(arr[0]);
             }
           } catch {
-            src = img.startsWith('http') ? img : `http://127.0.0.1:8000/storage/${img}`;
+            src = typeof img === 'string' && img.startsWith('http')
+            ? img
+            : `http://127.0.0.1:8000/storage/${img}`;
           }
         }
         return <Image src={src} width={60} height={60} />;

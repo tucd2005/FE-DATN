@@ -55,7 +55,7 @@ export const useOrderDetailclient = (orderId: number | string) => {
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: number | string) => orderService.cancelOrder(orderId),
+    mutationFn: (params: { id: number | string; ly_do_huy: string }) => orderService.cancelOrder(params.id, { ly_do_huy: params.ly_do_huy }),
     onSuccess: (data) => {
       toast.success("Hủy đơn hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -70,7 +70,7 @@ export const useCancelOrder = () => {
 export const useReturnOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: number | string) => orderService.returnOrder(orderId),
+    mutationFn: (params: { id: number | string; ly_do_tra_hang: string }) => orderService.returnOrder(params.id, { ly_do_tra_hang: params.ly_do_tra_hang }),
     onSuccess: (data) => {
       toast.success("Trả hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });

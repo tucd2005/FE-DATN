@@ -15,7 +15,7 @@ import ProfilePage from "../pages/client/profile/profile";
 import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
-import PaymentResultZaloPage from "../pages/client/thanh-cong-xalo";
+import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
 
 
 

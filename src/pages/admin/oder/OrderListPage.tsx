@@ -1,5 +1,16 @@
-import React, { useState } from "react";
-import { Table, Tag, Space, Button, Tooltip, Spin, Select, message } from "antd";
+import React, { useRef, useState } from "react";
+import {
+  Table,
+  Tag,
+  Space,
+  Button,
+  Tooltip,
+  Spin,
+  Select,
+  message,
+  Modal,
+  Input,
+} from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useOrderList, useUpdateOrderStatus } from "../../../hooks/useOrder";
@@ -14,7 +25,6 @@ interface Order {
   created_at: string;
 }
 
-// Tất cả trạng thái có thể có
 const ORDER_STATUS_OPTIONS = [
   { value: "cho_xac_nhan", label: "Chờ xác nhận" },
   { value: "dang_chuan_bi", label: "Đang chuẩn bị" },
@@ -23,11 +33,11 @@ const ORDER_STATUS_OPTIONS = [
   { value: "yeu_cau_tra_hang", label: "Yêu cầu trả hàng" },
   { value: "cho_xac_nhan_tra_hang", label: "Chờ xác nhận trả hàng" },
   { value: "tra_hang_thanh_cong", label: "Trả hàng thành công" },
+  { value: "tu_choi_tra_hang", label: "Từ chối trả hàng" }, // ✅
   { value: "yeu_cau_huy_hang", label: "Yêu cầu huỷ hàng" },
   { value: "da_huy", label: "Đã huỷ" },
 ];
 
-// Cho hiển thị tag
 const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   cho_xac_nhan: { color: "orange", label: "Chờ xác nhận" },
   dang_chuan_bi: { color: "purple", label: "Đang chuẩn bị" },
@@ -36,6 +46,7 @@ const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   yeu_cau_tra_hang: { color: "magenta", label: "Yêu cầu trả hàng" },
   cho_xac_nhan_tra_hang: { color: "gold", label: "Chờ xác nhận trả hàng" },
   tra_hang_thanh_cong: { color: "lime", label: "Trả hàng thành công" },
+  tu_choi_tra_hang: { color: "red", label: "Từ chối trả hàng" }, // ✅
   yeu_cau_huy_hang: { color: "volcano", label: "Yêu cầu huỷ hàng" },
   da_huy: { color: "red", label: "Đã huỷ" },
 };
@@ -49,15 +60,16 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
   cho_hoan_tien: { color: "gold", label: "Chờ hoàn tiền" },
 };
 
-// Mapping trạng thái hợp lệ (giống backend)
+// ✅ Đồng bộ đúng BE
 const ORDER_STATUS_FLOW: Record<string, string[]> = {
   cho_xac_nhan: ["dang_chuan_bi", "da_huy"],
   dang_chuan_bi: ["dang_van_chuyen", "da_huy"],
   dang_van_chuyen: [],
   da_giao: [],
-  yeu_cau_tra_hang: ["cho_xac_nhan_tra_hang"],
+  yeu_cau_tra_hang: ["cho_xac_nhan_tra_hang", "tu_choi_tra_hang"],
   cho_xac_nhan_tra_hang: ["tra_hang_thanh_cong"],
   tra_hang_thanh_cong: [],
+  tu_choi_tra_hang: [],
   yeu_cau_huy_hang: ["da_huy"],
   da_huy: [],
 };
@@ -68,16 +80,59 @@ const OrderListPage: React.FC = () => {
   const { data, isLoading } = useOrderList(page);
   const updateStatusMutation = useUpdateOrderStatus();
 
+  const reasonRef = useRef("");
+
   const handleChangeStatus = (id: number, value: string) => {
-    updateStatusMutation.mutate(
-      { id, trang_thai_don_hang: value },
-      {
-        onSuccess: () => message.success("Cập nhật trạng thái thành công"),
-        onError: (error: any) => {
-          message.error(error?.response?.data?.message || "Cập nhật thất bại");
+    const requiresReason = value === "da_huy" || value === "tu_choi_tra_hang";
+
+    if (requiresReason) {
+      reasonRef.current = ""; // reset lý do
+
+      Modal.confirm({
+        title: value === "da_huy" ? "Lý do huỷ đơn hàng" : "Lý do từ chối trả hàng",
+        content: (
+          <Input.TextArea
+            placeholder="Nhập lý do..."
+            onChange={(e) => {
+              reasonRef.current = e.target.value;
+            }}
+          />
+        ),
+        onOk: () => {
+          const currentReason = reasonRef.current?.trim();
+
+          if (!currentReason) {
+            message.error("Vui lòng nhập lý do.");
+            return Promise.reject(); // Ngăn đóng modal nếu chưa nhập
+          }
+
+          const payload: any = {
+            id,
+            trang_thai_don_hang: value,
+          };
+          if (value === "da_huy") payload.ly_do_huy = currentReason;
+          if (value === "tu_choi_tra_hang") payload.ly_do_tu_choi_tra_hang = currentReason;
+
+          return updateStatusMutation
+            .mutateAsync(payload)
+            .then(() => {
+              message.success("Cập nhật trạng thái thành công");
+            })
+            .catch((error: any) => {
+              message.error(error?.response?.data?.message || "Cập nhật thất bại");
+            });
         },
-      }
-    );
+      });
+    } else {
+      updateStatusMutation.mutate(
+        { id, trang_thai_don_hang: value },
+        {
+          onSuccess: () => message.success("Cập nhật trạng thái thành công"),
+          onError: (error: any) =>
+            message.error(error?.response?.data?.message || "Cập nhật thất bại"),
+        }
+      );
+    }
   };
 
   const columns = [
@@ -103,7 +158,9 @@ const OrderListPage: React.FC = () => {
       dataIndex: "trang_thai_don_hang",
       render: (status: string) =>
         ORDER_STATUS_TAG_MAP[status] ? (
-          <Tag color={ORDER_STATUS_TAG_MAP[status].color}>{ORDER_STATUS_TAG_MAP[status].label}</Tag>
+          <Tag color={ORDER_STATUS_TAG_MAP[status].color}>
+            {ORDER_STATUS_TAG_MAP[status].label}
+          </Tag>
         ) : (
           <Tag>{status}</Tag>
         ),
@@ -112,7 +169,10 @@ const OrderListPage: React.FC = () => {
       title: "Tổng tiền",
       dataIndex: "so_tien_thanh_toan",
       render: (value: number) =>
-        value?.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+        value?.toLocaleString("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }),
     },
     {
       title: "Ngày tạo",
@@ -125,7 +185,7 @@ const OrderListPage: React.FC = () => {
       render: (_: any, record: Order) => {
         const currentStatus = record.trang_thai_don_hang;
         const allowedNextStatuses = ORDER_STATUS_FLOW[currentStatus] || [];
-    
+
         return (
           <Select
             size="small"
@@ -136,7 +196,8 @@ const OrderListPage: React.FC = () => {
             options={ORDER_STATUS_OPTIONS.map((opt) => ({
               ...opt,
               disabled:
-                opt.value !== currentStatus && !allowedNextStatuses.includes(opt.value),
+                opt.value !== currentStatus &&
+                !allowedNextStatuses.includes(opt.value),
             }))}
           />
         );
