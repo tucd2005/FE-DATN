@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
-import { Modal, notification } from "antd"
+import { message, Modal, notification } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
 
 const ProductDetailclientPage = () => {
@@ -84,32 +84,73 @@ const ProductDetailclientPage = () => {
         ? Number(value).toLocaleString("vi-VN")
         : "0";
 
-  const handleAddToCart = async () => {
-    if (!product) {
-      Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
-      return;
-    }
-    // XÓA dòng này:
-    // if (!selectedColor) {
-    //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
-    //   return;
-    // }
-    // THÊM kiểm tra động:
-    if (!isAllAttributesSelected) {
-      Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
-      return;
-    }
-    try {
-      await addToCart({
-        san_pham_id: product.id,
-        so_luong: quantity,
-        bien_the_id: selectedVariant?.id,
-      });
-      notification.success({ message: "Thành công", description: "Đã thêm vào giỏ hàng!", placement: "topRight" });
-    } catch {
-      notification.error({ message: "Lỗi", description: "Không thể thêm sản phẩm.", placement: "topRight" });
-    }
-  };
+//   const handleAddToCart = async () => {
+//     if (!product) {
+//       Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+//       return;
+//     }
+//     // XÓA dòng này:
+//     // if (!selectedColor) {
+//     //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+//     //   return;
+//     // }
+//     // THÊM kiểm tra động:
+//     if (!isAllAttributesSelected) {
+//       Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
+//       return;
+//     }
+//     try {
+//       await addToCart({
+//         san_pham_id: product.id,
+//         so_luong: quantity,
+//         bien_the_id: selectedVariant?.id,
+//       });
+//       message.success("Đã thêm vào giỏ hàng!");
+// } catch (error) {
+//   message.error("Không thể thêm sản phẩm.");
+// }
+//   };
+
+const handleAddToCart = async () => {
+  const isLoggedIn = !!localStorage.getItem("accessToken");
+
+  if (!isLoggedIn) {
+    Modal.warning({
+      title: "Bạn chưa đăng nhập",
+      content: "Vui lòng đăng nhập để thêm vào giỏ hàng!",
+      centered: true,
+      okText: "Đăng nhập ngay",
+      onOk: () => navigate("/login"),
+    });
+    return;
+  }
+
+  if (!product) {
+    Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+    return;
+  }
+
+  if (!isAllAttributesSelected) {
+    Modal.info({
+      title: "Thông báo",
+      content: "Vui lòng chọn đầy đủ các thuộc tính!",
+      centered: true,
+    });
+    return;
+  }
+
+  try {
+    await addToCart({
+      san_pham_id: product.id,
+      so_luong: quantity,
+      bien_the_id: selectedVariant?.id,
+    });
+    message.success("Đã thêm vào giỏ hàng!");
+  } catch (error) {
+    message.error("Không thể thêm sản phẩm.");
+  }
+};
+
 
   const handleBuyNow = () => {
     const isLoggedIn = !!localStorage.getItem("accessToken");
