@@ -3,7 +3,7 @@
 import HomeClient from "../pages/client/home/home";
 import ClientLayout from "../layouts/LayoutClient";
 import ChiTietSanPham from "../pages/client/san_pham/chi_tiet_san_pham";
-import CartPage from "../pages/client/gioHang/giohang";
+import CartPage from "../pages/client/Cart/giohang";
 import CheckoutPage from "../pages/client/checkout/checkout";
 
 import ProductDetailclientPage from "../pages/client/detailProduct/DetailPage";
