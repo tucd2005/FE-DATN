@@ -17,7 +17,7 @@ import AddDanhMuc from "../pages/admin/danh_muc/AddDanhMuc";
 import EditDanhMuc from "../pages/admin/danh_muc/EditDanhMuc";
 import AttributeAddPage from "../pages/admin/thuoc_tinh/AttributeAddPage";
 import DetailDanhMuc from "../pages/admin/danh_muc/DetailDanhMuc";
-import QuanLyBienThe from '../pages/admin/bien_the/QuanLyBienThe';
+
 import AttributeEditPage from "../pages/admin/thuoc_tinh/AttributeEdit";
 import AttributeDeletedListPage from "../pages/admin/thuoc_tinh/AttributeDeletedListPage";
 import OrderListPage from "../pages/admin/oder/OrderListPage";
@@ -36,6 +36,9 @@ import DeletedDiscountCodeList from "../pages/admin/ma_giam_gia/DeletedDiscountC
 import BannerListPage from "../pages/admin/banner/QuanLyBanner";
 import BannerAddForm from "../pages/admin/banner/AddBanner";
 import BannerEditForm from "../pages/admin/banner/BannerEditForm";
+import AddVariant from "../pages/admin/bien_the/AddVariantPage";
+import EditVariantPage from "../pages/admin/bien_the/EditVariantPage";
+import Deletelistpage from "../pages/admin/bien_the/Deletelistpage";
 
 export const adminRouter = {
   path: "/admin",
@@ -74,9 +77,10 @@ export const adminRouter = {
         { path: "danh-muc-detail/:id", element: <DetailDanhMuc /> },
         { path: "danh-muc-thung-rac", element: <DanhMucDaXoa /> },
 
-        // Biến thể
-        { path: "bien-the", element: <QuanLyBienThe /> },
-        { path: "bien-the/:productId", element: <QuanLyBienThe /> },
+
+        { path: "bien-the/add/:productId", element: <AddVariant /> },
+        { path: "bien-the/edit/:id", element: <EditVariantPage /> },
+        { path: "bien-the/deleted/:productId", element: <Deletelistpage /> },
 
         // Banner
         { path: "banners", element: <BannerListPage /> },

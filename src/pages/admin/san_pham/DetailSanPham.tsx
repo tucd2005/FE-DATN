@@ -1,8 +1,9 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Card, Descriptions, Image, Tag, Button, Table, Dropdown, Menu, Row, Col } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Image, Tag, Button, Table, Popconfirm, message, Row, Col } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useProductDetail } from '../../../hooks/useProduct';
+import { variantService } from '../../../services/variantService';
 import type { ColumnsType } from 'antd/es/table';
 import type { Variant } from '../../../types/product.type';
 
@@ -47,7 +48,7 @@ const ProductDetailPage: React.FC = () => {
   })) as ColumnsType<Variant>;
 
   const variantColumns: ColumnsType<Variant> = [
-    { title: 'STT', render: (_: any, __: any, index: number) => index + 1, width: 50 },
+    { title: 'STT', render: (_: unknown, __: Variant, index: number) => index + 1, width: 50 },
     {
       title: 'Ảnh',
       dataIndex: 'hinh_anh',
@@ -83,13 +84,28 @@ const ProductDetailPage: React.FC = () => {
     },
     {
       title: 'Chức năng',
-      render: () => (
-        <Dropdown
-          trigger={['click']}
-          overlay={<Menu><Menu.Item key="1">Đóng bán</Menu.Item><Menu.Item key="2">Sửa</Menu.Item></Menu>}
-        >
-          <Button icon={<MoreOutlined />} />
-        </Dropdown>
+      render: (_: any, record: Variant) => (
+        <span>
+          <Link to={`/admin/bien-the/edit/${record.id}`}>
+            <Button icon={<EditOutlined />} size="small" style={{ marginRight: 8 }}>Sửa</Button>
+          </Link>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa mềm biến thể này?"
+            onConfirm={async () => {
+              try {
+                await variantService.delete(record.id);
+                message.success('Đã xóa biến thể!');
+                window.location.reload();
+              } catch {
+                message.error('Xóa biến thể thất bại!');
+              }
+            }}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button icon={<DeleteOutlined />} size="small" danger>Xóa</Button>
+          </Popconfirm>
+        </span>
       ),
     },
   ];
@@ -117,6 +133,14 @@ const ProductDetailPage: React.FC = () => {
       {product.variants?.length > 0 && (
         <>
           <h3 className="text-base font-semibold mb-2">Thông tin biến thể</h3>
+          <div style={{ marginBottom: 16 }}>
+            <Link to={`/admin/bien-the/add/${product.id}`}>
+              <Button type="primary">Thêm biến thể</Button>
+            </Link>
+            <Link to={`/admin/bien-the/deleted/${product.id}`}>
+              <Button danger style={{ marginLeft: 10 }}>Biến thể đã xóa</Button>
+            </Link>
+          </div>
           <Table<Variant>
             columns={variantColumns}
             dataSource={product.variants}
