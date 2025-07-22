@@ -9,8 +9,8 @@ import type { CreateOrderPayload } from "../../../services/checkoutService";
 import { useCartStore } from "../../../stores";
 import { useCheckDiscountCode } from "../../../hooks/useDiscountCodes";
 import { useUserDiscountCodes } from "../../../hooks/useDiscountCodes";
-import { toast } from "react-toastify";
 import { useZaloPay } from "../../../hooks/usezaloplay";
+import { message } from "antd";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -34,7 +34,7 @@ const CheckoutPage = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
-  // Đã dùng toast từ react-toastify, không cần state showToast/toastMessage nữa
+  // Đã dùng message từ react-messageify, không cần state showmessage/messageMessage nữa
   const [isLoading, setIsLoading] = useState(false);
   const [formError] = useState<string | null>(null);
 
@@ -53,7 +53,7 @@ const CheckoutPage = () => {
   const productOrder = state.productOrder;
   const cartItems = state.cartItems;
 
-  // Thay thế showToastMessage bằng toast
+  // Thay thế showmessageMessage bằng message
 
   const validateForm = () => {
     if (!tenNguoiDat || tenNguoiDat.trim().length < 2) {
@@ -173,7 +173,7 @@ const CheckoutPage = () => {
   const handleOrder = () => {
     // Check if we have valid data
     if (!productOrder && (!cartItems || cartItems.length === 0)) {
-      toast.error("Không có sản phẩm nào để đặt hàng!");
+      message.error("Không có sản phẩm nào để đặt hàng!");
       navigate("/gio-hang");
       return;
     }
@@ -181,13 +181,13 @@ const CheckoutPage = () => {
     // Check if user is authenticated
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      toast.error("Vui lòng đăng nhập để tiếp tục!");
+      message.error("Vui lòng đăng nhập để tiếp tục!");
       return;
     }
 
     const errorMsg = validateForm();
     if (errorMsg) {
-      toast.error(errorMsg);
+      message.error(errorMsg);
       return;
     }
   
@@ -196,7 +196,7 @@ const CheckoutPage = () => {
     const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
   
     if (!selectedProvinceObj || !selectedDistrictObj || !selectedWardObj) {
-      toast.error("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
+      message.error("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
       return;
     }
   
@@ -207,7 +207,7 @@ const CheckoutPage = () => {
     };
     const selectedPaymentMethod = paymentMethodMap[selectedPayment];
     if (!selectedPaymentMethod) {
-      toast.error("Vui lòng chọn phương thức thanh toán hợp lệ!");
+      message.error("Vui lòng chọn phương thức thanh toán hợp lệ!");
       return;
     }
   
@@ -249,7 +249,7 @@ const CheckoutPage = () => {
         if (selectedPayment === "zalopay") {
           try {
             if (!data.order || !data.order.id) {
-              toast.error("Không lấy được ID đơn hàng từ server!");
+              message.error("Không lấy được ID đơn hàng từ server!");
               return;
             }
             const zaloPayPayload = {
@@ -261,17 +261,17 @@ const CheckoutPage = () => {
             if (zaloPayData?.pay_url) {
               window.location.href = zaloPayData.pay_url;
             } else {
-              toast.error("Không nhận được link thanh toán ZaloPay!");
+              message.error("Không nhận được link thanh toán ZaloPay!");
             }
           } catch (error) {
-            toast.error("Thanh toán ZaloPay thất bại!");
+            message.error("Thanh toán ZaloPay thất bại!");
           }
           return;
         }
         if (selectedPayment === "vnpay") {
           try {
             if (!data.order || !data.order.id) {
-              toast.error("Không lấy được ID đơn hàng từ server!");
+              message.error("Không lấy được ID đơn hàng từ server!");
               return;
             }
       
@@ -288,7 +288,7 @@ const CheckoutPage = () => {
             if (vnpayData?.pay_url) {
               window.location.href = vnpayData.pay_url;
             } else {
-              toast.error("Không nhận được link thanh toán VNPAY!");
+              message.error("Không nhận được link thanh toán VNPAY!");
             }
           } catch (error) {
             console.error("Lỗi khi gọi VNPAY:", error);
@@ -297,13 +297,13 @@ const CheckoutPage = () => {
               console.error("VNPAY error response:", response?.data);
       
               if (response?.data?.errors) {
-                toast.error(`Lỗi VNPAY: ${JSON.stringify(response.data.errors)}`);
+                message.error(`Lỗi VNPAY: ${JSON.stringify(response.data.errors)}`);
               } else {
-                toast.error(`Thanh toán VNPAY thất bại: ${response?.data?.message || 'Lỗi không xác định'}`);
+                message.error(`Thanh toán VNPAY thất bại: ${response?.data?.message || 'Lỗi không xác định'}`);
               }
             } else {
               
-              toast.error("Thanh toán VNPAY thất bại!");
+              message.error("Thanh toán VNPAY thất bại!");
             }
           }
         } else {
@@ -319,9 +319,9 @@ const CheckoutPage = () => {
         if (error && typeof error === 'object' && 'response' in error) {
           const response = (error as { response?: { data?: { message?: string } } }).response;
           console.error("Server response:", response?.data);
-          toast.error(`Đặt hàng thất bại: ${response?.data?.message || 'Lỗi server'}`);
+          message.error(`Đặt hàng thất bại: ${response?.data?.message || 'Lỗi server'}`);
         } else {
-          toast.error("Đặt hàng thất bại. Vui lòng thử lại!");
+          message.error("Đặt hàng thất bại. Vui lòng thử lại!");
         }
       },
       onSettled: () => setIsLoading(false),
@@ -395,7 +395,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Toast sẽ được hiển thị bởi react-toastify */}
+      {/* message sẽ được hiển thị bởi react-messageify */}
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Thanh toán đơn hàng</h1>
@@ -751,10 +751,10 @@ const CheckoutPage = () => {
                           {
                             onSuccess: (res) => {
                               setDiscountInfo(res.data);
-                              toast.success("Áp dụng mã thành công!");
+                              message.success("Áp dụng mã thành công!");
                             },
                             onError: (err: any) => {
-                              toast.error(err?.response?.data?.message || "Mã giảm giá không hợp lệ!");
+                              message.error(err?.response?.data?.message || "Mã giảm giá không hợp lệ!");
                               setDiscountInfo(null);
                             }
                           }
