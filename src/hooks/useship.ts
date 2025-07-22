@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import { shipService } from "../services/ship";
-
-function normalizeProvinceName(name: string): string {
-  // Bỏ tiền tố như "Tỉnh", "Thành phố"
-  return name.replace(/^Tỉnh\s+|^Thành phố\s+/i, "").trim();
-}
+import { shipService } from "../services/ship"; // Đảm bảo đường dẫn đúng
 
 export function useShippingFee(selectedProvince: string) {
   const [shippingFee, setShippingFee] = useState<number | null>(null);
@@ -18,11 +13,10 @@ export function useShippingFee(selectedProvince: string) {
       return;
     }
 
-    const normalizedProvince = normalizeProvinceName(selectedProvince);
     setLoading(true);
     setError(null);
 
-    shipService.getShippingFee(normalizedProvince)
+    shipService.getShippingFee(selectedProvince)
       .then((fee) => {
         setShippingFee(fee);
       })

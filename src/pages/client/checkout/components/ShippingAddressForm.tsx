@@ -60,7 +60,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   setSelectedWard,
   formError,
 }) => {
-  console.log('Tỉnh thành gửi lên:', provinces.find((p) => String(p.code) === String(selectedProvince))?.name);
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="p-6 border-b border-gray-200">

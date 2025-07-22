@@ -45,9 +45,6 @@ interface ProductOrder {
   attributes?: { ten: string; gia_tri: string }[];
 }
 
-function normalizeProvinceName(name: string) {
-  return name.replace(/^Tỉnh |^Thành phố /, "");
-}
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -421,7 +418,7 @@ const CheckoutPage = () => {
   }
 
   const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
-  const provinceNameForApi = selectedProvinceObj?.name ? normalizeProvinceName(selectedProvinceObj.name) : "";
+  const provinceNameForApi = selectedProvinceObj?.name || "";
   const { shippingFee = 0 } = useShippingFee(provinceNameForApi);
 
   console.log("Tên tỉnh gửi lên API:", provinceNameForApi);
