@@ -1,11 +1,11 @@
-import api from ".";
+import instanceAxios from "../utils/axios";
 
 interface IAdminLoginPayload {
   email: string;
   password: string;
 }
 export const adminLoginApi = (data: IAdminLoginPayload) => {
-  api.post("/admin/login", data);
+  instanceAxios.post("/admin/login", data);
 };
 
 // {

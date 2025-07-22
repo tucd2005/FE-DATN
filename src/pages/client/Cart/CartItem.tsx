@@ -7,9 +7,11 @@ type Props = {
     formatPrice: (giatien: number | string | undefined | null) => string,
     handleUpdateQuantity: (product_id: number, quantity: number) => void,
     handleRemoveItem: (product_id: number) => void,
+    isSelected?: boolean;
+    onToggleSelect?: (checked: boolean) => void;
 }
 
-const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem }: Props) => {
+const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, isSelected, onToggleSelect }: Props) => {
     console.log("bien_the:", item.bien_the);
     const getBienTheImg = (bien_theImg: string | string[] | undefined) => {
         if (!bien_theImg) return null;
@@ -43,7 +45,14 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem }:
                 className="flex items-center gap-4 py-6 border-b border-gray-200"
                 data-aos="fade-up"
             >
-                <div className="flex-shrink-0">
+                <div className="flex items-center gap-2">
+                    {typeof isSelected !== "undefined" && onToggleSelect && (
+                        <input type="checkbox" checked={isSelected}
+                            onChange={(e) => onToggleSelect(e.target.checked)}
+                            className='w-5 h-5 accent-blue-500'
+                        />
+                    )}
+
                     <img
                         src={imgSrc}
                         alt={item.ten_san_pham}
