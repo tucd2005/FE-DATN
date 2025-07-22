@@ -1,5 +1,5 @@
+import { message } from "antd";
 import axios from "axios";
-import { toast } from "react-toastify";
 
 const instanceAxios = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -35,7 +35,7 @@ instanceAxios.interceptors.response.use(
         "Bearer " + newToken;
       return instanceAxios(originalRequest);
     }
-    toast.error(error.response?.data?.message);
+    message.error(error.response?.data?.message);
     return Promise.reject(error);
   }
 );
