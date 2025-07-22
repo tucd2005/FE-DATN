@@ -39,6 +39,7 @@ import BannerEditForm from "../pages/admin/banner/BannerEditForm";
 import AddVariant from "../pages/admin/bien_the/AddVariantPage";
 import EditVariantPage from "../pages/admin/bien_the/EditVariantPage";
 import Deletelistpage from "../pages/admin/bien_the/Deletelistpage";
+import WalletListPage from "../pages/admin/vi_tien/WalletListPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -110,7 +111,10 @@ export const adminRouter = {
         { path: "gia-tri/thuoc-tinh/:attributeId", element: <AttributeValueListPage /> },
         { path: "gia-tri/thuoc-tinh/:attributeId/add", element: <AddAttributeValuePage /> },
         { path: "gia-tri/thuoc-tinh/:id/edit", element: <EditAttributeValuePage /> },
-        { path: "gia-tri/thuoc-tinh/:attributeId/deleted", element: <DeletedListPage /> }
+        { path: "gia-tri/thuoc-tinh/:attributeId/deleted", element: <DeletedListPage /> },
+
+
+        { path: "vi_tien", element: <WalletListPage /> },
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },
