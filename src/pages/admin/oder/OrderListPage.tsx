@@ -22,6 +22,9 @@ interface Order {
   trang_thai_thanh_toan: string;
   trang_thai_don_hang: string;
   so_tien_thanh_toan: number;
+   phuong_thuc_thanh_toan?: {
+    ten: string;
+  };
   created_at: string;
 }
 
@@ -72,6 +75,11 @@ const ORDER_STATUS_FLOW: Record<string, string[]> = {
   da_huy: [],
 };
 
+const PAYMENT_METHOD_MAP: Record<number, string> = {
+  1: "Thanh toán khi nhận hàng (COD)",
+  2: "Thanh toán qua VNPAY",
+  3: "Thanh toán qua ZaloPay",
+};
 const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -136,11 +144,15 @@ const OrderListPage: React.FC = () => {
       title: "Mã ĐH",
       dataIndex: "ma_don_hang",
     },
-    {
-      title: "Địa chỉ",
-      dataIndex: "dia_chi",
-      ellipsis: true,
-    },
+   {
+  title: "Địa chỉ",
+  key: "dia_chi_day_du",
+  render: (_: any, record: any) => {
+    const { dia_chi, xa, huyen, thanh_pho } = record;
+    const fullAddress = [dia_chi, xa, huyen, thanh_pho].filter(Boolean).join(", ");
+    return fullAddress || "Không rõ";
+  },
+},
     {
       title: "Thanh toán",
       dataIndex: "trang_thai_thanh_toan",
@@ -161,6 +173,11 @@ const OrderListPage: React.FC = () => {
           <Tag>{status}</Tag>
         ),
     },
+    {
+  title: "PT Thanh toán",
+  dataIndex: "phuong_thuc_thanh_toan_id",
+  render: (id: number) => PAYMENT_METHOD_MAP[id] || "Không rõ",
+},
     {
       title: "Tổng tiền",
       dataIndex: "so_tien_thanh_toan",
@@ -212,6 +229,7 @@ const OrderListPage: React.FC = () => {
       ),
     },
   ];
+console.log("OrderListPage rendered with data:", data);
 
   return (
     <div className="p-4">

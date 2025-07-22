@@ -285,10 +285,10 @@ export default function OrderTracking() {
                     `}>
                       {/* icon trả hàng */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
@@ -311,10 +311,10 @@ export default function OrderTracking() {
                     `}>
                       {/* icon chờ xác nhận */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
@@ -337,7 +337,7 @@ export default function OrderTracking() {
                     `}>
                       {/* icon thành công */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
@@ -358,11 +358,11 @@ export default function OrderTracking() {
                       className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
                       style={{
                         width: `${orderStatus === "tra_hang"
-                            ? 100
-                            : (
-                              getCurrentStepIndex() /
-                              (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
-                            ) * 100
+                          ? 100
+                          : (
+                            getCurrentStepIndex() /
+                            (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
+                          ) * 100
                           }%`,
                       }}
                     />
@@ -378,10 +378,10 @@ export default function OrderTracking() {
                         <div key={step.id} className="flex flex-col items-center group">
                           <div
                             className={`w-16 h-16 flex items-center justify-center rounded-full border-4 transition-all duration-500 ${active
-                                ? `bg-gradient-to-r ${step.color} text-white border-white shadow-2xl scale-110 animate-pulse`
-                                : completed
-                                  ? "bg-gradient-to-r from-teal-400 to-emerald-400 text-white border-teal-200 shadow-lg"
-                                  : "bg-white text-gray-400 border-gray-300 shadow-md"
+                              ? `bg-gradient-to-r ${step.color} text-white border-white shadow-2xl scale-110 animate-pulse`
+                              : completed
+                                ? "bg-gradient-to-r from-teal-400 to-emerald-400 text-white border-teal-200 shadow-lg"
+                                : "bg-white text-gray-400 border-gray-300 shadow-md"
                               } group-hover:scale-105`}
                           >
                             <Icon className={`w-7 h-7 transition-all duration-300 ${active ? "animate-bounce" : ""}`} />
@@ -520,7 +520,7 @@ export default function OrderTracking() {
                   const variantImage = getImageUrl(item.variant?.hinh_anh);
                   const productImage = getImageUrl(item.product?.hinh_anh);
                   const imgSrc = variantImage !== "/placeholder.svg" ? variantImage : productImage;
-                  
+
                   // Lấy tên sản phẩm từ product hoặc order
                   const productName = item.product?.ten || order.ten_san_pham || "Sản phẩm không xác định";
 
@@ -601,12 +601,28 @@ export default function OrderTracking() {
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="text-gray-600">Tổng tiền hàng:</span>
                   <span className="font-semibold text-gray-800">
-                    {formatPrice(order.so_tien_thanh_toan)}
+                    {formatPrice(
+                      order.items?.reduce((total, item) => {
+                        const donGia = Number(item.don_gia || 0);
+                        const soLuong = Number(item.so_luong || 1);
+                        return total + donGia * soLuong;
+                      }, 0) || 0
+                    )}
                   </span>
                 </div>
+
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="text-gray-600">Phí vận chuyển:</span>
-                  <span className="font-semibold text-green-600">Miễn phí</span>
+                  <span className="font-semibold  text-red-600">
+                    {formatPrice(Number(order.phi_ship || 0))}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Mã giảm giá:</span>
+                  <span className="font-semibold text-green-600">
+                    -{formatPrice(Number(order.so_tien_duoc_giam || 0))}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-4 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl px-4 border border-teal-100">
                   <span className="font-semibold text-gray-800">Tổng thanh toán:</span>
@@ -727,8 +743,8 @@ export default function OrderTracking() {
                 >
                   {isReturning && (
                     <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
                   )}
                   {isReturning ? "Đang xử lý..." : "Xác nhận trả hàng"}
@@ -757,10 +773,10 @@ export default function OrderTracking() {
           <div className="flex items-center">
             <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
@@ -776,10 +792,10 @@ export default function OrderTracking() {
           <div className="flex items-center">
             <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
@@ -794,7 +810,7 @@ export default function OrderTracking() {
           <div className="flex items-center">
             <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
