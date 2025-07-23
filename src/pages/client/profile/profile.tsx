@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useProfile } from "../../../hooks/useProfile"
 import OrderHistory from "./component/list-don-hang"
 import { useNavigate } from "react-router-dom"
+import ChangePasswordForm from "./component/ChangePasswordForm"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("personal")
@@ -50,6 +51,20 @@ export default function ProfilePage() {
             strokeWidth={2}
             d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12M7.05 5.84L10.17 8.96"
           />
+        </svg>
+      ),
+    },
+    {
+      id: "password",
+      label: "Đổi mật khẩu",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 11c1.1 0 2 .9 2 2v1h-4v-1c0-1.1.9-2 2-2zm6 0V9a6 6 0 10-12 0v2H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-1zM8 9a4 4 0 118 0v2H8V9z"
+            />
         </svg>
       ),
     },
@@ -358,6 +373,8 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
+
+          {activeTab === "password" && <ChangePasswordForm />}
       </main>
     </div>
   )

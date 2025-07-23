@@ -16,6 +16,7 @@ import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
+import ForgotPasswordPage from "../pages/client/authModal/ForgotPasswordPage";
 
 
 
@@ -39,6 +40,8 @@ export const clientRouter = {
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
+  { path:"/auth/forgot-password" ,element:<ForgotPasswordPage />}
+
 
 
   ],

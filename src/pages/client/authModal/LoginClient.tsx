@@ -30,6 +30,8 @@ const LoginClient: React.FC = () => {
   const onSubmit = async (data: ILoginPayload) => {
     try {
       const res = await loginApi(data);
+      console.log(res);
+      
       if (res.data?.access_token) {
         localStorage.setItem('accessToken', res.data.access_token);
         message.success('Đăng nhập thành công!');
@@ -39,12 +41,16 @@ const LoginClient: React.FC = () => {
         setShowVerify(true);
         message.info('Vui lòng xác minh OTP được gửi về email.');
       }
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'response' in err) {
-        // @ts-expect-error: err có thể là AxiosError với thuộc tính response
-        message.error(err.response?.data?.message || 'Đăng nhập thất bại');
+    } catch (err: any) {
+      console.log('Login error:', err);
+      if (err?.response?.status === 422 && err.response.data?.errors) {
+        const errors = Object.values(err.response.data.errors).flat();
+
+        message.error(errors[0] as string);
+      } else if (err?.response?.data?.message) {
+        message.error(err.response.data.message);
       } else {
-        message.error('Đăng nhập thất bại');
+        message.error('Đăng nhập thất bại, vui lòng thử lại.');
       }
     }
   };
@@ -99,7 +105,7 @@ const LoginClient: React.FC = () => {
                   id="password"
                   type="password"
                   placeholder="Nhập mật khẩu"
-                  className="pl-10 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500explosion-500 py-2 px-3"
+                  className="pl-10 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 py-2 px-3"
                   {...register('password')}
                 />
               </div>
@@ -136,8 +142,6 @@ const LoginClient: React.FC = () => {
               <span className="bg-white px-2 text-gray-500">Hoặc</span>
             </div>
           </div>
-
-        
 
           <p className="text-center text-sm text-gray-500">
             Chưa có tài khoản?{' '}
