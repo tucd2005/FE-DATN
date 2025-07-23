@@ -130,6 +130,7 @@ const OrderDetailPage = () => {
         }
       },
     },
+
     {
       title: "Số lượng",
       dataIndex: "so_luong",
@@ -140,17 +141,12 @@ const OrderDetailPage = () => {
       render: (val: string) =>
         Number(val).toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
     },
-    {
-      title: "Tổng tiền",
-      dataIndex: "tong_tien",
-      render: (val: string) =>
-        Number(val).toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
-    },
+   
   ];
 
   if (isLoading) return <Spin size="large" />;
 
-  console.log("order data:", order);
+
 
   return (
     <div className="p-4">
