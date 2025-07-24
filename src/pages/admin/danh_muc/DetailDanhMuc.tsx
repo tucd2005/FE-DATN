@@ -145,11 +145,11 @@ const DetailDanhMuc: React.FC = () => {
                     {/* Additional Info */}
                     <Card title="Thông tin bổ sung" className="mt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-gray-50 p-4 rounded-lg">
+                            {/* <div className="bg-gray-50 p-4 rounded-lg">
                                 <h4 className="font-semibold text-gray-700 mb-2">Số sản phẩm</h4>
                                 <p className="text-2xl font-bold text-blue-600">0</p>
                                 <p className="text-sm text-gray-500">sản phẩm trong danh mục</p>
-                            </div>
+                            </div> */}
 
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <h4 className="font-semibold text-gray-700 mb-2">Trạng thái</h4>
