@@ -6,6 +6,9 @@ import { useOrderDetailclient, useReturnOrder } from "../../../../hooks/useOrder
 import { useCancelOrder } from "../../../../hooks/useOrder"
 import { ArrowLeft, X, CheckCircle, Clock, BadgeCheck, Truck } from "lucide-react"
 import { useMarkOrderAsDelivered } from "../../../../hooks/useOrder"
+import { useSubmitReview } from '../../../../hooks/useReview';
+import { useProfile } from '../../../../hooks/useProfile';
+import { message } from 'antd';
 
 // Cập nhật interface để phù hợp với cấu trúc dữ liệu thực tế
 interface OrderItem {
@@ -57,6 +60,44 @@ export default function OrderTracking() {
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder()
   const { mutate: markAsDelivered, isPending } = useMarkOrderAsDelivered();
   const [isRequestingCancel, setIsRequestingCancel] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState<number | null>(null);
+  const [reviewForm, setReviewForm] = useState({
+    so_sao: 5,
+    noi_dung: '',
+    hinh_anh: null as File | null,
+  });
+  const submitReview = useSubmitReview();
+  const { data: profile } = useProfile();
+
+  const handleReviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setReviewForm({ ...reviewForm, [e.target.name]: e.target.value });
+  };
+  const handleReviewFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReviewForm({ ...reviewForm, hinh_anh: e.target.files?.[0] || null });
+  };
+  const handleSubmitReview = (productId: number, variantId: number | undefined) => (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) {
+      message.error('Bạn cần đăng nhập để đánh giá!');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('san_pham_id', String(productId));
+    formData.append('bien_the_id', variantId ? String(variantId) : '');
+    formData.append('so_sao', String(reviewForm.so_sao));
+    formData.append('noi_dung', reviewForm.noi_dung);
+    if (reviewForm.hinh_anh) formData.append('hinh_anh', reviewForm.hinh_anh);
+    submitReview.mutate(formData, {
+      onSuccess: () => {
+        setShowReviewForm(null);
+        setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
+        message.success('Đánh giá thành công!');
+      },
+      onError: (err: any) => {
+        message.error(err.response?.data?.message || 'Có lỗi xảy ra');
+      }
+    });
+  };
 
   const trackingSteps = [
     { id: "cho_xac_nhan", title: "Chờ xác nhận", icon: Clock, color: "from-amber-400 to-orange-500" },
@@ -580,6 +621,46 @@ export default function OrderTracking() {
                           <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
                           <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
                         </div>
+                        {(orderStatus === "da_nhan" || orderStatus === "da_giao") && (
+                          <div className="mt-2">
+                            <button
+                              className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-blue-600"
+                              onClick={() => setShowReviewForm(idx)}
+                            >
+                              Đánh giá
+                            </button>
+                            {showReviewForm === idx && (
+                              <form className="space-y-2 mt-2" onSubmit={handleSubmitReview(item.san_pham_id, item.bien_the_id)}>
+                                <input
+                                  type="number"
+                                  name="so_sao"
+                                  min={1}
+                                  max={5}
+                                  value={reviewForm.so_sao}
+                                  onChange={handleReviewChange}
+                                  className="border rounded px-2 py-1 w-20"
+                                  required
+                                />
+                                <textarea
+                                  name="noi_dung"
+                                  value={reviewForm.noi_dung}
+                                  onChange={handleReviewChange}
+                                  className="border rounded px-2 py-1 w-full"
+                                  required
+                                />
+                                <input type="file" name="hinh_anh" accept="image/*" onChange={handleReviewFile} />
+                                <div className="flex gap-2">
+                                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    Gửi đánh giá
+                                  </button>
+                                  <button type="button" className="border px-4 py-2 rounded" onClick={() => setShowReviewForm(null)}>
+                                    Hủy
+                                  </button>
+                                </div>
+                              </form>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );

@@ -2,17 +2,59 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
-import { message, Modal, notification } from "antd"
+import { message, Modal } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
+import { useProductReviews, useSubmitReview } from '../../../hooks/useReview';
+import { useProfile } from '../../../hooks/useProfile';
 
 const ProductDetailclientPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: product, isLoading, error } = useProductDetail(Number(id));
+  const productId = Number(id);
+  const { data: reviewData, isLoading: loadingReviews } = useProductReviews(productId);
+  const { data: profile } = useProfile();
+  const submitReview = useSubmitReview();
   const navigate = useNavigate();
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    so_sao: 5,
+    noi_dung: '',
+    hinh_anh: null as File | null,
+  });
+
+  // Xử lý submit form đánh giá
+  const handleReviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setReviewForm({ ...reviewForm, [e.target.name]: e.target.value });
+  };
+  const handleReviewFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReviewForm({ ...reviewForm, hinh_anh: e.target.files?.[0] || null });
+  };
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) {
+      navigate('/login');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('san_pham_id', String(productId));
+    formData.append('bien_the_id', selectedVariant?.id ? String(selectedVariant.id) : '');
+    formData.append('so_sao', String(reviewForm.so_sao));
+    formData.append('noi_dung', reviewForm.noi_dung);
+    if (reviewForm.hinh_anh) formData.append('hinh_anh', reviewForm.hinh_anh);
+    submitReview.mutate(formData, {
+      onSuccess: () => {
+        setShowReviewForm(false);
+        setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
+        message.success('Đánh giá thành công!');
+      },
+      onError: (err: any) => {
+        message.error(err.response?.data?.message || 'Có lỗi xảy ra');
+      }
+    });
+  };
+
+  const { data: product, isLoading } = useProductDetail(Number(id));
   const { addToCart } = useCartStore();
 
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
@@ -84,72 +126,72 @@ const ProductDetailclientPage = () => {
         ? Number(value).toLocaleString("vi-VN")
         : "0";
 
-//   const handleAddToCart = async () => {
-//     if (!product) {
-//       Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
-//       return;
-//     }
-//     // XÓA dòng này:
-//     // if (!selectedColor) {
-//     //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
-//     //   return;
-//     // }
-//     // THÊM kiểm tra động:
-//     if (!isAllAttributesSelected) {
-//       Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
-//       return;
-//     }
-//     try {
-//       await addToCart({
-//         san_pham_id: product.id,
-//         so_luong: quantity,
-//         bien_the_id: selectedVariant?.id,
-//       });
-//       message.success("Đã thêm vào giỏ hàng!");
-// } catch (error) {
-//   message.error("Không thể thêm sản phẩm.");
-// }
-//   };
+  //   const handleAddToCart = async () => {
+  //     if (!product) {
+  //       Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+  //       return;
+  //     }
+  //     // XÓA dòng này:
+  //     // if (!selectedColor) {
+  //     //   Modal.info({ title: "Thông báo", content: "Vui lòng chọn màu!", centered: true });
+  //     //   return;
+  //     // }
+  //     // THÊM kiểm tra động:
+  //     if (!isAllAttributesSelected) {
+  //       Modal.info({ title: "Thông báo", content: "Vui lòng chọn đầy đủ các thuộc tính!", centered: true });
+  //       return;
+  //     }
+  //     try {
+  //       await addToCart({
+  //         san_pham_id: product.id,
+  //         so_luong: quantity,
+  //         bien_the_id: selectedVariant?.id,
+  //       });
+  //       message.success("Đã thêm vào giỏ hàng!");
+  // } catch (error) {
+  //   message.error("Không thể thêm sản phẩm.");
+  // }
+  //   };
 
-const handleAddToCart = async () => {
-  const isLoggedIn = !!localStorage.getItem("accessToken");
+  const handleAddToCart = async () => {
+    const isLoggedIn = !!localStorage.getItem("accessToken");
 
-  if (!isLoggedIn) {
-    Modal.warning({
-      title: "Bạn chưa đăng nhập",
-      content: "Vui lòng đăng nhập để thêm vào giỏ hàng!",
-      centered: true,
-      okText: "Đăng nhập ngay",
-      onOk: () => navigate("/login"),
-    });
-    return;
-  }
+    if (!isLoggedIn) {
+      Modal.warning({
+        title: "Bạn chưa đăng nhập",
+        content: "Vui lòng đăng nhập để thêm vào giỏ hàng!",
+        centered: true,
+        okText: "Đăng nhập ngay",
+        onOk: () => navigate("/login"),
+      });
+      return;
+    }
 
-  if (!product) {
-    Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
-    return;
-  }
+    if (!product) {
+      Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+      return;
+    }
 
-  if (!isAllAttributesSelected) {
-    Modal.info({
-      title: "Thông báo",
-      content: "Vui lòng chọn đầy đủ các thuộc tính!",
-      centered: true,
-    });
-    return;
-  }
+    if (!isAllAttributesSelected) {
+      Modal.info({
+        title: "Thông báo",
+        content: "Vui lòng chọn đầy đủ các thuộc tính!",
+        centered: true,
+      });
+      return;
+    }
 
-  try {
-    await addToCart({
-      san_pham_id: product.id,
-      so_luong: quantity,
-      bien_the_id: selectedVariant?.id,
-    });
-    message.success("Đã thêm vào giỏ hàng!");
-  } catch (error) {
-    message.error("Không thể thêm sản phẩm.");
-  }
-};
+    try {
+      await addToCart({
+        san_pham_id: product.id,
+        so_luong: quantity,
+        bien_the_id: selectedVariant?.id,
+      });
+      message.success("Đã thêm vào giỏ hàng!");
+    } catch (error) {
+      message.error("Không thể thêm sản phẩm.");
+    }
+  };
 
 
   const handleBuyNow = () => {
@@ -194,8 +236,8 @@ const handleAddToCart = async () => {
     // Tìm màu và size của biến thể
     const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
     const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
-    setSelectedColor(color);
-    setSelectedSize(size);
+    // setSelectedColor(color); // Removed
+    // setSelectedSize(size); // Removed
     setSelectedImage(index); // Đổi ảnh to sang ảnh biến thể đó
   };
 
@@ -216,8 +258,8 @@ const handleAddToCart = async () => {
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Đang tải chi tiết sản phẩm...</div>
   }
-  if (error || !product) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">{error ? "Không tìm thấy sản phẩm hoặc có lỗi xảy ra." : "Không tìm thấy sản phẩm."}</div>
+  if (!product) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">Không tìm thấy sản phẩm.</div>
   }
 
   const features = [
@@ -349,10 +391,11 @@ const handleAddToCart = async () => {
     </svg>
   )
 
+  // Sửa lỗi truyền null cho getVariantImage
   const mainImage =
     selectedVariant?.hinh_anh
       ? getVariantImage(selectedVariant.hinh_anh)
-      : productImages[selectedImage] || "/placeholder.svg";
+      : productImages[selectedImage ?? 0] || "/placeholder.svg";
 
   return (
     <div className="min-h-screen bg-white">
@@ -734,24 +777,68 @@ const handleAddToCart = async () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-gray-900">Đánh giá khách hàng</h3>
-                  <button className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    Viết đánh giá
-                  </button>
+                  {profile ? (
+                    <button
+                      className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      onClick={() => setShowReviewForm(true)}
+                    >
+                      Viết đánh giá
+                    </button>
+                  ) : (
+                    <button className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => navigate('/login')}>
+                      Đăng nhập để đánh giá
+                    </button>
+                  )}
                 </div>
-
+                {showReviewForm && (
+                  <form className="space-y-4 border p-4 rounded-lg" onSubmit={handleSubmitReview}>
+                    <div>
+                      <label className="block font-semibold mb-1">Số sao:</label>
+                      <input
+                        type="number"
+                        name="so_sao"
+                        min={1}
+                        max={5}
+                        value={reviewForm.so_sao}
+                        onChange={handleReviewChange}
+                        className="border rounded px-2 py-1 w-20"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Nội dung:</label>
+                      <textarea
+                        name="noi_dung"
+                        value={reviewForm.noi_dung}
+                        onChange={handleReviewChange}
+                        className="border rounded px-2 py-1 w-full"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Hình ảnh (tùy chọn):</label>
+                      <input type="file" name="hinh_anh" accept="image/*" onChange={handleReviewFile} />
+                    </div>
+                    <div className="flex gap-2">
+                      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" disabled={submitReview.status === 'pending'}>
+                        Gửi đánh giá
+                      </button>
+                      <button type="button" className="border px-4 py-2 rounded" onClick={() => setShowReviewForm(false)}>
+                        Hủy
+                      </button>
+                    </div>
+                  </form>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">4.9</div>
+                    <div className="text-4xl font-bold text-blue-600 mb-2">{reviewData?.meta?.trung_binh_sao ?? 0}</div>
                     <div className="flex justify-center mb-2">
-                      <StarIcon filled={true} />
-                      <StarIcon filled={true} />
-                      <StarIcon filled={true} />
-                      <StarIcon filled={true} />
-                      <StarIcon filled={true} />
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <StarIcon key={i} filled={i < (reviewData?.meta?.trung_binh_sao ?? 0)} />
+                      ))}
                     </div>
-                    <p className="text-gray-600">234 đánh giá</p>
+                    <p className="text-gray-600">{reviewData?.meta?.tong_danh_gia ?? 0} đánh giá</p>
                   </div>
-
                   <div className="md:col-span-2 space-y-4">
                     {[5, 4, 3, 2, 1].map((stars) => (
                       <div key={stars} className="flex items-center space-x-3">
@@ -759,61 +846,62 @@ const handleAddToCart = async () => {
                         <div className="flex-1 bg-gray-200 rounded-full h-2">
                           <div
                             className="bg-yellow-400 h-2 rounded-full transition-all"
-                            style={{ width: stars === 5 ? "80%" : stars === 4 ? "15%" : "5%" }}
+                            style={{ width: `${((reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0) / (reviewData?.meta?.tong_danh_gia || 1)) * 100}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-600 w-8">
-                          {stars === 5 ? "187" : stars === 4 ? "35" : "12"}
-                        </span>
+                        <span className="text-sm text-gray-600 w-8">{reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                {/* Sample Reviews */}
+                {/* Danh sách đánh giá */}
                 <div className="space-y-6 mt-8">
-                  {[
-                    {
-                      name: "Nguyễn Văn A",
-                      rating: 5,
-                      date: "2 ngày trước",
-                      comment: "Chất lượng áo rất tốt, thấm hút mồ hôi hiệu quả. Mặc rất thoải mái khi tập gym.",
-                    },
-                    {
-                      name: "Trần Thị B",
-                      rating: 5,
-                      date: "1 tuần trước",
-                      comment: "Áo đẹp, form chuẩn. Giao hàng nhanh, đóng gói cẩn thận. Sẽ mua thêm màu khác.",
-                    },
-                    {
-                      name: "Lê Văn C",
-                      rating: 4,
-                      date: "2 tuần trước",
-                      comment: "Sản phẩm tốt, giá hợp lý. Chỉ có điều màu hơi khác so với hình ảnh một chút.",
-                    },
-                  ].map((review, index) => (
-                    <div key={index} className="border-b border-gray-200 pb-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-semibold">{review.name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">{review.name}</p>
-                            <div className="flex items-center space-x-2">
-                              <div className="flex">
-                                {Array.from({ length: review.rating }).map((_, i) => (
-                                  <StarIcon key={i} filled={true} className="w-4 h-4" />
-                                ))}
+                  {loadingReviews ? (
+                    <div>Đang tải đánh giá...</div>
+                  ) : reviewData?.data?.length ? (
+                    reviewData.data.map((review: unknown, index: number) => {
+                      const r = review as {
+                        id: number;
+                        user?: { name?: string; anh_dai_dien?: string };
+                        so_sao: number;
+                        created_at?: string;
+                        hinh_anh?: string;
+                        noi_dung: string;
+                      };
+                      return (
+                        <div key={r.id || index} className="border-b border-gray-200 pb-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                                {r.user?.anh_dai_dien ? (
+                                  <img src={r.user.anh_dai_dien} alt="avatar" className="w-10 h-10 object-cover" />
+                                ) : (
+                                  <span className="text-sm font-semibold">{r.user?.name?.charAt(0) || '?'}</span>
+                                )}
                               </div>
-                              <span className="text-sm text-gray-600">{review.date}</span>
+                              <div>
+                                <p className="font-semibold text-gray-900">{r.user?.name}</p>
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex">
+                                    {Array.from({ length: r.so_sao }).map((_, i) => (
+                                      <StarIcon key={i} filled={true} className="w-4 h-4" />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-gray-600">{r.created_at?.slice(0, 10)}</span>
+                                </div>
+                              </div>
                             </div>
+                            {r.hinh_anh && (
+                              <img src={`http://localhost:8000/storage/${r.hinh_anh}`} alt="review-img" className="w-16 h-16 object-cover rounded" />
+                            )}
                           </div>
+                          <p className="text-gray-700">{r.noi_dung}</p>
                         </div>
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
-                    </div>
-                  ))}
+                      );
+                    })
+                  ) : (
+                    <div>Chưa có đánh giá nào cho sản phẩm này.</div>
+                  )}
                 </div>
               </div>
             )}
