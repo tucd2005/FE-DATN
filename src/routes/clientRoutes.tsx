@@ -17,6 +17,7 @@ import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
 import ForgotPasswordPage from "../pages/client/authModal/ForgotPasswordPage";
+import ContactPage from "../pages/client/contact/ContactPage";
 
 
 
@@ -26,6 +27,10 @@ export const clientRouter = {
   children: [
     { index: true, element: < HomeClient /> },
     { path: "san-pham", element: <ChiTietSanPham /> },
+    { path: "lien-he", element: <ContactPage /> },
+
+
+
     { path: "thong-tin-khach-hang", element: <ProfilePage /> },
     { path: "thong-tin-khach-hang/edit", element: <EditProfilePage /> },
     { path: "chi-tiet-don-hang/:id", element: <OrderTracking /> },
@@ -41,6 +46,9 @@ export const clientRouter = {
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
   { path:"/auth/forgot-password" ,element:<ForgotPasswordPage />}
+
+
+
 
 
 
