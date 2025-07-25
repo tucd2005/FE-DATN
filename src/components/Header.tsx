@@ -2,9 +2,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useCartStore } from '../stores/cart.store';
 import React from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
     const navigate = useNavigate();
+    
+    const { user, isLoggedIn, logout } = useAuth();
+//     const user = JSON.parse(localStorage.getItem("user") || "null");
+// const isLoggedIn = !!localStorage.getItem("accessToken");
+
+
+
     const { totalQuantity } = useCartStore();
     return (
         <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
@@ -51,19 +59,54 @@ const Header = () => {
                                     </span>
                                 )}
                             </Link>
-                            <button
-                                className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
-                                onClick={() => {
-                                    const token = localStorage.getItem('accessToken');
-                                    if (!token) {
-                                        navigate('/login');
-                                    } else {
-                                        navigate('/thong-tin-khach-hang');
-                                    }
-                                }}
-                            >
-                                <User className="w-5 h-5" />
-                            </button>
+                            <div className="relative group">
+  {isLoggedIn ? (
+    <div className="flex items-center space-x-2 cursor-pointer group">
+      <img
+        src={user?.avatar || "/default-avatar.png"}
+        alt="avatar"
+        className="w-8 h-8 rounded-full object-cover"
+      />
+      <span className="text-sm text-gray-700">{user?.firstName} {user?.lastName}</span>
+    </div>
+  ) : (
+    <button
+      className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+      onClick={() => navigate("/login")}
+    >
+      <User className="w-5 h-5" />
+    </button>
+  )}
+
+  {isLoggedIn && (
+    <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md border border-gray-200 z-50 opacity-0 group-hover:opacity-100 transition-opacity">
+      <Link
+        to="/thong-tin-khach-hang"
+        className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+      >
+        Thông tin cá nhân
+      </Link>
+      <Link
+        to="/don-hang"
+        className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+      >
+        Đơn hàng của tôi
+      </Link>
+      <button
+        onClick={() => {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          navigate("/login");
+          window.location.reload(); // để update UI
+        }}
+        className="w-full text-left px-4 py-2 text-sm hover:bg-red-100 text-red-600"
+      >
+        Đăng xuất
+      </button>
+    </div>
+  )}
+</div>
+
                         </div>
                     </nav>
                 </div>
