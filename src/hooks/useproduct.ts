@@ -6,6 +6,7 @@ import {
   productDetailService,
   producttrash,
   productupdate,
+  productlist,
 } from "../services/productservice";
 import type { Product } from "../types/product.type";
 import { toast } from "react-toastify";
@@ -14,6 +15,13 @@ export const useProducts = () => {
   return useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: productService.getAll,
+    initialData: [],
+  });
+};
+export const useProductsadmin = () => {
+  return useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: productlist.getAll,
     initialData: [],
   });
 };
