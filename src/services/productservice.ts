@@ -53,3 +53,10 @@ export const productupdate = {
     return res.data?.data;
   },
 };
+export const productlist = {
+  getAll: async (): Promise<Product[]> => {
+    const res = await instanceAxios.get("/admin/products");
+    return res.data?.data || [];
+  },
+};
+

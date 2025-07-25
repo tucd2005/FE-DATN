@@ -132,17 +132,25 @@ export default function ContactPage() {
 
         {/* Map Section */}
         <div className="mt-12">
-          <Card
+             <Card
             title="Bản đồ"
             headStyle={{ padding: "16px", fontSize: "1.5rem", fontWeight: "bold" }}
             bodyStyle={{ padding: "24px" }}
           >
-            <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-              <Paragraph className="text-muted-foreground">
-                Google Maps sẽ được tích hợp tại đây
-              </Paragraph>
+            <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+              <iframe
+                title="Google Map"
+                width="100%"
+                height="100%"
+                style={{ border: 0, minHeight: 350 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=21.0381298,105.7472618&z=16&output=embed"
+              />
             </div>
           </Card>
+
         </div>
       </main>
 

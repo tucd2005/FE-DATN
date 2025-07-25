@@ -75,6 +75,7 @@ export const orderService = {
 
 };
 
+
 // API lấy danh sách đơn hàng (có thể truyền params page, per_page nếu backend hỗ trợ)
 export const getOrders = async (page = 1): Promise<GetOrdersResponse> => {
   const res = await instanceAxios.get(`/client/orders`, {
@@ -87,4 +88,9 @@ export const getOrders = async (page = 1): Promise<GetOrdersResponse> => {
 export const getOrderDetail = async (orderId: number | string) => {
   const { data } = await instanceAxios.get(`/client/orders/${orderId}`)
   return data
+}
+
+///hủy don admin 
+export function cancelOrder(id: number, ly_do_huy: string) {
+  return instanceAxios.post(`/admin/orders/cancel/${id}`, { ly_do_huy });
 }

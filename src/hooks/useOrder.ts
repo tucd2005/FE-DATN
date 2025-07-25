@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { cancelOrder, getOrderDetail, getOrders, orderService } from "../services/orderService";
 import { toast } from "react-toastify";
 
 // Lấy danh sách đơn hàng
@@ -94,3 +94,10 @@ export const useMarkOrderAsDelivered = () => {
     },
   });
 };
+
+export function useCancelOrderadmin() {
+  return useMutation({
+    mutationFn: ({ id, ly_do_huy }: { id: number; ly_do_huy: string }) =>
+      cancelOrder(id, ly_do_huy),
+  });
+}

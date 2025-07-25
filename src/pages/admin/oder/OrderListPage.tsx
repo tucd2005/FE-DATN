@@ -11,24 +11,27 @@ import {
   Modal,
   Input,
 } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useOrderList, useUpdateOrderStatus } from "../../../hooks/useOrder";
+import { useCancelOrderadmin, useOrderList, useUpdateOrderStatus } from "../../../hooks/useOrder";
+import { useQueryClient } from "@tanstack/react-query";
+
+const { Option } = Select;
 
 interface Order {
   id: number;
   ma_don_hang: string;
   dia_chi: string;
+  xa?: string;
+  huyen?: string;
+  thanh_pho?: string;
   trang_thai_thanh_toan: string;
   trang_thai_don_hang: string;
   so_tien_thanh_toan: number;
-   phuong_thuc_thanh_toan?: {
-    ten: string;
-  };
+  phuong_thuc_thanh_toan_id: number;
   created_at: string;
 }
 
-// ✅ Ẩn các trạng thái chỉ do user cập nhật
 const ORDER_STATUS_OPTIONS = [
   { value: "cho_xac_nhan", label: "Chờ xác nhận" },
   { value: "dang_chuan_bi", label: "Đang chuẩn bị" },
@@ -80,11 +83,15 @@ const PAYMENT_METHOD_MAP: Record<number, string> = {
   2: "Thanh toán qua VNPAY",
   3: "Thanh toán qua ZaloPay",
 };
+
 const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [pendingId, setPendingId] = useState<number | null>(null);
   const { data, isLoading } = useOrderList(page);
   const updateStatusMutation = useUpdateOrderStatus();
+  const cancelOrderMutation = useCancelOrderadmin();
+  const queryClient = useQueryClient();
   const reasonRef = useRef("");
 
   const handleChangeStatus = (id: number, value: string) => {
@@ -98,9 +105,7 @@ const OrderListPage: React.FC = () => {
         content: (
           <Input.TextArea
             placeholder="Nhập lý do..."
-            onChange={(e) => {
-              reasonRef.current = e.target.value;
-            }}
+            onChange={(e) => (reasonRef.current = e.target.value)}
           />
         ),
         onOk: () => {
@@ -117,23 +122,31 @@ const OrderListPage: React.FC = () => {
           if (value === "da_huy") payload.ly_do_huy = currentReason;
           if (value === "tu_choi_tra_hang") payload.ly_do_tu_choi_tra_hang = currentReason;
 
+          setPendingId(id);
           return updateStatusMutation
             .mutateAsync(payload)
             .then(() => {
+              queryClient.invalidateQueries({ queryKey: ["orders", page] });
               message.success("Cập nhật trạng thái thành công");
             })
             .catch((error: any) => {
               message.error(error?.response?.data?.message || "Cập nhật thất bại");
-            });
+            })
+            .finally(() => setPendingId(null));
         },
       });
     } else {
+      setPendingId(id);
       updateStatusMutation.mutate(
         { id, trang_thai_don_hang: value },
         {
-          onSuccess: () => message.success("Cập nhật trạng thái thành công"),
+          onSuccess: () => {
+            message.success("Cập nhật trạng thái thành công");
+            queryClient.invalidateQueries({ queryKey: ["orders", page] });
+          },
           onError: (error: any) =>
             message.error(error?.response?.data?.message || "Cập nhật thất bại"),
+          onSettled: () => setPendingId(null),
         }
       );
     }
@@ -144,15 +157,14 @@ const OrderListPage: React.FC = () => {
       title: "Mã ĐH",
       dataIndex: "ma_don_hang",
     },
-   {
-  title: "Địa chỉ",
-  key: "dia_chi_day_du",
-  render: (_: any, record: any) => {
-    const { dia_chi, xa, huyen, thanh_pho } = record;
-    const fullAddress = [dia_chi, xa, huyen, thanh_pho].filter(Boolean).join(", ");
-    return fullAddress || "Không rõ";
-  },
-},
+    {
+      title: "Địa chỉ",
+      render: (_: any, record: Order) => {
+        const { dia_chi, xa, huyen, thanh_pho } = record;
+        const fullAddress = [dia_chi, xa, huyen, thanh_pho].filter(Boolean).join(", ");
+        return fullAddress || "Không rõ";
+      },
+    },
     {
       title: "Thanh toán",
       dataIndex: "trang_thai_thanh_toan",
@@ -164,20 +176,16 @@ const OrderListPage: React.FC = () => {
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "trang_thai_don_hang",
-      render: (status: string) =>
-        ORDER_STATUS_TAG_MAP[status] ? (
-          <Tag color={ORDER_STATUS_TAG_MAP[status].color}>
-            {ORDER_STATUS_TAG_MAP[status].label}
-          </Tag>
-        ) : (
-          <Tag>{status}</Tag>
-        ),
+      render: (status: string) => {
+        const item = ORDER_STATUS_TAG_MAP[status];
+        return item ? <Tag color={item.color}>{item.label}</Tag> : <Tag>{status}</Tag>;
+      },
     },
     {
-  title: "PT Thanh toán",
-  dataIndex: "phuong_thuc_thanh_toan_id",
-  render: (id: number) => PAYMENT_METHOD_MAP[id] || "Không rõ",
-},
+      title: "PT Thanh toán",
+      dataIndex: "phuong_thuc_thanh_toan_id",
+      render: (id: number) => PAYMENT_METHOD_MAP[id] || "Không rõ",
+    },
     {
       title: "Tổng tiền",
       dataIndex: "so_tien_thanh_toan",
@@ -194,7 +202,6 @@ const OrderListPage: React.FC = () => {
     },
     {
       title: "Cập nhật trạng thái",
-      dataIndex: "update_status",
       render: (_: any, record: Order) => {
         const currentStatus = record.trang_thai_don_hang;
         const allowedNextStatuses = ORDER_STATUS_FLOW[currentStatus] || [];
@@ -203,33 +210,85 @@ const OrderListPage: React.FC = () => {
           <Select
             size="small"
             value={currentStatus}
+            loading={pendingId === record.id}
             style={{ width: 180 }}
             onChange={(value) => handleChangeStatus(record.id, value)}
-            disabled={updateStatusMutation.isPending}
-            options={ORDER_STATUS_OPTIONS.map((opt) => ({
-              ...opt,
-              disabled: !allowedNextStatuses.includes(opt.value),
-            }))}
-          />
+            disabled={pendingId !== null}
+          >
+            {ORDER_STATUS_OPTIONS.map((opt) => (
+              <Option
+                key={opt.value}
+                value={opt.value}
+                disabled={!allowedNextStatuses.includes(opt.value) && opt.value !== currentStatus}
+              >
+                {opt.label}
+              </Option>
+            ))}
+          </Select>
         );
       },
     },
     {
       title: "Hành động",
-      render: (_: any, record: Order) => (
-        <Space>
-          <Tooltip title="Xem chi tiết">
-            <Button
-              type="primary"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/admin/don-hang/${record.id}`)}
-            />
-          </Tooltip>
-        </Space>
-      ),
+      render: (_: any, record: Order) => {
+        const canCancel =
+          record.trang_thai_don_hang === "cho_xac_nhan" ||
+          record.trang_thai_don_hang === "dang_chuan_bi";
+
+        const handleCancel = () => {
+          reasonRef.current = "";
+
+          Modal.confirm({
+            title: "Xác nhận huỷ đơn hàng",
+            icon: <ExclamationCircleOutlined />,
+            content: (
+              <Input.TextArea
+                placeholder="Nhập lý do huỷ đơn hàng..."
+                onChange={(e) => (reasonRef.current = e.target.value)}
+              />
+            ),
+            onOk: () => {
+              const lyDo = reasonRef.current?.trim();
+              if (!lyDo) {
+                message.error("Vui lòng nhập lý do.");
+                return Promise.reject();
+              }
+
+              return cancelOrderMutation
+                .mutateAsync({ id: record.id, ly_do_huy: lyDo })
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: ["orders", page] });
+                  message.success("Huỷ đơn hàng thành công");
+                })
+                .catch((error: any) => {
+                  message.error(error?.response?.data?.message || "Huỷ đơn thất bại");
+                });
+            },
+          });
+        };
+
+        return (
+          <Space>
+            <Tooltip title="Xem chi tiết">
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
+                onClick={() => navigate(`/admin/don-hang/${record.id}`)}
+              />
+            </Tooltip>
+
+            {canCancel && (
+              <Tooltip title="Huỷ đơn">
+                <Button danger onClick={handleCancel} loading={cancelOrderMutation.isPending}>
+                  Huỷ đơn
+                </Button>
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
     },
   ];
-console.log("OrderListPage rendered with data:", data);
 
   return (
     <div className="p-4">
