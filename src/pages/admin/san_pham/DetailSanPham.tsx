@@ -47,6 +47,7 @@ const ProductDetailPage: React.FC = () => {
     },
   })) as ColumnsType<Variant>;
 
+
   const variantColumns: ColumnsType<Variant> = [
     { title: 'STT', render: (_: unknown, __: Variant, index: number) => index + 1, width: 50 },
     {
