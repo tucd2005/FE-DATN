@@ -1,5 +1,3 @@
-// src/pages/admin/banner/BannerListPage.tsx
-
 import React from "react";
 import {
   Table,
@@ -25,6 +23,7 @@ const BannerListPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: banners, isLoading } = useBannerList();
+
   const { mutate: deleteBanner, isLoading: isDeleting } = useDeleteBanner();
 
   const handleDelete = (id: number) => {
@@ -113,14 +112,14 @@ const BannerListPage: React.FC = () => {
     },
   ];
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[300px]">
         <Spin size="large" />
       </div>
     );
-
-
+  }
+console.log("Banners:", banners);
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -134,11 +133,11 @@ const BannerListPage: React.FC = () => {
         </Button>
       </div>
 
-    <Table
-  rowKey="id"
-  dataSource={Array.isArray(banners) ? banners : []}
+ <Table
+  loading={isLoading}
   columns={columns}
-  pagination={{ pageSize: 5 }}
+  dataSource={Array.isArray(banners) ? banners : []}
+  rowKey="id"
 />
     </div>
   );
