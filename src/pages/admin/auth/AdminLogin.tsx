@@ -171,17 +171,7 @@ export default function AdminLogin() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between mb-6">
-                <Button
-                  type="link"
-                  className="!p-0 !h-auto text-blue-600 hover:text-blue-700 font-medium"
-                  onClick={() =>
-                    alert("Chức năng quên mật khẩu sẽ được triển khai sau")
-                  }
-                >
-                  Quên mật khẩu?
-                </Button>
-              </div>
+             
 
               <Button
                 type="primary"
