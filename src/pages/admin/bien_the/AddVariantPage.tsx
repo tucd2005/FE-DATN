@@ -123,16 +123,16 @@ const AddVariantPage: React.FC = () => {
             defaultValue={0}
           />
         </Form.Item>
-        <Form.Item label="Ảnh (tối đa 4 ảnh)">
+        <Form.Item label="Ảnh (tối đa 1 ảnh)">
           <Upload
             listType="picture-card"
             fileList={fileList}
             onChange={handleUploadChange}
             beforeUpload={() => false}
             multiple
-            maxCount={4}
+            maxCount={1}
           >
-            {fileList.length >= 4 ? null : <div><PlusOutlined /><div style={{ marginTop: 8 }}>Upload</div></div>}
+            {fileList.length >= 1 ? null : <div><PlusOutlined /><div style={{ marginTop: 8 }}>Upload</div></div>}
           </Upload>
         </Form.Item>
         <Form.Item label="Thuộc tính biến thể">
@@ -140,7 +140,7 @@ const AddVariantPage: React.FC = () => {
             {attributes.map((attr) => (
               <Form.Item key={attr.id} label={attr.ten} required name={`attr_${attr.id}`} rules={[{ required: true, message: `Chọn giá trị cho ${attr.ten}` }]}> 
                 <Select
-                  style={{ width: 240 }}
+                 
                   placeholder={`Chọn ${attr.ten}`}
                   value={selectedAttributes[attr.id] || undefined}
                   onChange={(val) => handleSelectAttributeValue(attr.id, val)}

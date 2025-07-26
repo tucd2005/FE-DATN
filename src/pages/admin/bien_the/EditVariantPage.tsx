@@ -35,12 +35,11 @@ const EditVariantPage = () => {
       const { gia, gia_khuyen_mai, so_luong, hinh_anh, thuoc_tinh } = variantDetail;
       const defaultImages = Array.isArray(hinh_anh)
         ? hinh_anh.map((url: string, idx: number) => ({
-            uid: String(-idx - 1),
-            name: url.split('/').pop() ||
-            `image-${idx}`,
-            url: url.startsWith('http') ? url : `http://127.0.0.1:8000/storage/${url}`,
-            status: "done",
-          }))
+          uid: String(-idx - 1),
+          name: url.split('/').pop() || `image-${idx}`,
+          url: url.startsWith('http') ? url : `http://127.0.0.1:8000/storage/${url}`,
+          status: "done",
+        }))
         : [];
       const attrObj: Record<number, string> = {};
       if (Array.isArray(thuoc_tinh)) {
@@ -129,7 +128,22 @@ const EditVariantPage = () => {
         <Form.Item label="Giá" name="gia" rules={[{ required: true }]}>
           <InputNumber min={0} className="w-full" />
         </Form.Item>
-        <Form.Item label="Giá khuyến mãi" name="gia_khuyen_mai">
+        <Form.Item
+          label="Giá khuyến mãi"
+          name="gia_khuyen_mai"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá khuyến mãi" },
+            {
+              validator: (_, value) => {
+                const gia = form.getFieldValue("gia");
+                if (value >= gia) {
+                  return Promise.reject("Giá khuyến mãi phải nhỏ hơn giá gốc");
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
           <InputNumber min={0} className="w-full" />
         </Form.Item>
         <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>
@@ -139,13 +153,28 @@ const EditVariantPage = () => {
           label="Hình ảnh"
           name="hinh_anh"
           valuePropName="fileList"
-          getValueFromEvent={e => Array.isArray(e) ? e : e && e.fileList}
+          getValueFromEvent={(e) => {
+            if (Array.isArray(e)) return e;
+            return e?.fileList?.map((file) => {
+              // Trả lại nguyên file nếu là ảnh mới (có originFileObj)
+              if (file.originFileObj) return file;
+              // Nếu là ảnh cũ (chỉ có URL), vẫn giữ lại
+              return {
+                ...file,
+                status: "done",
+                uid: file.uid,
+                name: file.name,
+                url: file.url,
+              };
+            });
+          }}
+
         >
           <Upload
             listType="picture"
             beforeUpload={() => false}
             multiple
-            maxCount={5}
+            maxCount={1}
           >
             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
           </Upload>
@@ -180,4 +209,3 @@ const EditVariantPage = () => {
 };
 
 export default EditVariantPage;
-  
