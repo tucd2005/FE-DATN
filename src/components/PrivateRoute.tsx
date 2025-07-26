@@ -1,30 +1,30 @@
-// src/components/PrivateRoute.tsx
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { message } from "antd";
-
-let warned = false; // Đảm bảo chỉ hiện 1 lần khi chuyển trang
 
 export default function PrivateRoute({ children }: { children: ReactNode }) {
   const token = localStorage.getItem("accessToken");
   const role = localStorage.getItem("role");
   const location = useLocation();
 
-  if (!token) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const [showedMessage, setShowedMessage] = useState(false);
 
-  if (role !== "admin") {
-    if (!warned) {
+  useEffect(() => {
+    if (!token) {
+      setRedirectPath("/admin/login");
+    } else if (role !== "admin" && !showedMessage) {
       message.error("Bạn không có quyền truy cập trang quản trị!");
-      warned = true;
-      setTimeout(() => { warned = false; }, 2000); // reset sau 2s
+      setShowedMessage(true);
+      setTimeout(() => {
+        setRedirectPath("/");
+      }, 300); // Delay 300ms để message có thời gian hiển thị
     }
-    return <Navigate to="/" replace state={{ from: location }} />;
+  }, [token, role, showedMessage]);
+
+  if (redirectPath) {
+    return <Navigate to={redirectPath} replace state={{ from: location }} />;
   }
 
-  return children;
+  return <>{children}</>;
 }
-
-
-

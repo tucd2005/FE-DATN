@@ -63,9 +63,10 @@ export default function AdminLogin() {
       } else {
         setError("Đã xảy ra lỗi. Vui lòng thử lại.")
       }
-
-      // 👇 Redirect về trang client sau khi thất bại
-      nav("/")
+      // Chờ 1.5s rồi chuyển về client
+      setTimeout(() => {
+        nav("/");
+      }, 1500);
     }
   }
 
