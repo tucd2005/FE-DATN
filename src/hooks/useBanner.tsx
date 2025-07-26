@@ -6,9 +6,9 @@ export const useBannerList = () => {
   return useQuery({
     queryKey: ["banners"],
     queryFn: bannerService.getAll,
-    select: (res) => res.data,
+    select: (res) => res.data.data, // ⚠️ đúng là `res.data.data`
   });
-}
+};
 export const useCreateBanner = () => {
     const queryClient = useQueryClient();
   
