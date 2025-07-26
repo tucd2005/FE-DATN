@@ -40,6 +40,7 @@ import AddVariant from "../pages/admin/bien_the/AddVariantPage";
 import EditVariantPage from "../pages/admin/bien_the/EditVariantPage";
 import Deletelistpage from "../pages/admin/bien_the/Deletelistpage";
 import WalletListPage from "../pages/admin/vi_tien/WalletListPage";
+import ShippingFeeListPage from "../pages/admin/van_chuyen/ShippingFeeListPage";
 
 export const adminRouter = {
   path: "/admin",
@@ -115,6 +116,8 @@ export const adminRouter = {
 
 
         { path: "vi_tien", element: <WalletListPage /> },
+
+        { path: "van_chuyen", element: <ShippingFeeListPage /> },
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },

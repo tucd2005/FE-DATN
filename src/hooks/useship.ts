@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { shipService } from "../services/ship"; // Đảm bảo đường dẫn đúng
+import { shipService, shippingFeeService, type ShippingFeeResponse } from "../services/ship"; // Đảm bảo đường dẫn đúng
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useShippingFee(selectedProvince: string) {
   const [shippingFee, setShippingFee] = useState<number | null>(null);
@@ -29,4 +30,25 @@ export function useShippingFee(selectedProvince: string) {
   }, [selectedProvince]);
 
   return { shippingFee, loading, error };
+}
+///admin 
+// hooks/useShippingFee.ts
+
+export function useShippingFees(search: string) {
+  return useQuery<ShippingFeeResponse, Error>({
+    queryKey: ["shipping-fees", search],
+    queryFn: () => shippingFeeService.getAll(search),
+   
+  });
+}
+
+export function useUpdateShippingFee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, phi }: { id: number; phi: number }) =>
+      shippingFeeService.update(id, phi),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shipping-fees"] });
+    },
+  });
 }
