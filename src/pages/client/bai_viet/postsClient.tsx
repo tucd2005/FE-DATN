@@ -9,7 +9,7 @@ export default function SportsNewsPage() {
   const allArticles = Array.isArray(response?.data?.data) ? response.data.data : [];
 
   const featuredArticle = allArticles.length > 0 ? allArticles[0] : null;
- const remainingArticles = allArticles.slice(1, 5);
+  const remainingArticles = allArticles.slice(1, 5);
 
 
   if (isLoading) return <div>Đang tải...</div>;
@@ -28,9 +28,12 @@ export default function SportsNewsPage() {
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
                   <div className="relative">
                     <img
-                      src={featuredArticle.anh_dai_dien || "/placeholder.svg"}
+                      src={`http://localhost:8000/storage/${featuredArticle.anh_dai_dien}`}
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                       alt={featuredArticle.tieu_de}
-                      className="w-full h-64 md:h-80 object-cover"
+                      className="w-full h-48 object-cover"
                     />
                     <span className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                       Bài viết
@@ -75,10 +78,19 @@ export default function SportsNewsPage() {
                 {remainingArticles.map((article) => (
                   <div key={article.id} className="bg-white rounded-lg shadow-md overflow-hidden border">
                     <img
-                      src={article.anh_dai_dien || "/placeholder.svg"}
+                      src={
+                        article.anh_dai_dien
+                          ? `http://localhost:8000/storage/${article.anh_dai_dien}`
+                          : "/placeholder.svg"
+                      }
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                       alt={article.tieu_de}
                       className="w-full h-48 object-cover"
                     />
+
+
                     <div className="p-4">
                       <h3 className="text-lg font-bold text-gray-900 line-clamp-2">{article.tieu_de}</h3>
                       <p className="text-sm text-gray-600 mt-2 line-clamp-2">{article.mo_ta_ngan}</p>

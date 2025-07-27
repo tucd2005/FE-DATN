@@ -35,7 +35,13 @@ const PostDetailPage: React.FC = () => {
             {post.trang_thai === "hien" ? "Hiển thị" : "Ẩn"}
           </Tag>
         </Descriptions.Item>
-
+        <Descriptions.Item label="Ảnh đại diện">
+          <img
+            src={`http://localhost:8000/storage/${post.anh_dai_dien}`}
+            alt="Ảnh đại diện"
+            style={{ maxWidth: 300, borderRadius: 8 }}
+          />
+        </Descriptions.Item>
         <Descriptions.Item label="Ngày tạo">
           {new Date(post.created_at).toLocaleString("vi-VN")}
         </Descriptions.Item>

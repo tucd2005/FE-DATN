@@ -32,7 +32,7 @@ export default function ArticleDetailPage() {
       : "Không rõ";
 
   const content = article.noi_dung || "<p>Không có nội dung</p>";
-console.log("Related posts:", relatedData);
+  console.log("Related posts:", relatedData);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,10 +74,19 @@ console.log("Related posts:", relatedData);
                   relatedArticles.map((ra) => (
                     <Link to={`/bai_viet/${ra.id}`} key={ra.id} className="flex space-x-3 group">
                       <img
-                        src={ra.anh_dai_dien || "https://via.placeholder.com/80x60?text=No+Image"}
+                        src={
+                          ra.anh_dai_dien
+                            ? `http://localhost:8000/storage/${ra.anh_dai_dien}`
+                            : "https://via.placeholder.com/80x60?text=No+Image"
+                        }
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://via.placeholder.com/80x60?text=No+Image";
+                        }}
                         alt={ra.tieu_de}
                         className="w-20 h-15 rounded object-cover flex-shrink-0"
                       />
+
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2">
                           {ra.tieu_de}

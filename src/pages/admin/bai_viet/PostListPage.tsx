@@ -1,7 +1,6 @@
 // pages/admin/posts/PostListPage.tsx
 import React, { useState } from "react";
-import { Table, Card, Tag, Button, Space, Popconfirm, Tooltip } from "antd";
-import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { Table, Card, Tag, Button, Space, Popconfirm, Image } from "antd";
 import { usePosts, useDeletePost } from "../../../hooks/usePost";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +10,11 @@ const PostListPage: React.FC = () => {
   const { mutate: deletePost,  } = useDeletePost();
 const navigate= useNavigate();
   const columns = [
+      {
+      title: "id",
+      dataIndex: "id",
+      
+    },
     {
       title: "Tiêu đề",
       dataIndex: "tieu_de",
@@ -24,6 +28,19 @@ const navigate= useNavigate();
       dataIndex: "mo_ta_ngan",
       key: "mo_ta_ngan",
       ellipsis: true,
+    },
+    {
+      title: "ảnh bài viết",
+      dataIndex: "anh_dai_dien",
+      key: "anh_dai_dien",
+      render: (value: string) => (
+          <Image
+               src={`http://localhost:8000/storage/${value}`}
+            alt="Ảnh đại diện"
+            style={{ width: 50, height: 50, objectFit: "cover" }}
+          />
+    
+      ),
     },
     {
       title: "Trạng thái",

@@ -59,11 +59,12 @@ export const useDeletePost = () => {
 
 export function usePostsClient(page: number) {
   return useQuery({
-    queryKey: ["posts", page],
-    queryFn: () => postServiceClent.getAll(page),
-  
-  });
+  queryKey: ['posts', page], // luôn ổn định nếu page là number
+  queryFn: () => postServiceClent.getAll(page),
+  staleTime: 60 * 1000,
+});
 }
+
   export const usePostDetailClient = (id: number) => {
     return useQuery({
       queryKey: ["postDetail", id],
