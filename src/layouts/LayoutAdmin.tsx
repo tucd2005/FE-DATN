@@ -15,6 +15,7 @@ import {
   LogoutOutlined,
   WalletOutlined,
   StarOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
 
@@ -54,7 +55,7 @@ export default function LayoutAdmin() {
         >
           {/* 1. Dashboard */}
           <Menu.Item key="/admin" icon={<DashboardOutlined style={{ fontSize: 18 }} />}>
-            Dashboard
+            Thống kê 
           </Menu.Item>
 
           {/* 2. Quản lý sản phẩm */}
@@ -88,6 +89,9 @@ export default function LayoutAdmin() {
           </Menu.Item>
           <Menu.Item key="/admin/vi_tien" icon={<WalletOutlined style={{ fontSize: 18 }} />}>
             Ví tiền
+          </Menu.Item>
+          <Menu.Item key="/admin/bai_viet" icon={<FileTextOutlined style={{ fontSize: 18 }} />}>
+           Bài viết 
           </Menu.Item>
 
           {/* 5. Tài khoản */}
