@@ -9,6 +9,8 @@ type TBanner = {
   trang_thai: string;
 }
 
+const BANNER_PREFIX = 'http://127.0.0.1:8000/storage/'
+
 export default function Hero() {
   const [banners, setBanners] = useState<TBanner[]>([]);
 
@@ -58,7 +60,8 @@ export default function Hero() {
                 </div>
                 <div className="flex-1 flex justify-end">
                   <div className="relative">
-                    <img data-aos="zoom-in-up" data-aos-delay="400" src={slide.hinh_anh} alt={slide.tieu_de} className="rounded-lg shadow-lg w-[750px] h-[550px] object-cover -translate-x-6" />
+                    <img data-aos="zoom-in-up" data-aos-delay="400"
+                      src={BANNER_PREFIX + slide.hinh_anh} alt={slide.tieu_de} className="rounded-lg shadow-lg w-[750px] h-[550px] object-cover -translate-x-6" />
                   </div>
                 </div>
               </div>
