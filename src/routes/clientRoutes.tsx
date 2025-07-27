@@ -1,5 +1,3 @@
-// src/routers/clientRoutes.tsx
-
 import HomeClient from "../pages/client/home/home";
 import ClientLayout from "../layouts/LayoutClient";
 import ChiTietSanPham from "../pages/client/san_pham/chi_tiet_san_pham";
@@ -18,6 +16,8 @@ import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
 import ForgotPasswordPage from "../pages/client/authModal/ForgotPasswordPage";
 import ContactPage from "../pages/client/contact/ContactPage";
+import SportsNewsPage from "../pages/client/bai_viet/postsClient";
+import ArticleDetailPage from "../pages/client/bai_viet/detailposts";
 
 
 
@@ -30,7 +30,6 @@ export const clientRouter = {
     { path: "lien-he", element: <ContactPage /> },
 
 
-
     { path: "thong-tin-khach-hang", element: <ProfilePage /> },
     { path: "thong-tin-khach-hang/edit", element: <EditProfilePage /> },
     { path: "chi-tiet-don-hang/:id", element: <OrderTracking /> },
@@ -40,13 +39,15 @@ export const clientRouter = {
     { path: "payment/result", element: <PaymentResultPage /> },
     { path: "payment/result/zalo", element: <PaymentResultZaloPage /> },
 
-
     { path: "san-pham/:id", element: <ProductDetailclientPage /> },
+
+    { path: "bai_viet", element: <SportsNewsPage /> },
+    { path: "bai_viet/:id", element: <ArticleDetailPage /> },
+
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
   { path:"/auth/forgot-password" ,element:<ForgotPasswordPage />}
-
 
 
 

@@ -1,7 +1,8 @@
 // hooks/usePost.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { postService } from "../services/postService";
+import { postService, postServiceClent } from "../services/postService";
 import { toast } from "react-toastify";
+import instanceAxios from "../utils/axios";
 
 export const usePosts = (page: number = 1, search: string = "") => {
   return useQuery({
@@ -55,3 +56,18 @@ export const useDeletePost = () => {
     },
   });
 };
+
+export function usePostsClient(page: number) {
+  return useQuery({
+    queryKey: ["posts", page],
+    queryFn: () => postServiceClent.getAll(page),
+  
+  });
+}
+  export const usePostDetailClient = (id: number) => {
+    return useQuery({
+      queryKey: ["postDetail", id],
+      queryFn: () => postServiceClent.getById(id),
+      enabled: !!id,
+    });
+  };
