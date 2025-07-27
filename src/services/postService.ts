@@ -51,3 +51,10 @@ export const postService = {
     return res.data;
   },
 };
+
+export const postServiceClent = {
+  getAll: (page: number) =>
+    instanceAxios.get(`/posts?page=${page}`).then((res) => res.data),
+  getById: (id: number) =>
+    instanceAxios.get(`/posts/${id}`).then((res) => res.data),
+};
