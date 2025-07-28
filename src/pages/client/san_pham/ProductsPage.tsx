@@ -27,7 +27,7 @@ interface Product {
   variants: Variant[]
 }
 
-export default function ChiTietSanPham() {
+const ProductsPage =() => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -403,3 +403,6 @@ export default function ChiTietSanPham() {
     </div>
   )
 }
+
+
+export default ProductsPage
