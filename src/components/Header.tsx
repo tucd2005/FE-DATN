@@ -1,11 +1,26 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useCartStore } from '../stores/cart.store';
-import React from 'react';
+import React, { useState } from 'react';
 
 const Header = () => {
     const navigate = useNavigate();
     const { totalQuantity } = useCartStore();
+    const [searchKeyword, setSearchKeyword] = useState('');
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchKeyword.trim()) {
+            navigate(`/san-pham?keyword=${encodeURIComponent(searchKeyword.trim())}`);
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch(e);
+        }
+    };
+
     return (
         <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
             <div className="container mx-auto px-4 py-4">
@@ -17,14 +32,17 @@ const Header = () => {
                         <span className="text-xl font-bold text-gray-900">Sportigo</span>
                     </Link>
                     <div className="flex-1 max-w-md mx-8">
-                        <div className="relative">
+                        <form onSubmit={handleSearch} className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                onKeyPress={handleKeyPress}
                                 placeholder="Tìm kiếm đồ thể thao..."
                                 className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                             />
-                        </div>
+                        </form>
                     </div>
                     <nav className="flex items-center space-x-6">
                         <Link to="/san-pham" className="text-gray-700 hover:text-blue-600 transition-colors">
@@ -34,11 +52,11 @@ const Header = () => {
                             Danh mục
                         </a>
                         <a href="bai_viet" className="text-gray-700 hover:text-blue-600 transition-colors">
-                           tin tức 
+                            tin tức
                         </a>
-                        <a href="lien-he" className="text-gray-700 hover:text-blue-600 transition-colors">
+                        <Link to="/lien-he" className="text-gray-700 hover:text-blue-600 transition-colors">
                             Liên hệ
-                        </a>
+                        </Link>
                         <div className="flex items-center space-x-2">
                             <Link
                                 to="/gio-hang"

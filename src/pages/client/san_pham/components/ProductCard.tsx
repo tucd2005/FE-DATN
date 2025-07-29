@@ -1,6 +1,6 @@
 import { Star, Heart, Eye, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { Product } from "../../types/product.type";
+import type { Product } from "../../../types/product.type";
 
 interface ProductCardProps {
     product: Product;
@@ -27,9 +27,9 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
     };
 
     const variant = product.variants?.[0];
-    const originalPrice = variant?.gia;
-    const salePrice = variant?.gia_khuyen_mai;
-    const discount = calculateDiscount(originalPrice || "0", salePrice || "0");
+    const originalPrice = variant?.gia || product.gia || "0";
+    const salePrice = variant?.gia_khuyen_mai || product.gia_khuyen_mai || "0";
+    const discount = calculateDiscount(originalPrice, salePrice);
 
     const imgPath = Array.isArray(product.hinh_anh) ? product.hinh_anh[0] : product.hinh_anh;
     const src = imgPath?.startsWith("http")
@@ -73,7 +73,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
             </div>
 
             <div className="p-6">
-                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800">{product.ten}</h3>
+                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800 capitalize">{product.ten}</h3>
 
                 <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product.mo_ta}</p>
 

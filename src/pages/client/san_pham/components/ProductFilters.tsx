@@ -1,24 +1,31 @@
-import { Filter, Tag, Zap } from "lucide-react";
+import { Filter, Tag, Search } from "lucide-react";
 
 interface ProductFiltersProps {
-    selectedCategories: string[];
-    selectedBrands: string[];
+    keyword: string;
+    selectedCategoryId: number | null;
+    onSearch: (keyword: string) => void;
+    onCategoryFilter: (categoryId: number | null) => void;
     priceRange: [number, number];
-    onCategoryChange: (category: string) => void;
-    onBrandChange: (brand: string) => void;
     onPriceRangeChange: (range: [number, number]) => void;
 }
 
 const ProductFilters = ({
-    selectedCategories,
-    selectedBrands,
+    keyword,
+    selectedCategoryId,
+    onSearch,
+    onCategoryFilter,
     priceRange,
-    onCategoryChange,
-    onBrandChange,
     onPriceRangeChange,
 }: ProductFiltersProps) => {
-    const categories = ["Tất cả", "Áo thể thao", "Giày thể thao", "Quần thể thao", "Áo khoác", "Đồ yoga", "Phụ kiện"];
-    const brands = ["Tất cả", "Nike", "Adidas", "Under Armour", "Puma"];
+    const categories = [
+        { id: null, name: "Tất cả" },
+        { id: 1, name: "Áo thể thao" },
+        { id: 2, name: "Giày thể thao" },
+        { id: 3, name: "Quần thể thao" },
+        { id: 4, name: "Áo khoác" },
+        { id: 5, name: "Đồ yoga" },
+        { id: 6, name: "Phụ kiện" },
+    ];
 
     const formatPrice = (price?: string | number) => {
         const num = Number(price);
@@ -36,6 +43,21 @@ const ProductFilters = ({
                     <h3 className="text-xl font-bold text-gray-800">Bộ lọc</h3>
                 </div>
 
+                {/* Search */}
+                <div className="mb-6">
+                    <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <Search className="w-4 h-4 text-blue-500" />
+                        Tìm kiếm
+                    </h4>
+                    <input
+                        type="text"
+                        value={keyword}
+                        onChange={(e) => onSearch(e.target.value)}
+                        placeholder="Tìm kiếm sản phẩm..."
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    />
+                </div>
+
                 {/* Categories */}
                 <div className="mb-8">
                     <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -44,38 +66,16 @@ const ProductFilters = ({
                     </h4>
                     <div className="space-y-3">
                         {categories.map((category) => (
-                            <label key={category} className="flex items-center cursor-pointer group">
+                            <label key={category.id || 'all'} className="flex items-center cursor-pointer group">
                                 <input
-                                    type="checkbox"
-                                    checked={selectedCategories.includes(category)}
-                                    onChange={() => onCategoryChange(category)}
-                                    className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                    type="radio"
+                                    name="category"
+                                    checked={selectedCategoryId === category.id}
+                                    onChange={() => onCategoryFilter(category.id)}
+                                    className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500 focus:ring-2"
                                 />
                                 <span className="ml-3 text-gray-700 group-hover:text-teal-600 transition-colors font-medium">
-                                    {category}
-                                </span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Brands */}
-                <div className="mb-8">
-                    <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-blue-500" />
-                        Thương hiệu
-                    </h4>
-                    <div className="space-y-3">
-                        {brands.map((brand) => (
-                            <label key={brand} className="flex items-center cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedBrands.includes(brand)}
-                                    onChange={() => onBrandChange(brand)}
-                                    className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
-                                />
-                                <span className="ml-3 text-gray-700 group-hover:text-teal-600 transition-colors font-medium">
-                                    {brand}
+                                    {category.name}
                                 </span>
                             </label>
                         ))}

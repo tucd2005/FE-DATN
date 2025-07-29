@@ -1,11 +1,12 @@
-import type { Product, ProductInput } from "../types/product.type";
+import type { Product } from "../types/product.type";
 import instanceAxios from "../utils/axios";
 
 export const productService = {
   getAll: async (): Promise<Product[]> => {
     const res = await instanceAxios.get("/products");
-    return res.data?.data || [];
+    return res.data;
   },
+
   getPaginated: async (
     params: Record<string, any> = {}
   ): Promise<{
@@ -19,6 +20,45 @@ export const productService = {
   }> => {
     const res = await instanceAxios.get("/products", { params });
     return res.data;
+  },
+
+  filter: async (
+    params: Record<string, any> = {}
+  ): Promise<{
+    data: Product[];
+    meta: {
+      current_page: number;
+      last_page: number;
+      total: number;
+      per_page: number;
+    };
+  }> => {
+    const res = await instanceAxios.get("/products/filter", { params });
+    return res.data;
+  },
+
+  getById: async (id: number): Promise<Product> => {
+    const res = await instanceAxios.get(`/products/${id}`);
+    return res.data;
+  },
+
+  getRelated: async (id: number): Promise<Product[]> => {
+    const res = await instanceAxios.get(`/products/${id}/related`);
+    return res.data;
+  },
+
+  create: async (data: any): Promise<Product> => {
+    const res = await instanceAxios.post("/products", data);
+    return res.data;
+  },
+
+  update: async (id: number, data: any): Promise<Product> => {
+    const res = await instanceAxios.put(`/products/${id}`, data);
+    return res.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await instanceAxios.delete(`/products/${id}`);
   },
 };
 
@@ -59,4 +99,3 @@ export const productlist = {
     return res.data?.data || [];
   },
 };
-

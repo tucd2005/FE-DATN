@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useProductDetail } from "../../../hooks/useProduct"
+import { useProductDetail } from "../../../hooks/useProducts"
 import type { Variant } from "../../../types/product.type"
 import { message, Modal } from "antd"
 import { useCartStore } from "../../../stores/cart.store"

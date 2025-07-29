@@ -1,45 +1,58 @@
-import { useEffect, useState } from "react";
-import { productService } from "../../../services/productservice";
-import type { Product } from "../../../types/product.type";
+import { useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useProductsFilter } from "../../../hooks/useProducts";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
 import ProductGrid from "./components/ProductGrid";
-import { Pagination } from "antd";
+import Pagination from "./components/Pagination";
 
 const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("Phổ biến nhất");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(["Tất cả"]);
-  const [priceRange, setPriceRange] = useState([0, 4000000]);
   const [favorites, setFavorites] = useState<number[]>([]);
+
+  // Filter states
+  const [keyword, setKeyword] = useState(searchParams.get('keyword') || "");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 4000000]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [meta, setMeta] = useState<{
-    current_page: number;
-    last_page: number;
-    total: number;
-    per_page: number;
-  } | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await productService.getPaginated({ page: currentPage });
-        setProducts(res.data);
-        setMeta(res.meta);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Build filter params
+  const filterParams: Record<string, unknown> = {
+    page: currentPage,
+    sort_by: sortBy,
+    sort_order: sortOrder
+  };
 
-    fetchProducts();
-  }, [currentPage]);
+  if (keyword) {
+    filterParams.keyword = keyword;
+  }
+
+  if (selectedCategoryId) {
+    filterParams.danh_muc_id = selectedCategoryId;
+  }
+
+  if (priceRange[1] < 4000000) {
+    filterParams.gia_max = priceRange[1];
+  }
+
+  if (priceRange[0] > 0) {
+    filterParams.gia_min = priceRange[0];
+  }
+
+  // Use TanStack Query
+  const {
+    data: productsData,
+    isLoading,
+    error,
+    refetch
+  } = useProductsFilter(filterParams);
+
+  const products = productsData?.data || [];
+  const meta = productsData?.meta;
 
   const toggleFavorite = (productId: number) => {
     setFavorites((prev) =>
@@ -47,40 +60,48 @@ const ProductsPage = () => {
     );
   };
 
-  const handleCategoryChange = (category: string) => {
-    if (category === "Tất cả") {
-      setSelectedCategories(["Tất cả"]);
-    } else {
-      const newCategories = selectedCategories.includes("Tất cả")
-        ? [category]
-        : selectedCategories.includes(category)
-          ? selectedCategories.filter((c) => c !== category)
-          : [...selectedCategories.filter((c) => c !== "Tất cả"), category];
+  // Debounced search
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: ReturnType<typeof setTimeout>;
+      return (searchKeyword: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setKeyword(searchKeyword);
+          setCurrentPage(1); // Reset to first page when searching
 
-      setSelectedCategories(newCategories.length === 0 ? ["Tất cả"] : newCategories);
-    }
+          // Update URL params
+          const newSearchParams = new URLSearchParams(searchParams);
+          if (searchKeyword.trim()) {
+            newSearchParams.set('keyword', searchKeyword.trim());
+          } else {
+            newSearchParams.delete('keyword');
+          }
+          setSearchParams(newSearchParams);
+        }, 500);
+      };
+    })(),
+    [searchParams, setSearchParams]
+  );
+
+  const handleSearch = (searchKeyword: string) => {
+    debouncedSearch(searchKeyword);
   };
 
-  const handleBrandChange = (brand: string) => {
-    if (brand === "Tất cả") {
-      setSelectedBrands(["Tất cả"]);
-    } else {
-      const newBrands = selectedBrands.includes("Tất cả")
-        ? [brand]
-        : selectedBrands.includes(brand)
-          ? selectedBrands.filter((b) => b !== brand)
-          : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
-
-      setSelectedBrands(newBrands.length === 0 ? ["Tất cả"] : newBrands);
-    }
+  const handleCategoryFilter = (categoryId: number | null) => {
+    setSelectedCategoryId(categoryId);
+    setCurrentPage(1);
   };
 
-  const handlePriceRangeChange = (range: [number, number]) => {
-    setPriceRange(range);
+  const handleSort = (newSortBy: string, newSortOrder: string) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+    setCurrentPage(1);
   };
 
-  const handleSortChange = (sortBy: string) => {
-    setSortBy(sortBy);
+  const handlePriceRangeChange = (newRange: [number, number]) => {
+    setPriceRange(newRange);
+    setCurrentPage(1);
   };
 
   const handleViewModeChange = (viewMode: "grid" | "list") => {
@@ -91,7 +112,24 @@ const ProductsPage = () => {
     setCurrentPage(page);
   };
 
-  if (loading) {
+  // Error handling
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl font-bold mb-4">Có lỗi xảy ra!</div>
+          <button
+            onClick={() => refetch()}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
@@ -101,11 +139,11 @@ const ProductsPage = () => {
         <div className="flex gap-8">
           {/* Sidebar */}
           <ProductFilters
-            selectedCategories={selectedCategories}
-            selectedBrands={selectedBrands}
+            keyword={keyword}
+            selectedCategoryId={selectedCategoryId}
+            onSearch={handleSearch}
+            onCategoryFilter={handleCategoryFilter}
             priceRange={priceRange}
-            onCategoryChange={handleCategoryChange}
-            onBrandChange={handleBrandChange}
             onPriceRangeChange={handlePriceRangeChange}
           />
 
@@ -114,8 +152,9 @@ const ProductsPage = () => {
             <ProductHeader
               totalProducts={meta?.total || products.length}
               sortBy={sortBy}
+              sortOrder={sortOrder}
               viewMode={viewMode}
-              onSortChange={handleSortChange}
+              onSort={handleSort}
               onViewModeChange={handleViewModeChange}
             />
 
