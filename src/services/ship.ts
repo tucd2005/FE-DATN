@@ -23,12 +23,15 @@ export const shipService = {
 
 
 export const shippingFeeService = {
-  getAll: async (search?: string) => {
-    const { data } = await instanceAxios.get("/admin/shipping-fees", {
-      params: search ? { search } : {},
-    });
-    return data;
-  },
+getAll: async (search?: string, page?: number) => {
+  const { data } = await instanceAxios.get("/admin/shipping-fees", {
+    params: {
+      ...(search ? { search } : {}),
+      ...(page ? { page } : {}),
+    },
+  });
+  return data;
+},
 
   update: async (id: number, phi: number) => {
     const { data } = await instanceAxios.put(`/admin/shipping-fees/${id}`, { phi });

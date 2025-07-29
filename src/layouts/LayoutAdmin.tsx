@@ -15,6 +15,7 @@ import {
   LogoutOutlined,
   WalletOutlined,
   StarOutlined,
+  CarOutlined,
 } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
 
@@ -76,6 +77,9 @@ export default function LayoutAdmin() {
             Mã giảm giá
           </Menu.Item>
           <Menu.Item key="/admin/banners" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
+            Banner
+          </Menu.Item>
+          <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
             Banner
           </Menu.Item>
 

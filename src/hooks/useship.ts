@@ -33,12 +33,10 @@ export function useShippingFee(selectedProvince: string) {
 }
 ///admin 
 // hooks/useShippingFee.ts
-
-export function useShippingFees(search: string) {
+export function useShippingFees({ search, page }: { search: string; page: number }) {
   return useQuery<ShippingFeeResponse, Error>({
-    queryKey: ["shipping-fees", search],
-    queryFn: () => shippingFeeService.getAll(search),
-   
+    queryKey: ["shipping-fees", search, page],
+    queryFn: () => shippingFeeService.getAll(search, page),
   });
 }
 
