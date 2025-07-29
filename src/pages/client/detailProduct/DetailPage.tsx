@@ -55,6 +55,8 @@ const ProductDetailclientPage = () => {
     ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
     : [];
 
+
+
   const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
@@ -250,10 +252,12 @@ const ProductDetailclientPage = () => {
   };
 
   const handleSelectVariantImage = (variant: Variant, index: number) => {
+
+
     setSelectedImage(index); // Đổi ảnh to sang ảnh biến thể đó
   };
 
-  const getVariantImage = (hinh_anh: string | string[] | undefined | null) => {
+  const getVariantImage = (hinh_anh: string | string[] | undefined) => {
     if (!hinh_anh) return "/placeholder.svg";
     if (Array.isArray(hinh_anh)) return getImageUrl(hinh_anh[0]);
     try {
@@ -339,17 +343,198 @@ const ProductDetailclientPage = () => {
         </div>
 
         {/* Product Details Tabs */}
-        <ProductTabs
-          productId={productId}
-          selectedVariant={selectedVariant}
-          quantity={quantity}
-          productImages={productImages}
-          selectedImage={selectedImage}
-          product={product}
-          gia={gia}
-          giaKhuyenMai={giaKhuyenMai}
-          selectedAttributes={selectedAttributes}
-        />
+
+        <div className="mt-16">
+  {/* Tiêu đề giống tab "Đánh giá (234)" */}
+  <div className="border-b border-gray-200">
+    <div className="flex space-x-8">
+      <div className="py-4 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-500">
+        Đánh giá ({reviewData?.meta?.tong_danh_gia ?? 0})
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-8 space-y-6">
+    <div className="flex items-center justify-between">
+      <h3 className="text-xl font-bold text-gray-900">Đánh giá khách hàng</h3>
+      {profile ? (
+        <button
+          className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          onClick={() => setShowReviewForm(true)}
+        >
+          Viết đánh giá
+        </button>
+      ) : (
+        <button
+          className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          onClick={() => navigate("/login")}
+        >
+          Đăng nhập để đánh giá
+        </button>
+      )}
+    </div>
+
+    {/* Form viết đánh giá */}
+    {showReviewForm && (
+      <form
+        className="space-y-4 border p-4 rounded-lg"
+        onSubmit={handleSubmitReview}
+      >
+        <div>
+          <label className="block font-semibold mb-1">Số sao:</label>
+          <input
+            type="number"
+            name="so_sao"
+            min={1}
+            max={5}
+            value={reviewForm.so_sao}
+            onChange={handleReviewChange}
+            className="border rounded px-2 py-1 w-20"
+            required
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Nội dung:</label>
+          <textarea
+            name="noi_dung"
+            value={reviewForm.noi_dung}
+            onChange={handleReviewChange}
+            className="border rounded px-2 py-1 w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">
+            Hình ảnh (tùy chọn):
+          </label>
+          <input
+            type="file"
+            name="hinh_anh"
+            accept="image/*"
+            onChange={handleReviewFile}
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={submitReview.status === "pending"}
+          >
+            Gửi đánh giá
+          </button>
+          <button
+            type="button"
+            className="border px-4 py-2 rounded"
+            onClick={() => setShowReviewForm(false)}
+          >
+            Hủy
+          </button>
+        </div>
+      </form>
+    )}
+
+    {/* Tổng quan sao */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="text-center">
+        <div className="text-4xl font-bold text-blue-600 mb-2">
+          {reviewData?.meta?.trung_binh_sao ?? 0}
+        </div>
+        <div className="flex justify-center mb-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <StarIcon
+              key={i}
+              filled={i < (reviewData?.meta?.trung_binh_sao ?? 0)}
+            />
+          ))}
+        </div>
+        <p className="text-gray-600">
+          {reviewData?.meta?.tong_danh_gia ?? 0} đánh giá
+        </p>
+      </div>
+      <div className="md:col-span-2 space-y-4">
+        {[5, 4, 3, 2, 1].map((stars) => (
+          <div key={stars} className="flex items-center space-x-3">
+            <span className="text-sm text-gray-600 w-8">{stars} sao</span>
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-yellow-400 h-2 rounded-full transition-all"
+                style={{
+                  width: `${
+                    ((reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0) /
+                      (reviewData?.meta?.tong_danh_gia || 1)) *
+                    100
+                  }%`,
+                }}
+              ></div>
+            </div>
+            <span className="text-sm text-gray-600 w-8">
+              {reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Danh sách đánh giá */}
+    <div className="space-y-6 mt-8">
+      {loadingReviews ? (
+        <div>Đang tải đánh giá...</div>
+      ) : reviewData?.data?.length ? (
+        reviewData.data.map((r: any, index: number) => (
+          <div
+            key={r.id || index}
+            className="border-b border-gray-200 pb-6"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                  {r.user?.anh_dai_dien ? (
+                    <img
+                      src={r.user.anh_dai_dien}
+                      alt="avatar"
+                      className="w-10 h-10 object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-semibold">
+                      {r.user?.name?.charAt(0) || "?"}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    {r.user?.name}
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex">
+                      {Array.from({ length: r.so_sao }).map((_, i) => (
+                        <StarIcon key={i} filled className="w-4 h-4" />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      {r.created_at?.slice(0, 10)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {r.hinh_anh && (
+                <img
+                  src={`http://localhost:8000/storage/${r.hinh_anh}`}
+                  alt="review-img"
+                  className="w-16 h-16 object-cover rounded"
+                />
+              )}
+            </div>
+            <p className="text-gray-700">{r.noi_dung}</p>
+          </div>
+        ))
+      ) : (
+        <div>Chưa có đánh giá nào cho sản phẩm này.</div>
+      )}
+    </div>
+  </div>
+</div>
+
+
 
         {/* Related Products */}
         <RelatedProducts />

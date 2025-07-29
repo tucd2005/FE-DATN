@@ -40,10 +40,14 @@ import AddVariant from "../pages/admin/bien_the/AddVariantPage";
 import EditVariantPage from "../pages/admin/bien_the/EditVariantPage";
 import Deletelistpage from "../pages/admin/bien_the/Deletelistpage";
 import WalletListPage from "../pages/admin/vi_tien/WalletListPage";
+
+import ShippingFeeListPage from "../pages/admin/van_chuyen/ShippingFeeListPage";
+
 import PostListPage from "../pages/admin/bai_viet/PostListPage";
 import PostCreatePage from "../pages/admin/bai_viet/PostCreatePage";
 import PostDetailPage from "../pages/admin/bai_viet/PostDetailPage";
 import PostEditPage from "../pages/admin/bai_viet/PostEditPage";
+
 
 export const adminRouter = {
   path: "/admin",
@@ -120,10 +124,14 @@ export const adminRouter = {
 
         { path: "vi_tien", element: <WalletListPage /> },
 
+
+        { path: "van_chuyen", element: <ShippingFeeListPage /> },
+
         { path: "bai_viet", element: <PostListPage /> },
         { path: "bai_viet/add", element: <PostCreatePage /> },
         { path: "bai_viet/chi_tiet/:id", element: <PostDetailPage /> },
         { path: "bai_viet/edit/:id", element: <PostEditPage /> },
+
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },
