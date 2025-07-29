@@ -1,4 +1,5 @@
-import { Grid3X3, List, ChevronDown } from "lucide-react";
+import { Grid3X3, List } from "lucide-react";
+import SortDropdown from "./SortDropdown";
 
 interface ProductHeaderProps {
     totalProducts: number;
@@ -25,26 +26,25 @@ const ProductHeader = ({
             </div>
 
             <div className="flex items-center gap-4">
-                <div className="relative">
-                    <select
-                        value={sortBy}
-                        onChange={(e) => onSortChange(e.target.value)}
-                        className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 pr-10 shadow-sm font-medium focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    >
-                        <option>Phổ biến nhất</option>
-                        <option>Giá thấp đến cao</option>
-                        <option>Giá cao đến thấp</option>
-                        <option>Mới nhất</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </div>
+                <SortDropdown
+                    value={sortBy}
+                    onChange={onSortChange}
+                    options={[
+                        { value: "Phổ biến nhất", label: "Phổ biến nhất", sort_by: "created_at", sort_order: "desc" },
+                        { value: "Giá thấp đến cao", label: "Giá thấp đến cao", sort_by: "variants_min_gia_khuyen_mai", sort_order: "asc" },
+                        { value: "Giá cao đến thấp", label: "Giá cao đến thấp", sort_by: "variants_min_gia_khuyen_mai", sort_order: "desc" },
+                        { value: "Tên A-Z", label: "Tên A-Z", sort_by: "ten", sort_order: "asc" },
+                        { value: "Tên Z-A", label: "Tên Z-A", sort_by: "ten", sort_order: "desc" },
+                        { value: "Mới nhất", label: "Mới nhất", sort_by: "created_at", sort_order: "desc" },
+                    ]}
+                />
 
                 <div className="flex border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
                     <button
                         onClick={() => onViewModeChange("grid")}
                         className={`p-3 transition-colors duration-200 ${viewMode === "grid"
-                                ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white"
-                                : "bg-transparent text-gray-600 hover:bg-gray-50"
+                            ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white"
+                            : "bg-transparent text-gray-600 hover:bg-gray-50"
                             }`}
                     >
                         <Grid3X3 className="w-5 h-5" />
@@ -52,8 +52,8 @@ const ProductHeader = ({
                     <button
                         onClick={() => onViewModeChange("list")}
                         className={`p-3 transition-colors duration-200 ${viewMode === "list"
-                                ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white"
-                                : "bg-transparent text-gray-600 hover:bg-gray-50"
+                            ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white"
+                            : "bg-transparent text-gray-600 hover:bg-gray-50"
                             }`}
                     >
                         <List className="w-5 h-5" />

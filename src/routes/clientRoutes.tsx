@@ -47,7 +47,7 @@ export const clientRouter = {
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
-  { path:"/auth/forgot-password" ,element:<ForgotPasswordPage />}
+    { path: "/auth/forgot-password", element: <ForgotPasswordPage /> }
 
   ],
 };

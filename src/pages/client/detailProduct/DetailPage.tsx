@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
@@ -6,6 +6,7 @@ import { message, Modal } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
 import { useProductReviews, useSubmitReview } from '../../../hooks/useReview';
 import { useProfile } from '../../../hooks/useProfile';
+import { VariantNotification, VariantTest } from './components';
 
 const ProductDetailclientPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,8 +47,9 @@ const ProductDetailclientPage = () => {
         setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
         message.success('Đánh giá thành công!');
       },
-      onError: (err: any) => {
-        message.error(err.response?.data?.message || 'Có lỗi xảy ra');
+      onError: (err: unknown) => {
+        const error = err as { response?: { data?: { message?: string } } };
+        message.error(error.response?.data?.message || 'Có lỗi xảy ra');
       }
     });
   };
@@ -84,22 +86,6 @@ const ProductDetailclientPage = () => {
   const attributeNames: string[] = product?.variants?.length
     ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
     : [];
-  //Tự động chọn biến thể đầu tiên nếu chưa chọn gì
-  // useEffect(() => {
-  //   if (
-  //     product?.variants?.length &&
-  //     attributeNames.length &&
-  //     Object.keys(selectedAttributes).length === 0
-  //   ) {
-  //     // Tìm biến thể còn hàng đầu tiên
-  //     const firstAvailableVariant = product.variants.find(v => v.so_luong > 0) || product.variants[0];
-  //     const defaultAttributes: { [key: string]: string } = {};
-  //     firstAvailableVariant.thuoc_tinh.forEach((attr) => {
-  //       defaultAttributes[attr.ten] = attr.gia_tri;
-  //     });
-  //     setSelectedAttributes(defaultAttributes);
-  //   }
-  // }, [product, attributeNames]);
   const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
@@ -112,6 +98,52 @@ const ProductDetailclientPage = () => {
       )
     )
     : null;
+
+  // State để theo dõi biến thể trước đó và trạng thái tự động chuyển
+  const [previousVariant, setPreviousVariant] = useState<Variant | null>(null);
+  const [isAutoChange, setIsAutoChange] = useState(false);
+
+  // Tự động chọn biến thể đầu tiên nếu chưa chọn gì
+  useEffect(() => {
+    if (
+      product?.variants?.length &&
+      attributeNames.length &&
+      Object.keys(selectedAttributes).length === 0
+    ) {
+      // Tìm biến thể còn hàng đầu tiên
+      const firstAvailableVariant = product.variants.find(v => v.so_luong > 0) || product.variants[0];
+      const defaultAttributes: { [key: string]: string } = {};
+      firstAvailableVariant.thuoc_tinh.forEach((attr) => {
+        defaultAttributes[attr.ten] = attr.gia_tri;
+      });
+      setSelectedAttributes(defaultAttributes);
+    }
+  }, [product, attributeNames]);
+
+  // Logic tự động chuyển biến thể khi hết hàng
+  useEffect(() => {
+    if (selectedVariant && selectedVariant.so_luong === 0) {
+      setPreviousVariant(selectedVariant);
+      setIsAutoChange(true);
+
+      // Tìm biến thể khác còn hàng
+      const availableVariant = product?.variants?.find(v =>
+        v.so_luong > 0 &&
+        v.id !== selectedVariant.id
+      );
+
+      if (availableVariant) {
+        // Tạo attributes mới cho biến thể có sẵn
+        const newAttributes: { [key: string]: string } = {};
+        availableVariant.thuoc_tinh.forEach((attr) => {
+          newAttributes[attr.ten] = attr.gia_tri;
+        });
+        setSelectedAttributes(newAttributes);
+      }
+    } else {
+      setIsAutoChange(false);
+    }
+  }, [selectedVariant, product?.variants]);
 
   const gia = selectedVariant ? selectedVariant.gia : product?.gia;
   const giaKhuyenMai = selectedVariant ? selectedVariant.gia_khuyen_mai : product?.gia_khuyen_mai;
@@ -187,7 +219,7 @@ const ProductDetailclientPage = () => {
         bien_the_id: selectedVariant?.id,
       });
       message.success("Đã thêm vào giỏ hàng!");
-    } catch (error) {
+    } catch {
       message.error("Không thể thêm sản phẩm.");
     }
   };
@@ -201,7 +233,7 @@ const ProductDetailclientPage = () => {
         content: "Vui lòng đăng nhập để mua hàng!",
         centered: true,
         okText: "Đăng nhập ngay",
-        onOk: () => navigate("/login"), 
+        onOk: () => navigate("/login"),
       });
       return;
     }
@@ -396,8 +428,19 @@ const ProductDetailclientPage = () => {
       ? getVariantImage(selectedVariant.hinh_anh)
       : productImages[selectedImage ?? 0] || "/placeholder.svg";
 
+  const isOutOfStock = product?.variants?.length
+    ? product.variants.every(v => v.so_luong === 0)
+    : (product?.so_luong ?? 0) === 0;
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Variant Notification */}
+      <VariantNotification
+        selectedVariant={selectedVariant || null}
+        previousVariant={previousVariant}
+        isAutoChange={isAutoChange}
+      />
+
       {/* Header */}
 
 
@@ -627,7 +670,8 @@ const ProductDetailclientPage = () => {
             <div className="flex space-x-4">
               <button
                 onClick={handleAddToCart}
-                className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                disabled={isOutOfStock}
+                className={`w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <ShoppingCartIcon />
                 <span className="text-sm">Thêm vào giỏ hàng</span>
@@ -635,10 +679,18 @@ const ProductDetailclientPage = () => {
 
               <button
                 onClick={handleBuyNow}
-                className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                disabled={isOutOfStock}
+                className={`w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
                 <ShoppingCartIcon />
                 <span className="text-sm">Mua ngay</span>
               </button>
+
+              {isOutOfStock && (
+                <div className="mt-3 text-red-600 font-semibold text-base">
+                  Sản phẩm đã hết hàng
+                </div>
+              )}
 
               <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <HeartIcon />
@@ -906,6 +958,19 @@ const ProductDetailclientPage = () => {
             )}
           </div>
         </div>
+
+        {/* Test Component - Có thể xóa sau khi test xong
+        <VariantTest
+          variants={product?.variants || []}
+          selectedVariant={selectedVariant || null}
+          onVariantChange={(variant) => {
+            const newAttributes: { [key: string]: string } = {};
+            variant.thuoc_tinh.forEach((attr) => {
+              newAttributes[attr.ten] = attr.gia_tri;
+            });
+            setSelectedAttributes(newAttributes);
+          }}
+        /> */}
 
         {/* Related Products */}
         <div className="mt-16">

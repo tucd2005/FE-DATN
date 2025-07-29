@@ -1,6 +1,6 @@
 import { Star, Heart, Eye, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { Product } from "../../types/product.type";
+import type { Product } from "../../../../types/product.type";
 
 interface ProductCardProps {
     product: Product;

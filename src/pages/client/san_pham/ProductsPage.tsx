@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
-import { productService } from "../../../services/productservice";
-import type { Product } from "../../../types/product.type";
+import { useState, useMemo } from "react";
+import type { ProductFilterParams } from "../../../services/productservice";
+import { useProductsClient } from "../../../hooks/useProductsClient";
+import { sortProducts } from "../../../utils/sortProducts";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
 import ProductGrid from "./components/ProductGrid";
-import { Pagination } from "antd";
+import Pagination from "./components/Pagination";
 
 const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("Phổ biến nhất");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
@@ -17,29 +16,35 @@ const ProductsPage = () => {
   const [priceRange, setPriceRange] = useState([0, 4000000]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [meta, setMeta] = useState<{
-    current_page: number;
-    last_page: number;
-    total: number;
-    per_page: number;
-  } | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await productService.getPaginated({ page: currentPage });
-        setProducts(res.data);
-        setMeta(res.meta);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Định nghĩa các tùy chọn sắp xếp
+  const sortOptions = {
+    "Phổ biến nhất": { sort_by: 'created_at' as const, sort_order: 'desc' as const },
+    "Giá thấp đến cao": { sort_by: 'variants_min_gia_khuyen_mai' as const, sort_order: 'asc' as const },
+    "Giá cao đến thấp": { sort_by: 'variants_min_gia_khuyen_mai' as const, sort_order: 'desc' as const },
+    "Tên A-Z": { sort_by: 'ten' as const, sort_order: 'asc' as const },
+    "Tên Z-A": { sort_by: 'ten' as const, sort_order: 'desc' as const },
+    "Mới nhất": { sort_by: 'created_at' as const, sort_order: 'desc' as const },
+  };
 
-    fetchProducts();
-  }, [currentPage]);
+  // Tạo params cho API
+  const filterParams: ProductFilterParams = {
+    page: currentPage,
+    per_page: 12,
+    ...sortOptions[sortBy as keyof typeof sortOptions],
+  };
+
+  // Sử dụng TanStack Query
+  const { data, isLoading, error } = useProductsClient(filterParams);
+
+  // Lấy dữ liệu từ response và sort client-side nếu cần
+  const rawProducts = data?.data || [];
+  const meta = data?.meta;
+
+  // Sort client-side để đảm bảo chính xác
+  const products = useMemo(() => {
+    return sortProducts(rawProducts, sortBy);
+  }, [rawProducts, sortBy]);
 
   const toggleFavorite = (productId: number) => {
     setFavorites((prev) =>
@@ -91,8 +96,19 @@ const ProductsPage = () => {
     setCurrentPage(page);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Có lỗi xảy ra</h2>
+          <p className="text-gray-600">Không thể tải danh sách sản phẩm</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -103,7 +119,7 @@ const ProductsPage = () => {
           <ProductFilters
             selectedCategories={selectedCategories}
             selectedBrands={selectedBrands}
-            priceRange={priceRange}
+            priceRange={priceRange as [number, number]}
             onCategoryChange={handleCategoryChange}
             onBrandChange={handleBrandChange}
             onPriceRangeChange={handlePriceRangeChange}
