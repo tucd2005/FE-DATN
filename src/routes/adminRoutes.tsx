@@ -5,7 +5,6 @@ import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/DiscountCodeList";
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
 import ListAccountAdminPage from "../pages/admin/tai_khoan/ListAdminAccount";
 import ListAccountUsePage from "../pages/admin/tai_khoan/ListUserAccountPage";
-import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
 import AdminLogin from "../pages/admin/auth/AdminLogin";
 import ProductDetailPage from "../pages/admin/san_pham/DetailSanPham";
 import AddProduct from "../pages/admin/san_pham/AddSanPham";
@@ -47,6 +46,7 @@ import PostListPage from "../pages/admin/bai_viet/PostListPage";
 import PostCreatePage from "../pages/admin/bai_viet/PostCreatePage";
 import PostDetailPage from "../pages/admin/bai_viet/PostDetailPage";
 import PostEditPage from "../pages/admin/bai_viet/PostEditPage";
+import TrangChuAdmin from "../pages/admin/trang_chu_admin/trang_chu_admin";
 
 
 export const adminRouter = {
