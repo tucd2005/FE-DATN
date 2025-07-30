@@ -5,4 +5,3 @@ export { default as ServiceInfo } from "./ServiceInfo";
 export { default as ProductTabs } from "./ProductTabs";
 export { default as RelatedProducts } from "./RelatedProducts";
 export { default as VariantNotification } from "./VariantNotification";
-export { default as VariantTest } from "./VariantTest";

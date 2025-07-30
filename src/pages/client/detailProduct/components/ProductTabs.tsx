@@ -3,14 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../../../hooks/useProfile";
 import { useProductReviews, useSubmitReview } from "../../../../hooks/useReview";
 import { message } from "antd";
+import type { Variant } from "../../../../types/product.type";
 
 interface ProductTabsProps {
     productId: number;
-    selectedVariant: any;
+    selectedVariant: Variant | null;
     quantity: number;
     productImages: string[];
     selectedImage: number;
-    product: any;
+    product: {
+        id: number;
+        ten: string;
+        variants: Variant[];
+    };
     gia: number | undefined;
     giaKhuyenMai: number | undefined;
     selectedAttributes: { [key: string]: string };
@@ -105,8 +110,8 @@ const ProductTabs = ({
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                                    ? "border-blue-500 text-blue-600"
-                                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                ? "border-blue-500 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                 }`}
                         >
                             {tab.label}

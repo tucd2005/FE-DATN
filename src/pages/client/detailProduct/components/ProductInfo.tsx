@@ -1,7 +1,15 @@
 import type { Variant } from "../../../../types/product.type";
 
 interface ProductInfoProps {
-    product: any;
+    product: {
+        id: number;
+        ten: string;
+        so_luong: number;
+        gia: number;
+        gia_khuyen_mai?: number;
+        mo_ta: string;
+        variants: Variant[];
+    };
     selectedAttributes: { [key: string]: string };
     setSelectedAttributes: (attrs: { [key: string]: string }) => void;
     attributeNames: string[];
@@ -101,23 +109,21 @@ const ProductInfo = ({
             {/* Description */}
             <p className="text-gray-600 leading-relaxed">{product.mo_ta}</p>
 
-            {/* Stock Status */}
-            {selectedVariant && maxQuantity === 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                    <p className="text-orange-700 font-medium">⚠️ Biến thể này đã hết hàng</p>
-                    <p className="text-orange-600 text-sm">
-                        {isSearchingVariant ? "Đang tìm biến thể khác còn hàng..." : "Hệ thống sẽ tự động chuyển sang biến thể khác"}
-                    </p>
+            {/* Global Out of Stock Message
+            {!selectedVariant && product?.variants?.length && product.variants.every(v => v.so_luong === 0) && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-700 font-medium">⚠️ Sản phẩm đã hết hàng</p>
+                    <p className="text-red-600 text-sm">Tất cả các biến thể của sản phẩm này đều đã hết hàng</p>
                 </div>
-            )}
+            )} */}
 
             {/* Attributes Selection */}
             <div className="space-y-4">
                 {attributeNames.map((attr) => {
                     const values = Array.from(
                         new Set(
-                            product.variants.flatMap((v: any) =>
-                                v.thuoc_tinh.filter((a: any) => a.ten === attr).map((a: any) => a.gia_tri)
+                            product.variants.flatMap((v: Variant) =>
+                                v.thuoc_tinh.filter((a: { ten: string; gia_tri: string }) => a.ten === attr).map((a: { ten: string; gia_tri: string }) => a.gia_tri)
                             )
                         )
                     );
@@ -129,21 +135,21 @@ const ProductInfo = ({
                                 {values.map((value) => {
                                     const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
                                     const hypotheticalSelected = { ...selectedAttributes, [attr]: value };
-                                    const matchingVariants = product.variants.filter((v: any) =>
+                                    const matchingVariants = product.variants.filter((v: Variant) =>
                                         attributeNames.every((a) =>
                                             hypotheticalSelected[a]
-                                                ? v.thuoc_tinh.some((t: any) => t.ten === a && t.gia_tri === hypotheticalSelected[a])
+                                                ? v.thuoc_tinh.some((t: { ten: string; gia_tri: string }) => t.ten === a && t.gia_tri === hypotheticalSelected[a])
                                                 : true
                                         )
                                     );
-                                    const isOutOfStock = matchingVariants.length === 0 || matchingVariants.every((v: any) => v.so_luong === 0);
+                                    const isOutOfStock = matchingVariants.length === 0 || matchingVariants.every((v: Variant) => v.so_luong === 0);
 
                                     return (
                                         <button
                                             key={value}
                                             onClick={() => {
                                                 if (isOutOfStock) return;
-                                                setSelectedAttributes((prev) => {
+                                                setSelectedAttributes((prev: { [key: string]: string }) => {
                                                     if (prev[attr] === value) {
                                                         const newAttrs = { ...prev };
                                                         delete newAttrs[attr];

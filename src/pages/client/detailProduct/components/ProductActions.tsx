@@ -5,7 +5,15 @@ interface ProductActionsProps {
     setQuantity: (quantity: number) => void;
     maxQuantity: number;
     selectedVariant: Variant | null;
-    product: any;
+    product: {
+        id: number;
+        ten: string;
+        so_luong: number;
+        gia: number;
+        gia_khuyen_mai?: number;
+        mo_ta: string;
+        variants: Variant[];
+    };
     safeLocaleString: (value: number | string | undefined | null) => string;
     handleAddToCart: () => void;
     handleBuyNow: () => void;
@@ -61,23 +69,25 @@ const ProductActions = ({
             <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Số lượng:</h3>
                 <div className="flex items-center space-x-4">
-                    <div className="flex items-center border border-gray-200 rounded-lg">
+                    <div className={`flex items-center border rounded-lg ${maxQuantity === 0 ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
                         <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            className="p-2 hover:bg-gray-50 transition-colors"
+                            disabled={maxQuantity === 0}
+                            className={`p-2 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
                         >
                             <MinusIcon />
                         </button>
-                        <span className="px-4 py-2 font-semibold">{quantity}</span>
+                        <span className={`px-4 py-2 font-semibold ${maxQuantity === 0 ? 'text-red-600' : ''}`}>{quantity}</span>
                         <button
                             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                            className="p-2 hover:bg-gray-50 transition-colors"
+                            disabled={maxQuantity === 0}
+                            className={`p-2 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
                         >
                             <PlusIcon />
                         </button>
                     </div>
-                    <span className="text-gray-600">
-                        Còn lại {safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm
+                    <span className={`${maxQuantity === 0 ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+                        {maxQuantity === 0 ? 'Hết hàng' : `Còn lại ${safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm`}
                     </span>
                 </div>
             </div>
@@ -86,7 +96,11 @@ const ProductActions = ({
             <div className="flex space-x-4">
                 <button
                     onClick={handleAddToCart}
-                    className="w-fit bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                    disabled={maxQuantity === 0}
+                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${maxQuantity === 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
                 >
                     <ShoppingCartIcon />
                     <span className="text-sm">Thêm vào giỏ hàng</span>
@@ -94,16 +108,27 @@ const ProductActions = ({
 
                 <button
                     onClick={handleBuyNow}
-                    className="w-fit border border-gray-200 bg-white text-gray-800 hover:bg-gray-100 py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                    disabled={maxQuantity === 0}
+                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${maxQuantity === 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'border border-gray-200 bg-white text-gray-800 hover:bg-gray-100'
+                        }`}
                 >
                     <ShoppingCartIcon />
                     <span className="text-sm">Mua ngay</span>
                 </button>
 
+            {/* Out of Stock Message */}
+            {maxQuantity === 0 && (
+                <div className="mt-3 text-red-600 font-semibold text-base">
+                    Sản phẩm đã hết hàng
+                </div>
+            )}
                 <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <HeartIcon />
                 </button>
             </div>
+
         </div>
     );
 };
