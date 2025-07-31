@@ -21,6 +21,7 @@
     "chart.js": "^4.5.0",
     "concurrently": "^9.1.2",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "framer-motion": "^12.19.1",
     "json-server": "^0.17.4",
     "json-server-auth": "^2.1.0",

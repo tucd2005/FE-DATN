@@ -15,7 +15,7 @@ import {
   LogoutOutlined,
   WalletOutlined,
   StarOutlined,
-
+  PhoneOutlined,
   CarOutlined,
 
   FileTextOutlined,
@@ -99,6 +99,9 @@ export default function LayoutAdmin() {
           </Menu.Item>
           <Menu.Item key="/admin/bai_viet" icon={<FileTextOutlined style={{ fontSize: 18 }} />}>
            Bài viết 
+          </Menu.Item>
+          <Menu.Item key="/admin/lien-he" icon={<PhoneOutlined style={{ fontSize: 18 }} />}>
+            Liên hệ
           </Menu.Item>
 
           {/* 5. Tài khoản */}
