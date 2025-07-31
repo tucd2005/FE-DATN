@@ -346,7 +346,9 @@ export default function ProfilePage() {
           </div>
         )}
 
+ {activeTab === "password" && <ChangePasswordForm />}
         {/* Tab thông báo */}
+        
         {activeTab === "notifications" && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-teal-500 to-emerald-500 px-8 py-6">
@@ -372,7 +374,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-          {activeTab === "password" && <ChangePasswordForm />}
+         
       </main>
     </div>
   )

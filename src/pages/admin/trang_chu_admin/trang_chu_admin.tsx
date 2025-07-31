@@ -20,10 +20,11 @@ const TrangChuAdmin = () => {
         <Card>
           <Statistic
             title="Tổng doanh thu"
-            prefix="$"
             value={data.tong_doanh_thu}
-            precision={2}
             valueStyle={{ color: '#3f8600' }}
+            formatter={(value) =>
+              `${new Intl.NumberFormat('vi-VN').format(Number(value))}VND`
+            }
             suffix={<Text className="text-green-600">{data.ty_le_tang_truong_doanh_thu}%</Text>}
           />
         </Card>
@@ -86,19 +87,19 @@ const TrangChuAdmin = () => {
                     item.status === "success"
                       ? "green"
                       : item.status === "info"
-                      ? "blue"
-                      : item.status === "warning"
-                      ? "gold"
-                      : "red"
+                        ? "blue"
+                        : item.status === "warning"
+                          ? "gold"
+                          : "red"
                   }
                 >
                   {item.status === "success"
                     ? "thành công"
                     : item.status === "info"
-                    ? "thông tin"
-                    : item.status === "warning"
-                    ? "cảnh báo"
-                    : "lỗi"}
+                      ? "thông tin"
+                      : item.status === "warning"
+                        ? "cảnh báo"
+                        : "lỗi"}
                 </Tag>
               </List.Item>
             )}
