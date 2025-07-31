@@ -5,21 +5,26 @@ interface ProductInfoProps {
         id: number;
         ten: string;
         so_luong: number;
-        gia: number;
-        gia_khuyen_mai?: number;
+        gia: string;
+        gia_khuyen_mai?: string;
         mo_ta: string;
         variants: Variant[];
+        danh_muc?: {
+            id: number;
+            ten: string;
+            created_at: string;
+            updated_at: string;
+        };
+        ten_danh_muc?: string;
     };
     selectedAttributes: { [key: string]: string };
-    setSelectedAttributes: (attrs: { [key: string]: string }) => void;
+    setSelectedAttributes: (attrs: { [key: string]: string } | ((prev: { [key: string]: string }) => { [key: string]: string })) => void;
     attributeNames: string[];
     selectedVariant: Variant | null;
-    gia: number | undefined;
-    giaKhuyenMai: number | undefined;
+    gia: string | undefined;
+    giaKhuyenMai: string | undefined;
     safeLocaleString: (value: number | string | undefined | null) => string;
     isAllAttributesSelected: boolean;
-    maxQuantity: number;
-    isSearchingVariant: boolean;
 }
 
 const ProductInfo = ({
@@ -32,8 +37,6 @@ const ProductInfo = ({
     giaKhuyenMai,
     safeLocaleString,
     isAllAttributesSelected,
-    maxQuantity,
-    isSearchingVariant,
 }: ProductInfoProps) => {
     const StarIcon = ({ filled = true, className = "" }) => (
         <svg
@@ -50,7 +53,7 @@ const ProductInfo = ({
             {/* Category & Title */}
             <div>
                 <div className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mb-3">
-                    Áo thể thao
+                    {product.ten_danh_muc || product.danh_muc?.ten || "Danh mục"}
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.ten}</h1>
 

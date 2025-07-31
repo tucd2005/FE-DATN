@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ProductFilterParams } from "../../../services/productservice";
 import { useProductsClient } from "../../../hooks/useProductsClient";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -10,19 +10,34 @@ import Pagination from "./components/Pagination";
 const ProductsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(["Tất cả"]);
   const [priceRange, setPriceRange] = useState([0, 4000000]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // Separate state for input value
+
+  // Debounce search keyword
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchKeyword(searchInput);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // Định nghĩa params cho API, bao gồm các tham số lọc
   const filterParams: ProductFilterParams = {
     page: currentPage,
     per_page: 12,
-    categories: selectedCategories.includes("Tất cả") ? undefined : selectedCategories,
-    brands: selectedBrands.includes("Tất cả") ? undefined : selectedBrands,
-    price_min: priceRange[0],
-    price_max: priceRange[1],
+    keyword: searchKeyword || undefined,
+    danh_muc_id: selectedCategories.includes("Tất cả")
+      ? undefined
+      : selectedCategories.length > 0 && selectedCategories[0] !== "Tất cả"
+        ? parseInt(selectedCategories[0])
+        : undefined,
+    gia_min: priceRange[0],
+    gia_max: priceRange[1],
   };
 
   // Sử dụng TanStack Query
@@ -54,24 +69,27 @@ const ProductsPage = () => {
     setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   };
 
-  const handleBrandChange = (brand: string) => {
-    if (brand === "Tất cả") {
-      setSelectedBrands(["Tất cả"]);
-    } else {
-      const newBrands = selectedBrands.includes("Tất cả")
-        ? [brand]
-        : selectedBrands.includes(brand)
-          ? selectedBrands.filter((b) => b !== brand)
-          : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
-
-      setSelectedBrands(newBrands.length === 0 ? ["Tất cả"] : newBrands);
-    }
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
-  };
-
   const handlePriceRangeChange = (range: [number, number]) => {
     setPriceRange(range);
     setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategories(["Tất cả"]);
+    setPriceRange([0, 4000000]);
+    setSearchKeyword("");
+    setSearchInput("");
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (keyword: string) => {
+    setSearchInput(keyword);
+  };
+
+  const handleSearchSubmit = (keyword: string) => {
+    setSearchKeyword(keyword);
+    setSearchInput(keyword);
+    setCurrentPage(1);
   };
 
   const handleViewModeChange = (viewMode: "grid" | "list") => {
@@ -104,11 +122,10 @@ const ProductsPage = () => {
           {/* Sidebar */}
           <ProductFilters
             selectedCategories={selectedCategories}
-            selectedBrands={selectedBrands}
             priceRange={priceRange as [number, number]}
             onCategoryChange={handleCategoryChange}
-            onBrandChange={handleBrandChange}
             onPriceRangeChange={handlePriceRangeChange}
+            onResetFilters={handleResetFilters}
           />
 
           {/* Main */}
@@ -117,6 +134,11 @@ const ProductsPage = () => {
               totalProducts={meta?.total || products.length}
               viewMode={viewMode}
               onViewModeChange={handleViewModeChange}
+              selectedCategories={selectedCategories}
+              priceRange={priceRange as [number, number]}
+              searchKeyword={searchInput}
+              onSearchChange={handleSearchChange}
+              onSearchSubmit={handleSearchSubmit}
             />
 
             <ProductGrid
