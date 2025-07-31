@@ -6,6 +6,7 @@ export interface CreateOrderPayload {
   dia_chi: string;
   thanh_pho: string;
   huyen: string;
+  ma_giam_gia: string;
   xa: string;
   so_dien_thoai: string;
   email: string;

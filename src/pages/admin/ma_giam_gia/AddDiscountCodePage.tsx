@@ -24,30 +24,31 @@ export default function AddDiscountCodePage() {
   const { data: products = [], isLoading } = useProducts();
 
   const onFinish = (values: any) => {
-    if (apDungCho === "san_pham" && !values.san_pham_id) {
-      message.error("Vui lòng chọn sản phẩm");
-      return;
-    }
+    const payload = {
+      ...values,
+      ngay_bat_dau: dayjs(values.ngay_bat_dau).format("YYYY-MM-DD HH:mm:ss"),
+      ngay_ket_thuc: dayjs(values.ngay_ket_thuc).format("YYYY-MM-DD HH:mm:ss"),
+    };
 
-    mutate(
-      {
-        ...values,
-        san_pham_id: apDungCho === "san_pham" ? values.san_pham_id : null,
-        ngay_bat_dau: dayjs(values.ngay_bat_dau).format("YYYY-MM-DD HH:mm:ss"),
-        ngay_ket_thuc: dayjs(values.ngay_ket_thuc).format("YYYY-MM-DD HH:mm:ss"),
+    console.log("Payload gửi lên:", payload); // kiểm tra lại sau khi convert
+
+    mutate(payload, {
+      onSuccess: () => {
+        message.success("Tạo mã giảm giá thành công");
+        navigate("/admin/ma-giam-gia");
       },
-      {
-        onSuccess: () => {
-          message.success("Tạo mã giảm giá thành công");
-          navigate("/admin/ma-giam-gia");
-        },
-        onError: () => {
+      onError: (error: any) => {
+        if (error.response?.data?.errors) {
+          const errorData = error.response.data.errors;
+          Object.keys(errorData).forEach((key) => {
+            message.error(`${key}: ${errorData[key][0]}`);
+          });
+        } else {
           message.error("Đã có lỗi xảy ra");
-        },
-      }
-    );
+        }
+      },
+    });
   };
-
   return (
     <div
       style={{
@@ -84,6 +85,10 @@ export default function AddDiscountCodePage() {
           rules={[{ required: true, message: "Nhập tên" }]}
         >
           <Input />
+        </Form.Item>
+        
+        <Form.Item label="Mô tả" name="mo_ta">
+          <Input.TextArea rows={3} placeholder="Nhập mô tả mã giảm giá" />
         </Form.Item>
         <Form.Item label="Loại" name="loai" rules={[{ required: true }]}>
           <Select

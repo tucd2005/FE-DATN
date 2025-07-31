@@ -35,7 +35,8 @@ interface DiscountCode {
 }
 
 export default function DiscountCodeList() {
-  const [page] = useState(1);
+const [page, setPage] = useState(1);
+
   const { data, isLoading: isFetching, isError } = useDiscountCodes(page);
   const nav = useNavigate();
 
@@ -65,36 +66,55 @@ export default function DiscountCodeList() {
     setSendModalOpen(true);
   };
 
-  const handleConfirmSend = () => {
-    if (!selectedCode) return;
-  
-    sendCode(
-      {
-        id: selectedCode.id,
-        payload: {
-          kieu: sendType,
-          so_luong: sendType === "ngau_nhien" ? soLuongNgauNhien ?? undefined : undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Gửi mã giảm giá thành công!");
-          setSendModalOpen(false);
-          setSelectedCode(null);
-          setSendType("tat_ca");
-          setSoLuongNgauNhien(null);
-        },
-        onError: () => {
-          toast.error("Gửi mã giảm giá thất bại!");
-        },
-      }
-    );
+const handleSend = () => {
+  if (!selectedCode) return;
+
+  if (sendType === "ngau_nhien" && (!soLuongNgauNhien || soLuongNgauNhien < 1)) {
+    toast.error("Vui lòng nhập số lượng người dùng hợp lệ.");
+    return;
+  }
+
+  const payload: any = {
+    kieu: sendType,
+    ...(sendType === "ngau_nhien" && { so_luong: soLuongNgauNhien }),
   };
+
+  console.log("🎯 Mã được gửi:", selectedCode);
+  console.log("📦 Payload gửi đi:", payload);
+
+  sendCode(
+    {
+      id: selectedCode.id,
+      payload,
+    },
+    {
+      onSuccess: () => {
+        toast.success("Gửi mã giảm giá thành công!");
+        setSendModalOpen(false);
+        setSelectedCode(null);
+        setSendType("tat_ca");
+        setSoLuongNgauNhien(null);
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message || "Gửi mã giảm giá thất bại!";
+        toast.error(msg);
+        console.error("❌ Lỗi khi gửi mã:", err);
+      },
+    }
+  );
+};
+
+  
+
+
+ 
+
 
   const columns: ColumnsType<DiscountCode> = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Mã", dataIndex: "ma", key: "ma" },
     { title: "Tên", dataIndex: "ten", key: "ten" },
+    { title: "Mô tả ", dataIndex: "mo_ta", key: "mo_ta" },
     { title: "Loại", dataIndex: "loai", key: "loai" },
     {
       title: "Giá trị",
@@ -183,13 +203,21 @@ export default function DiscountCodeList() {
         </Space>
       </div>
 
-      <Table
-        loading={isToggling || isDeleting || isFetching}
-        rowKey="id"
-        columns={columns}
-        dataSource={data?.data || []}
-        bordered
-      />
+    <Table
+  loading={isToggling || isDeleting || isFetching}
+  rowKey="id"
+  columns={columns}
+  dataSource={data?.data || []}
+  bordered
+   pagination={{
+    current: data?.meta?.current_page || 1,
+    pageSize: data?.meta?.per_page || 10,
+    total: data?.meta?.total || 0,
+    onChange: (page) => setPage(page),
+    showSizeChanger: false,
+  }}
+/>
+
 
 <Modal
   open={sendModalOpen}
@@ -200,7 +228,7 @@ export default function DiscountCodeList() {
   }
   width={500} // tăng kích thước modal
   onCancel={() => setSendModalOpen(false)}
-  onOk={handleConfirmSend}
+  onOk={handleSend} 
   confirmLoading={isSending}
   okText="Gửi"
   cancelText="Hủy"

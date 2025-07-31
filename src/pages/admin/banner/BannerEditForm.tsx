@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Button, Form, Input, Upload, message, Image } from "antd";
+import { Button, Form, Input, Upload, message, Image, Switch } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBannerDetail, useUpdateBanner } from "../../../hooks/useBanner";
@@ -13,38 +13,50 @@ const BannerEditForm: React.FC = () => {
 
   const banner = data?.data;
 
-  // Load dữ liệu ban đầu vào form
   useEffect(() => {
     if (banner) {
       form.setFieldsValue({
         tieu_de: banner.tieu_de,
-        hinh_anh: [], // Để user chọn ảnh mới, ảnh cũ hiện riêng phía dưới
+        hinh_anh: [],
+        trang_thai: banner.trang_thai === "hien", // boolean cho Switch
       });
     }
   }, [banner, form]);
 
-  const onFinish = (values: any) => {
-    const formData = new FormData();
-    formData.append("tieu_de", values.tieu_de);
+ const onFinish = (values: any) => {
+  const formData = new FormData();
+  formData.append("tieu_de", values.tieu_de);
+  formData.append("trang_thai", values.trang_thai ? "1" : "0");
 
-    const fileObj = values.hinh_anh?.[0]?.originFileObj;
-    if (fileObj) {
-      formData.append("hinh_anh", fileObj);
+  // Nếu có link
+  if (values.link) {
+    formData.append("link", values.link);
+  }
+
+  // Chỉ thêm ảnh nếu có chọn ảnh mới
+  const fileObj = values.hinh_anh?.[0]?.originFileObj;
+  if (fileObj) {
+    formData.append("hinh_anh", fileObj);
+  }
+
+  // ⚠️ Thêm _method để Laravel biết đây là PUT
+  formData.append("_method", "PUT");
+
+  // Gửi đi
+  mutate(
+    { id: Number(id), data: formData },
+    {
+      onSuccess: () => {
+        message.success("Cập nhật banner thành công!");
+        navigate("/admin/banners");
+      },
+      onError: (error: any) => {
+        const errorMsg = error?.response?.data?.message || "Cập nhật banner thất bại!";
+        message.error(errorMsg);
+      },
     }
-
-    mutate(
-      { id: Number(id), data: formData },
-      {
-        onSuccess: () => {
-          message.success("Cập nhật banner thành công!");
-          navigate("/admin/banners");
-        },
-        onError: () => {
-          message.error("Cập nhật banner thất bại!");
-        },
-      }
-    );
-  };
+  );
+};
 
   return (
     <div className="p-4 max-w-lg mx-auto">
@@ -53,7 +65,7 @@ const BannerEditForm: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ tieu_de: "", hinh_anh: [] }}
+        initialValues={{ tieu_de: "", hinh_anh: [], trang_thai: true }}
       >
         <Form.Item
           label="Tiêu đề"
@@ -66,8 +78,8 @@ const BannerEditForm: React.FC = () => {
         {banner?.hinh_anh && (
           <Form.Item label="Hình ảnh hiện tại">
             <Image
-              width={150}
-              src={`${import.meta.env.VITE_API_URL}/storage/${banner.hinh_anh}`}
+              width={200}
+              src={`http://localhost:8000/storage/${banner.hinh_anh}`}
               alt="Banner hiện tại"
               fallback="/no-image.png"
             />
@@ -78,16 +90,24 @@ const BannerEditForm: React.FC = () => {
           label="Cập nhật hình ảnh mới"
           name="hinh_anh"
           valuePropName="fileList"
-          getValueFromEvent={(e: any) => Array.isArray(e) ? e : e?.fileList}
+          getValueFromEvent={(e: any) => (Array.isArray(e) ? e : e?.fileList)}
         >
           <Upload
             listType="picture"
             maxCount={1}
-            beforeUpload={() => false} // Không upload tự động
+            beforeUpload={() => false}
             accept="image/*"
           >
             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
           </Upload>
+        </Form.Item>
+
+        <Form.Item
+          label="Trạng thái hiển thị"
+          name="trang_thai"
+          valuePropName="checked"
+        >
+          <Switch checkedChildren="Hiện" unCheckedChildren="Ẩn" />
         </Form.Item>
 
         <Form.Item>
@@ -95,8 +115,8 @@ const BannerEditForm: React.FC = () => {
             type="primary"
             htmlType="submit"
             loading={isPending}
-            block
             disabled={isLoading}
+            block
           >
             Cập nhật Banner
           </Button>

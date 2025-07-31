@@ -11,12 +11,12 @@ export interface Banner {
 }
 
 export const bannerService = {
-    getAll: () => instanceAxios.get("/admin/banner"),
-    getById: (id: number | string) =>
-      instanceAxios.get(`/admin/banner/${id}`),
-    create: (data: FormData) =>
-      instanceAxios.post("/admin/banner", data),
-    update: (id: number, data: FormData) =>
-      instanceAxios.put(`/admin/banner/${id}`, data),
-    delete: (id: number) => instanceAxios.delete(`/admin/banner/${id}`),
+  getAll: () => instanceAxios.get("/admin/banner"),
+  getById: (id: number | string) =>
+    instanceAxios.get(`/admin/banner/${id}`),
+  create: (data: FormData) =>
+    instanceAxios.post("/admin/banner", data),
+ update: (id: number, data: FormData) =>
+  instanceAxios.post(`/admin/banner/${id}`, data),
+  delete: (id: number) => instanceAxios.delete(`/admin/banner/${id}`),
 };

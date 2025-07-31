@@ -22,6 +22,26 @@ export const productService = {
   },
 };
 
+export const productServiceAdmin = {
+  getAllAdmin: async (): Promise<Product[]> => {
+    const res = await instanceAxios.get("/admin/products");
+    return res.data?.data || [];
+  },
+  getPaginated: async (
+    params: Record<string, any> = {}
+  ): Promise<{
+    data: Product[];
+    meta: {
+      current_page: number;
+      last_page: number;
+      total: number;
+      per_page: number;
+    };
+  }> => {
+    const res = await instanceAxios.get("/products", { params });
+    return res.data;
+  },
+};
 export const productDetailService = {
   getById: async (id: number): Promise<Product> => {
     const res = await instanceAxios.get(`/products/${id}`);
