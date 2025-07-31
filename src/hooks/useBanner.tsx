@@ -32,21 +32,21 @@ export const useCreateBanner = () => {
           enabled: !!id,
         });
       };
-       export const useUpdateBanner = () => {
-        const queryClient = useQueryClient();
-      
-        return useMutation({
-          mutationFn: ({ id, data }: { id: number; data: FormData }) =>
-            bannerService.update(id, data),
-          onSuccess: () => {
-            toast.success("Cập nhật banner thành công!");
-            queryClient.invalidateQueries({ queryKey: ["banners"] });
-          },
-          onError: () => {
-            toast.error("Cập nhật banner thất bại!");
-          },
-        })
-    } 
+  export const useUpdateBanner = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: FormData }) =>
+      bannerService.update(id, data),
+    onSuccess: () => {
+      toast.success("Cập nhật banner thành công!");
+      queryClient.invalidateQueries({ queryKey: ["banners"] });
+    },
+    onError: () => {
+      toast.error("Cập nhật banner thất bại!");
+    },
+  });
+};
     export const useDeleteBanner = () => {
         const queryClient = useQueryClient();
       
