@@ -47,6 +47,8 @@ import PostCreatePage from "../pages/admin/bai_viet/PostCreatePage";
 import PostDetailPage from "../pages/admin/bai_viet/PostDetailPage";
 import PostEditPage from "../pages/admin/bai_viet/PostEditPage";
 import TrangChuAdmin from "../pages/admin/trang_chu_admin/trang_chu_admin";
+import ContactListPage from "../pages/admin/contact/ContactListPage";
+import ContactDetailPage from "../pages/admin/contact/ContactDetailPage";
 
 
 export const adminRouter = {
@@ -131,6 +133,8 @@ export const adminRouter = {
         { path: "bai_viet/add", element: <PostCreatePage /> },
         { path: "bai_viet/chi_tiet/:id", element: <PostDetailPage /> },
         { path: "bai_viet/edit/:id", element: <PostEditPage /> },
+         { path: "lien-he", element: <ContactListPage /> },
+        { path: "lien-he/:id", element: <ContactDetailPage /> },
 
 
         // Bình luận
