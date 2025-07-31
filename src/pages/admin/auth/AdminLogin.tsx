@@ -63,9 +63,7 @@ export default function AdminLogin() {
       } else {
         setError("Đã xảy ra lỗi. Vui lòng thử lại.")
       }
-
-      // 👇 Redirect về trang client sau khi thất bại
-      nav("/")
+      setLoading(false)
     }
   }
 
@@ -130,7 +128,6 @@ export default function AdminLogin() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <UserOutlined className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type="email"
@@ -153,7 +150,6 @@ export default function AdminLogin() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LockOutlined className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type="password"
@@ -170,17 +166,6 @@ export default function AdminLogin() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between mb-6">
-                <Button
-                  type="link"
-                  className="!p-0 !h-auto text-blue-600 hover:text-blue-700 font-medium"
-                  onClick={() =>
-                    alert("Chức năng quên mật khẩu sẽ được triển khai sau")
-                  }
-                >
-                  Quên mật khẩu?
-                </Button>
-              </div>
 
               <Button
                 type="primary"

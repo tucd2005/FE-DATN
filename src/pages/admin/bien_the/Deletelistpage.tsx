@@ -33,15 +33,7 @@ const Deletelistpage = () => {
     }
   };
 
-  const handleForceDelete = async (id: number) => {
-    try {
-      await variantService.forceDelete(id);
-      message.success("Xóa vĩnh viễn thành công!");
-      fetchDeletedVariants();
-    } catch {
-      message.error("Xóa vĩnh viễn thất bại!");
-    }
-  };
+
 
   // Xác định các thuộc tính động (Kích cỡ, Màu sắc, Chất liệu, ...)
   const attributeNames = Array.from(
@@ -111,14 +103,7 @@ const Deletelistpage = () => {
               Khôi phục
             </Button>
           </Popconfirm>
-          <Popconfirm
-            title="Xóa vĩnh viễn biến thể này?"
-            onConfirm={() => handleForceDelete(record.id)}
-            okText="Xóa vĩnh viễn"
-            cancelText="Hủy"
-          >
-            <Button danger size="small">Xóa vĩnh viễn</Button>
-          </Popconfirm>
+         
         </>
       ),
     },

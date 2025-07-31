@@ -1,32 +1,49 @@
-// src/pages/admin/banner/BannerListPage.tsx
-
 import React from "react";
-import { Table, Image, Tag, Spin, Button, Popconfirm } from "antd";
+import {
+  Table,
+  Image,
+  Tag,
+  Spin,
+  Button,
+  Popconfirm,
+  Typography,
+} from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useBannerList, useDeleteBanner } from "../../../hooks/useBanner";
 import { useNavigate } from "react-router-dom";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
+const { Title } = Typography;
+
 const BannerListPage: React.FC = () => {
-  const { data: banners, isLoading } = useBannerList();
   const navigate = useNavigate();
+
+  const { data: banners, isLoading } = useBannerList();
 
   const { mutate: deleteBanner, isLoading: isDeleting } = useDeleteBanner();
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
     deleteBanner(id, {
       onSuccess: () => toast.success("Xoá banner thành công"),
-      onError: () => toast.error("Xoá thất bại"),
+      onError: () => toast.error("Xoá banner thất bại"),
     });
   };
+
   const columns = [
     {
       title: "ID",
       dataIndex: "id",
+      width: 60,
     },
     {
       title: "Tiêu đề",
       dataIndex: "tieu_de",
+      width: 200,
+      ellipsis: true,
     },
     {
       title: "Hình ảnh",
@@ -65,6 +82,7 @@ const BannerListPage: React.FC = () => {
     {
       title: "Hành động",
       key: "action",
+      width: 160,
       render: (_: any, record: any) => (
         <div className="flex gap-2">
           <Button
@@ -74,14 +92,18 @@ const BannerListPage: React.FC = () => {
           >
             Sửa
           </Button>
-    
           <Popconfirm
-            title="Xác nhận xoá?"
+            title="Bạn có chắc chắn muốn xoá banner này?"
             okText="Xoá"
             cancelText="Hủy"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button danger icon={<DeleteOutlined />}>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
               Xoá
             </Button>
           </Popconfirm>
@@ -90,12 +112,18 @@ const BannerListPage: React.FC = () => {
     },
   ];
 
-  if (isLoading) return <Spin size="large" />;
-
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[300px]">
+        <Spin size="large" />
+      </div>
+    );
+  }
+console.log("Banners:", banners);
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Danh sách Banner</h2>
+        <Title level={4}>Danh sách Banner</Title>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -105,12 +133,12 @@ const BannerListPage: React.FC = () => {
         </Button>
       </div>
 
-      <Table
-        rowKey="id"
-        dataSource={banners}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-      />
+ <Table
+  loading={isLoading}
+  columns={columns}
+  dataSource={Array.isArray(banners) ? banners : []}
+  rowKey="id"
+/>
     </div>
   );
 };

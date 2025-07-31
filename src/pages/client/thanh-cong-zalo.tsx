@@ -81,16 +81,26 @@ export default function PaymentResultZaloPage() {
   useEffect(() => {
     if (didFetch.current) return
     didFetch.current = true
+    console.log("Query Params:", location.search)
 
     const fetchData = async () => {
       try {
-        const query = location.search
-        console.log("[Payment] Fetching payment callback:", query)
-        const res = await instanceAxios.get(`/payment/zalopay/callback${query}`)
-        console.log("[Payment] Callback data:", res.data)
+        const params = new URLSearchParams(location.search);
+        const appTransId = params.get("ma_don_hang"); // FE nhận từ redirect là ma_don_hang
+        const status = params.get("status");
+
+        if (!appTransId) {
+          setData({ code: "01", message: "Thiếu mã đơn hàng", order: null })
+          setLoading(false)
+          return
+        }
+
+        // 🔥 FIX: truyền app_trans_id thay vì ma_don_hang
+        const query = `?app_trans_id=${appTransId}${status ? `&status=${status}` : ""}`;
+        const res = await instanceAxios.get(`/payment/zalopay/callback${query}`);
         setData(res.data)
       } catch (error) {
-        console.error("[Payment] Lỗi khi gọi /payment/zalopay/callback:", error)
+        console.error("Lỗi khi gọi API ZaloPay callback:", error);
         setData(null)
       } finally {
         setLoading(false)
@@ -259,7 +269,7 @@ export default function PaymentResultZaloPage() {
               {isCancelled ? "Đơn hàng đã hủy" : "Thanh toán thành công!"}
             </h1>
             <p className="text-white/90 text-lg">
-              {isCancelled ? "Đơn hàng của bạn đã bị hủy." : "Cảm ơn bạn đã sử dụng dịch vụ thanh toán VNPay"}
+              {isCancelled ? "Đơn hàng của bạn đã bị hủy." : "Cảm ơn bạn đã sử dụng dịch vụ thanh toán zalopay của chúng tôi!"}
             </p>
           </div>
 

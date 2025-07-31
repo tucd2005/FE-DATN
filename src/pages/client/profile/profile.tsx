@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { useProfile } from "../../../hooks/useProfile"
 import OrderHistory from "./component/list-don-hang"

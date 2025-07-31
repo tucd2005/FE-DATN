@@ -10,7 +10,13 @@ export interface Product {
   created_at: string
   updated_at: string
   variants: Variant[]
-  
+  danh_muc: {
+    id: number
+    ten: string
+    created_at: string
+    updated_at: string
+  }
+  ten_danh_muc: string
   }
   export interface Variant {
     id: number

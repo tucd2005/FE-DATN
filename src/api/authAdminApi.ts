@@ -5,7 +5,7 @@ interface IAdminLoginPayload {
   password: string;
 }
 export const adminLoginApi = (data: IAdminLoginPayload) => {
-  instanceAxios.post("/admin/login", data);
+  return instanceAxios.post("/admin/login", data);
 };
 
 // {

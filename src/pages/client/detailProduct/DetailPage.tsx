@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
@@ -85,22 +85,21 @@ const ProductDetailclientPage = () => {
     ? Array.from(new Set(product.variants.flatMap((v) => v.thuoc_tinh.map((a) => a.ten))))
     : [];
   //Tự động chọn biến thể đầu tiên nếu chưa chọn gì
-  useEffect(() => {
-    if (
-      product?.variants?.length &&
-      attributeNames.length &&
-      Object.keys(selectedAttributes).length === 0
-    ) {
-      const firstVariant = product.variants[0];
-      const defaultAttributes: { [key: string]: string } = {};
-
-      firstVariant.thuoc_tinh.forEach((attr) => {
-        defaultAttributes[attr.ten] = attr.gia_tri;
-      });
-
-      setSelectedAttributes(defaultAttributes);
-    }
-  }, [product, attributeNames]);
+  // useEffect(() => {
+  //   if (
+  //     product?.variants?.length &&
+  //     attributeNames.length &&
+  //     Object.keys(selectedAttributes).length === 0
+  //   ) {
+  //     // Tìm biến thể còn hàng đầu tiên
+  //     const firstAvailableVariant = product.variants.find(v => v.so_luong > 0) || product.variants[0];
+  //     const defaultAttributes: { [key: string]: string } = {};
+  //     firstAvailableVariant.thuoc_tinh.forEach((attr) => {
+  //       defaultAttributes[attr.ten] = attr.gia_tri;
+  //     });
+  //     setSelectedAttributes(defaultAttributes);
+  //   }
+  // }, [product, attributeNames]);
   const isAllAttributesSelected = attributeNames.every((attr) => !!selectedAttributes[attr]);
 
   // Tìm variant phù hợp
@@ -202,7 +201,7 @@ const ProductDetailclientPage = () => {
         content: "Vui lòng đăng nhập để mua hàng!",
         centered: true,
         okText: "Đăng nhập ngay",
-        onOk: () => navigate("/login"),
+        onOk: () => navigate("/login"), 
       });
       return;
     }
@@ -234,14 +233,14 @@ const ProductDetailclientPage = () => {
 
   const handleSelectVariantImage = (variant: Variant, index: number) => {
     // Tìm màu và size của biến thể
-    const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
-    const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
+    // const color = variant.thuoc_tinh.find(a => a.ten === "Màu sắc")?.gia_tri || "";
+    // const size = variant.thuoc_tinh.find(a => a.ten === "Kích cỡ")?.gia_tri || "";
     // setSelectedColor(color); // Removed
     // setSelectedSize(size); // Removed
     setSelectedImage(index); // Đổi ảnh to sang ảnh biến thể đó
   };
 
-  const getVariantImage = (hinh_anh: string | string[] | undefined) => {
+  const getVariantImage = (hinh_anh: string | string[] | undefined | null) => {
     if (!hinh_anh) return "/placeholder.svg";
     if (Array.isArray(hinh_anh)) return getImageUrl(hinh_anh[0]);
     try {

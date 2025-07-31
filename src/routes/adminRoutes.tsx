@@ -5,7 +5,6 @@ import QuanLyMaGiamGia from "../pages/admin/ma_giam_gia/DiscountCodeList";
 import QuanLySanPham from "../pages/admin/san_pham/QuanLySanPham";
 import ListAccountAdminPage from "../pages/admin/tai_khoan/ListAdminAccount";
 import ListAccountUsePage from "../pages/admin/tai_khoan/ListUserAccountPage";
-import TrangChuAdmin from "../pages/admin/TrangChuAdmin";
 import AdminLogin from "../pages/admin/auth/AdminLogin";
 import ProductDetailPage from "../pages/admin/san_pham/DetailSanPham";
 import AddProduct from "../pages/admin/san_pham/AddSanPham";
@@ -40,6 +39,15 @@ import AddVariant from "../pages/admin/bien_the/AddVariantPage";
 import EditVariantPage from "../pages/admin/bien_the/EditVariantPage";
 import Deletelistpage from "../pages/admin/bien_the/Deletelistpage";
 import WalletListPage from "../pages/admin/vi_tien/WalletListPage";
+
+import ShippingFeeListPage from "../pages/admin/van_chuyen/ShippingFeeListPage";
+
+import PostListPage from "../pages/admin/bai_viet/PostListPage";
+import PostCreatePage from "../pages/admin/bai_viet/PostCreatePage";
+import PostDetailPage from "../pages/admin/bai_viet/PostDetailPage";
+import PostEditPage from "../pages/admin/bai_viet/PostEditPage";
+import TrangChuAdmin from "../pages/admin/trang_chu_admin/trang_chu_admin";
+
 
 export const adminRouter = {
   path: "/admin",
@@ -115,6 +123,15 @@ export const adminRouter = {
 
 
         { path: "vi_tien", element: <WalletListPage /> },
+
+
+        { path: "van_chuyen", element: <ShippingFeeListPage /> },
+
+        { path: "bai_viet", element: <PostListPage /> },
+        { path: "bai_viet/add", element: <PostCreatePage /> },
+        { path: "bai_viet/chi_tiet/:id", element: <PostDetailPage /> },
+        { path: "bai_viet/edit/:id", element: <PostEditPage /> },
+
 
         // Bình luận
         // { path: "binh-luan", element: <CommentList /> },

@@ -1,8 +1,5 @@
-// src/routers/clientRoutes.tsx
-
 import HomeClient from "../pages/client/home/home";
 import ClientLayout from "../layouts/LayoutClient";
-import ChiTietSanPham from "../pages/client/san_pham/chi_tiet_san_pham";
 import CartPage from "../pages/client/Cart/CartPage";
 import CheckoutPage from "../pages/client/checkout/checkout";
 
@@ -18,6 +15,9 @@ import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
 import ForgotPasswordPage from "../pages/client/authModal/ForgotPasswordPage";
 import ContactPage from "../pages/client/contact/ContactPage";
+import SportsNewsPage from "../pages/client/bai_viet/postsClient";
+import ArticleDetailPage from "../pages/client/bai_viet/detailposts";
+import ProductsPage from "../pages/client/san_pham/ProductsPage";
 
 
 
@@ -26,9 +26,8 @@ export const clientRouter = {
   element: <ClientLayout />, // Có thể thay bằng <ClientLayout /> nếu có
   children: [
     { index: true, element: < HomeClient /> },
-    { path: "san-pham", element: <ChiTietSanPham /> },
+    { path: "san-pham", element: <ProductsPage /> },
     { path: "lien-he", element: <ContactPage /> },
-
 
 
     { path: "thong-tin-khach-hang", element: <ProfilePage /> },
@@ -40,17 +39,15 @@ export const clientRouter = {
     { path: "payment/result", element: <PaymentResultPage /> },
     { path: "payment/result/zalo", element: <PaymentResultZaloPage /> },
 
-
     { path: "san-pham/:id", element: <ProductDetailclientPage /> },
+
+    { path: "bai_viet", element: <SportsNewsPage /> },
+    { path: "bai_viet/:id", element: <ArticleDetailPage /> },
+
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
   { path:"/auth/forgot-password" ,element:<ForgotPasswordPage />}
-
-
-
-
-
 
   ],
 };
