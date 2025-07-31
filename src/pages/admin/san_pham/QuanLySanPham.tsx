@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin } from 'antd'
 import { Link } from 'react-router-dom'
-import { useDeleteProduct, useProducts } from '../../../hooks/useProduct'
+import { useDeleteProduct, useProductsAdmin } from '../../../hooks/useProduct'
 import { useListCategory } from '../../../hooks/useCategory'
 import type { Category } from '../../../types/categorys/category'
 
@@ -13,7 +13,7 @@ const formatCurrency = (value?: string | number) => {
 
 const ProductList: React.FC = () => {
   const deleteProduct = useDeleteProduct()
-  const { data: products, isLoading, isFetching } = useProducts()
+  const { data: products, isLoading, isFetching } = useProductsAdmin()
   const { data: categories = [] } = useListCategory()
 
   const getCategoryName = (id: number): string => {

@@ -84,7 +84,7 @@ export default function LayoutAdmin() {
             Banner
           </Menu.Item>
           <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
-            Banner
+            vận chuyển 
           </Menu.Item>
 
           {/* 4. Quản lý đơn hàng & đánh giá */}
