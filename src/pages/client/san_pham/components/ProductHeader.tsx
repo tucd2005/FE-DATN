@@ -1,16 +1,32 @@
-import { Grid3X3, List } from "lucide-react";
+import { Grid3X3, List, Search } from "lucide-react";
 
 interface ProductHeaderProps {
     totalProducts: number;
     viewMode: "grid" | "list";
     onViewModeChange: (viewMode: "grid" | "list") => void;
+    selectedCategories: string[];
+    priceRange: [number, number];
+    searchKeyword?: string;
+    onSearchChange?: (keyword: string) => void;
+    onSearchSubmit?: (keyword: string) => void;
 }
 
 const ProductHeader = ({
     totalProducts,
     viewMode,
     onViewModeChange,
+    selectedCategories,
+    priceRange,
+    searchKeyword,
+    onSearchChange,
+    onSearchSubmit,
 }: ProductHeaderProps) => {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && onSearchSubmit) {
+            onSearchSubmit(searchKeyword || "");
+        }
+    };
+
     return (
         <div className="flex items-center justify-between mb-8">
             <div>
@@ -18,10 +34,37 @@ const ProductHeader = ({
                 <p className="text-gray-600 font-medium">
                     <span className="text-teal-600 font-bold">{totalProducts}</span> sản phẩm được tìm thấy
                 </p>
+                {(selectedCategories.length > 0 && !selectedCategories.includes("Tất cả")) || priceRange[1] < 4000000 ? (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {selectedCategories.length > 0 && !selectedCategories.includes("Tất cả") && (
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                Danh mục: {selectedCategories.length} đã chọn
+                            </span>
+                        )}
+                        {priceRange[1] < 4000000 && (
+                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                                Giá tối đa: {(priceRange[1] / 1000000).toFixed(1)}M
+                            </span>
+                        )}
+                    </div>
+                ) : null}
             </div>
 
             <div className="flex items-center gap-4">
-
+                {/* Search Bar */}
+                {onSearchChange && (
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm sản phẩm..."
+                            value={searchKeyword || ""}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent w-64"
+                        />
+                    </div>
+                )}
 
                 <div className="flex border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
                     <button

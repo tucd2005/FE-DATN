@@ -45,9 +45,9 @@ const ProductImages = ({
                     alt="Product"
                     className="aspect-[4/3] object-cover rounded-lg"
                 />
-                <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                {/* <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                     -25%
-                </div>
+                </div> */}
 
                 {/* Navigation Arrows */}
                 <button

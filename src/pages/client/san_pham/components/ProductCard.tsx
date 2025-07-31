@@ -73,6 +73,13 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
             </div>
 
             <div className="p-6">
+                <div className="flex items-center gap-2 mb-2">
+                    {product.ten_danh_muc && (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                            {product.ten_danh_muc}
+                        </span>
+                    )}
+                </div>
                 <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800">{product.ten}</h3>
 
                 <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product.mo_ta}</p>

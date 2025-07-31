@@ -8,29 +8,11 @@ import type { Variant } from "../../../../types/product.type";
 interface ProductTabsProps {
     productId: number;
     selectedVariant: Variant | null;
-    quantity: number;
-    productImages: string[];
-    selectedImage: number;
-    product: {
-        id: number;
-        ten: string;
-        variants: Variant[];
-    };
-    gia: number | undefined;
-    giaKhuyenMai: number | undefined;
-    selectedAttributes: { [key: string]: string };
 }
 
 const ProductTabs = ({
     productId,
     selectedVariant,
-    quantity,
-    productImages,
-    selectedImage,
-    product,
-    gia,
-    giaKhuyenMai,
-    selectedAttributes,
 }: ProductTabsProps) => {
     const [activeTab, setActiveTab] = useState("description");
     const [showReviewForm, setShowReviewForm] = useState(false);

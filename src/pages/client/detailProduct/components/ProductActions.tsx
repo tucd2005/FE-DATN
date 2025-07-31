@@ -9,8 +9,8 @@ interface ProductActionsProps {
         id: number;
         ten: string;
         so_luong: number;
-        gia: number;
-        gia_khuyen_mai?: number;
+        gia: string;
+        gia_khuyen_mai?: string;
         mo_ta: string;
         variants: Variant[];
     };
@@ -118,12 +118,12 @@ const ProductActions = ({
                     <span className="text-sm">Mua ngay</span>
                 </button>
 
-            {/* Out of Stock Message */}
-            {maxQuantity === 0 && (
-                <div className="mt-3 text-red-600 font-semibold text-base">
-                    Sản phẩm đã hết hàng
-                </div>
-            )}
+                {/* Out of Stock Message */}
+                {maxQuantity === 0 && (
+                    <div className="mt-3 text-red-600 font-semibold text-base">
+                        Sản phẩm đã hết hàng
+                    </div>
+                )}
                 <button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <HeartIcon />
                 </button>

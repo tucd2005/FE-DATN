@@ -4,8 +4,6 @@ import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
 import { message, Modal } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
-import { useProductReviews, useSubmitReview } from '../../../hooks/useReview';
-import { useProfile } from '../../../hooks/useProfile';
 import {
   ProductImages,
   ProductInfo,
@@ -19,55 +17,13 @@ import {
 const ProductDetailclientPage = () => {
   const { id } = useParams<{ id: string }>();
   const productId = Number(id);
-  const { data: reviewData, isLoading: loadingReviews } = useProductReviews(productId);
-  const { data: profile } = useProfile();
-  const submitReview = useSubmitReview();
   const navigate = useNavigate();
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewForm, setReviewForm] = useState({
-    so_sao: 5,
-    noi_dung: '',
-    hinh_anh: null as File | null,
-  });
-
-  // Xử lý submit form đánh giá
-  const handleReviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setReviewForm({ ...reviewForm, [e.target.name]: e.target.value });
-  };
-  const handleReviewFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReviewForm({ ...reviewForm, hinh_anh: e.target.files?.[0] || null });
-  };
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) {
-      navigate('/login');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('san_pham_id', String(productId));
-    formData.append('bien_the_id', selectedVariant?.id ? String(selectedVariant.id) : '');
-    formData.append('so_sao', String(reviewForm.so_sao));
-    formData.append('noi_dung', reviewForm.noi_dung);
-    if (reviewForm.hinh_anh) formData.append('hinh_anh', reviewForm.hinh_anh);
-    submitReview.mutate(formData, {
-      onSuccess: () => {
-        setShowReviewForm(false);
-        setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
-        message.success('Đánh giá thành công!');
-      },
-      onError: (err: unknown) => {
-        const error = err as { response?: { data?: { message?: string } } };
-        message.error(error.response?.data?.message || 'Có lỗi xảy ra');
-      }
-    });
-  };
 
   const { data: product, isLoading } = useProductDetail(Number(id));
   const { addToCart } = useCartStore();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [activeTab, setActiveTab] = useState("description");
   const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
   // Hàm chuẩn hóa đường dẫn ảnh
@@ -268,10 +224,6 @@ const ProductDetailclientPage = () => {
     return <div className="min-h-screen flex items-center justify-center text-red-500">Không tìm thấy sản phẩm.</div>
   }
 
-  const isOutOfStock = product?.variants?.length
-    ? product.variants.every(v => v.so_luong === 0)
-    : (product?.so_luong ?? 0) === 0;
-
   return (
     <div className="min-h-screen bg-white">
       {/* Variant Notification */}
@@ -290,10 +242,10 @@ const ProductDetailclientPage = () => {
             </a>
             <span className="mx-2">/</span>
             <a href="#" className="hover:text-blue-600 transition-colors">
-              Áo thể thao
+              {product.ten_danh_muc || product.danh_muc?.ten || "Danh mục"}
             </a>
             <span className="mx-2">/</span>
-            <span className="text-gray-900">Áo thun thể thao Nike Dri-FIT</span>
+            <span className="text-gray-900">{product.ten}</span>
           </nav>
         </div>
       </div>
@@ -309,7 +261,7 @@ const ProductDetailclientPage = () => {
             setSelectedImage={setSelectedImage}
             handleSelectVariantImage={handleSelectVariantImage}
             getVariantImage={getVariantImage}
-            selectedVariant={selectedVariant}
+            selectedVariant={selectedVariant || null}
           />
 
           {/* Product Info */}
@@ -319,20 +271,18 @@ const ProductDetailclientPage = () => {
               selectedAttributes={selectedAttributes}
               setSelectedAttributes={setSelectedAttributes}
               attributeNames={attributeNames}
-              selectedVariant={selectedVariant}
+              selectedVariant={selectedVariant || null}
               gia={gia}
               giaKhuyenMai={giaKhuyenMai}
               safeLocaleString={safeLocaleString}
               isAllAttributesSelected={isAllAttributesSelected}
-              maxQuantity={maxQuantity}
-              isSearchingVariant={isAutoChange}
             />
 
             <ProductActions
               quantity={quantity}
               setQuantity={setQuantity}
               maxQuantity={maxQuantity}
-              selectedVariant={selectedVariant}
+              selectedVariant={selectedVariant || null}
               product={product}
               safeLocaleString={safeLocaleString}
               handleAddToCart={handleAddToCart}
@@ -346,14 +296,7 @@ const ProductDetailclientPage = () => {
         {/* Product Details Tabs */}
         <ProductTabs
           productId={productId}
-          selectedVariant={selectedVariant}
-          quantity={quantity}
-          productImages={productImages}
-          selectedImage={selectedImage}
-          product={product}
-          gia={gia}
-          giaKhuyenMai={giaKhuyenMai}
-          selectedAttributes={selectedAttributes}
+          selectedVariant={selectedVariant || null}
         />
 
         {/* Related Products */}
