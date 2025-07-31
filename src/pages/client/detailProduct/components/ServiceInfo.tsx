@@ -34,7 +34,7 @@ const ServiceInfo = () => {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t">
-            <div className="flex items-center space-x-3">
+            {/* <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <TruckIcon />
                 </div>
@@ -42,7 +42,7 @@ const ServiceInfo = () => {
                     <p className="font-semibold text-gray-900">Miễn phí vận chuyển</p>
                     <p className="text-sm text-gray-600">Đơn hàng từ 500k</p>
                 </div>
-            </div>
+            </div> */}
             <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                     <ShieldIcon />

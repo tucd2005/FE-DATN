@@ -25,6 +25,7 @@ const ProductDetailclientPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
+  const [isLoadingAddToCart, setIsLoadingAddToCart] = useState(false); // Thêm trạng thái isLoadingAddToCart
 
   // Hàm chuẩn hóa đường dẫn ảnh
   const getImageUrl = (img: string) => {
@@ -122,6 +123,9 @@ const ProductDetailclientPage = () => {
         : "0";
 
   const handleAddToCart = async () => {
+    if (isLoadingAddToCart) return; // Ngăn nhấn khi đang xử lý
+    setIsLoadingAddToCart(true); // Vô hiệu hóa nút
+
     const isLoggedIn = !!localStorage.getItem("accessToken");
 
     if (!isLoggedIn) {
@@ -132,11 +136,13 @@ const ProductDetailclientPage = () => {
         okText: "Đăng nhập ngay",
         onOk: () => navigate("/login"),
       });
+      setIsLoadingAddToCart(false);
       return;
     }
 
     if (!product) {
       Modal.error({ title: "Lỗi", content: "Không tìm thấy sản phẩm.", centered: true });
+      setIsLoadingAddToCart(false);
       return;
     }
 
@@ -146,6 +152,7 @@ const ProductDetailclientPage = () => {
         content: "Vui lòng chọn đầy đủ các thuộc tính!",
         centered: true,
       });
+      setIsLoadingAddToCart(false);
       return;
     }
 
@@ -158,6 +165,8 @@ const ProductDetailclientPage = () => {
       message.success("Đã thêm vào giỏ hàng!");
     } catch {
       message.error("Không thể thêm sản phẩm.");
+    } finally {
+      setIsLoadingAddToCart(false); // Kích hoạt lại nút
     }
   };
 
@@ -287,6 +296,7 @@ const ProductDetailclientPage = () => {
               safeLocaleString={safeLocaleString}
               handleAddToCart={handleAddToCart}
               handleBuyNow={handleBuyNow}
+              isLoadingAddToCart={isLoadingAddToCart} // Truyền isLoadingAddToCart
             />
 
             <ServiceInfo />

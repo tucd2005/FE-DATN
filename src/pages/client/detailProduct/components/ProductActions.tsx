@@ -17,6 +17,7 @@ interface ProductActionsProps {
     safeLocaleString: (value: number | string | undefined | null) => string;
     handleAddToCart: () => void;
     handleBuyNow: () => void;
+    isLoadingAddToCart: boolean; // Thêm prop isLoadingAddToCart
 }
 
 const ProductActions = ({
@@ -28,6 +29,7 @@ const ProductActions = ({
     safeLocaleString,
     handleAddToCart,
     handleBuyNow,
+    isLoadingAddToCart,
 }: ProductActionsProps) => {
     const MinusIcon = () => (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +49,7 @@ const ProductActions = ({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v- 6"
             />
         </svg>
     );
@@ -67,52 +69,52 @@ const ProductActions = ({
         <div className="space-y-6">
             {/* Quantity */}
             <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Số lượng:</h3>
-                <div className="flex items-center space-x-4">
-                    <div className={`flex items-center border rounded-lg ${maxQuantity === 0 ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
-                        <button
-                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            disabled={maxQuantity === 0}
-                            className={`p-2 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
-                        >
-                            <MinusIcon />
-                        </button>
-                        <span className={`px-4 py-2 font-semibold ${maxQuantity === 0 ? 'text-red-600' : ''}`}>{quantity}</span>
-                        <button
-                            onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                            disabled={maxQuantity === 0}
-                            className={`p-2 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
-                        >
-                            <PlusIcon />
-                        </button>
-                    </div>
-                    <span className={`${maxQuantity === 0 ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
-                        {maxQuantity === 0 ? 'Hết hàng' : `Còn lại ${safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm`}
-                    </span>
-                </div>
-            </div>
+  <h3 className="font-semibold text-gray-900 mb-3">Số lượng:</h3>
+  <div className={`flex items-center border rounded-lg ${maxQuantity === 0 ? 'border-red-300 bg-red-50' : 'border-gray-200'} w-24 space-x-1`}>
+    <button
+      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+      disabled={maxQuantity === 0}
+      className={`p-1 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+    >
+      <MinusIcon />
+    </button>
+    <span className={`px-2 py-1 font-semibold ${maxQuantity === 0 ? 'text-red-600' : ''}`}>{quantity}</span>
+    <button
+      onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+      disabled={maxQuantity === 0}
+      className={`p-1 transition-colors ${maxQuantity === 0 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+    >
+      <PlusIcon />
+    </button>
+  </div>
+  <span className={`${maxQuantity === 0 ? 'text-red-600 font-semibold' : 'text-gray-600'} mt-1 block text-sm`}>
+    {maxQuantity === 0 ? 'Hết hàng' : `Còn lại ${safeLocaleString(selectedVariant ? selectedVariant.so_luong : product?.so_luong)} sản phẩm`}
+  </span>
+</div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
                 <button
                     onClick={handleAddToCart}
-                    disabled={maxQuantity === 0}
-                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${maxQuantity === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                        }`}
+                    disabled={maxQuantity === 0 || isLoadingAddToCart} // Vô hiệu hóa khi đang xử lý hoặc hết hàng
+                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${
+                        maxQuantity === 0 || isLoadingAddToCart
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
                 >
                     <ShoppingCartIcon />
-                    <span className="text-sm">Thêm vào giỏ hàng</span>
+                    <span className="text-sm">{isLoadingAddToCart ? 'Đang xử lý...' : 'Thêm vào giỏ hàng'}</span>
                 </button>
 
                 <button
                     onClick={handleBuyNow}
                     disabled={maxQuantity === 0}
-                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${maxQuantity === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'border border-gray-200 bg-white text-gray-800 hover:bg-gray-100'
-                        }`}
+                    className={`w-fit py-2 px-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${
+                        maxQuantity === 0
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'border border-gray-200 bg-white text-gray-800 hover:bg-gray-100'
+                    }`}
                 >
                     <ShoppingCartIcon />
                     <span className="text-sm">Mua ngay</span>
@@ -128,9 +130,8 @@ const ProductActions = ({
                     <HeartIcon />
                 </button>
             </div>
-
         </div>
     );
 };
 
-export default ProductActions; 
+export default ProductActions;
