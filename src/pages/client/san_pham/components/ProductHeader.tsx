@@ -1,19 +1,14 @@
 import { Grid3X3, List } from "lucide-react";
-import SortDropdown from "./SortDropdown";
 
 interface ProductHeaderProps {
     totalProducts: number;
-    sortBy: string;
     viewMode: "grid" | "list";
-    onSortChange: (sortBy: string) => void;
     onViewModeChange: (viewMode: "grid" | "list") => void;
 }
 
 const ProductHeader = ({
     totalProducts,
-    sortBy,
     viewMode,
-    onSortChange,
     onViewModeChange,
 }: ProductHeaderProps) => {
     return (
@@ -26,18 +21,7 @@ const ProductHeader = ({
             </div>
 
             <div className="flex items-center gap-4">
-                <SortDropdown
-                    value={sortBy}
-                    onChange={onSortChange}
-                    options={[
-                        { value: "Phổ biến nhất", label: "Phổ biến nhất", sort_by: "created_at", sort_order: "desc" },
-                        { value: "Giá thấp đến cao", label: "Giá thấp đến cao", sort_by: "variants_min_gia_khuyen_mai", sort_order: "asc" },
-                        { value: "Giá cao đến thấp", label: "Giá cao đến thấp", sort_by: "variants_min_gia_khuyen_mai", sort_order: "desc" },
-                        { value: "Tên A-Z", label: "Tên A-Z", sort_by: "ten", sort_order: "asc" },
-                        { value: "Tên Z-A", label: "Tên Z-A", sort_by: "ten", sort_order: "desc" },
-                        { value: "Mới nhất", label: "Mới nhất", sort_by: "created_at", sort_order: "desc" },
-                    ]}
-                />
+
 
                 <div className="flex border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
                     <button

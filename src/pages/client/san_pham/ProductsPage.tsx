@@ -1,7 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import type { ProductFilterParams } from "../../../services/productservice";
 import { useProductsClient } from "../../../hooks/useProductsClient";
-import { sortProducts } from "../../../utils/sortProducts";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
@@ -10,41 +9,29 @@ import Pagination from "./components/Pagination";
 
 const ProductsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("Phổ biến nhất");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>(["Tất cả"]);
   const [priceRange, setPriceRange] = useState([0, 4000000]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Định nghĩa các tùy chọn sắp xếp
-  const sortOptions = {
-    "Phổ biến nhất": { sort_by: 'created_at' as const, sort_order: 'desc' as const },
-    "Giá thấp đến cao": { sort_by: 'variants_min_gia_khuyen_mai' as const, sort_order: 'asc' as const },
-    "Giá cao đến thấp": { sort_by: 'variants_min_gia_khuyen_mai' as const, sort_order: 'desc' as const },
-    "Tên A-Z": { sort_by: 'ten' as const, sort_order: 'asc' as const },
-    "Tên Z-A": { sort_by: 'ten' as const, sort_order: 'desc' as const },
-    "Mới nhất": { sort_by: 'created_at' as const, sort_order: 'desc' as const },
-  };
-
-  // Tạo params cho API
+  // Định nghĩa params cho API, bao gồm các tham số lọc
   const filterParams: ProductFilterParams = {
     page: currentPage,
     per_page: 12,
-    ...sortOptions[sortBy as keyof typeof sortOptions],
+    categories: selectedCategories.includes("Tất cả") ? undefined : selectedCategories,
+    brands: selectedBrands.includes("Tất cả") ? undefined : selectedBrands,
+    price_min: priceRange[0],
+    price_max: priceRange[1],
   };
 
   // Sử dụng TanStack Query
   const { data, isLoading, error } = useProductsClient(filterParams);
 
-  // Lấy dữ liệu từ response và sort client-side nếu cần
+  // Lấy dữ liệu từ response
   const rawProducts = data?.data || [];
   const meta = data?.meta;
-
-  // Sort client-side để đảm bảo chính xác
-  const products = useMemo(() => {
-    return sortProducts(rawProducts, sortBy);
-  }, [rawProducts, sortBy]);
+  const products = rawProducts;
 
   const toggleFavorite = (productId: number) => {
     setFavorites((prev) =>
@@ -64,6 +51,7 @@ const ProductsPage = () => {
 
       setSelectedCategories(newCategories.length === 0 ? ["Tất cả"] : newCategories);
     }
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   };
 
   const handleBrandChange = (brand: string) => {
@@ -78,14 +66,12 @@ const ProductsPage = () => {
 
       setSelectedBrands(newBrands.length === 0 ? ["Tất cả"] : newBrands);
     }
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   };
 
   const handlePriceRangeChange = (range: [number, number]) => {
     setPriceRange(range);
-  };
-
-  const handleSortChange = (sortBy: string) => {
-    setSortBy(sortBy);
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   };
 
   const handleViewModeChange = (viewMode: "grid" | "list") => {
@@ -129,9 +115,7 @@ const ProductsPage = () => {
           <div className="flex-1">
             <ProductHeader
               totalProducts={meta?.total || products.length}
-              sortBy={sortBy}
               viewMode={viewMode}
-              onSortChange={handleSortChange}
               onViewModeChange={handleViewModeChange}
             />
 
