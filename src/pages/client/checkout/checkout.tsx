@@ -255,6 +255,7 @@ const CheckoutPage = () => {
       email: email,
       phuong_thuc_thanh_toan: selectedPaymentMethod.name,
       phuong_thuc_thanh_toan_id: selectedPaymentMethod.id,
+      ma_giam_gia: discountInfo?.ma || undefined,
       tong_tien: discountInfo ? discountInfo.tong_phai_tra : total,
       items: orderItems.map((item) => ({
         san_pham_id: item.san_pham_id,
