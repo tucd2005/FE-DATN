@@ -8,6 +8,7 @@ import {
   productupdate,
   productlist,
   productServiceAdmin,
+  productServiceclient,
 } from "../services/productservice";
 import type { Product } from "../types/product.type";
 import { toast } from "react-toastify";
@@ -133,5 +134,12 @@ export const useUpdateProduct = () => {
       );
       toast.error("Cập nhật sản phẩm thất bại!");
     },
+  });
+};
+export const useRelatedProducts = (productId: number | undefined) => {
+  return useQuery({
+    queryKey: ["related-products", productId],
+    queryFn: () => productId ? productServiceclient.getRelatedProducts(productId).then(res => res.data.data) : [],
+    enabled: !!productId, // chỉ gọi nếu có productId
   });
 };

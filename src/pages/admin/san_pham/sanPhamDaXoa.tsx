@@ -1,14 +1,12 @@
 import React from 'react'
-import { Table, Button, Tag, Image, Popconfirm } from 'antd'
-import { useTrashedProducts, useRestoreProduct, useForceDeleteProduct } from '../../../hooks/useProduct'
+import { Table, Button, Tag, Image,  } from 'antd'
+import { useTrashedProducts, useRestoreProduct,  } from '../../../hooks/useProduct'
 import { useListCategory as useCategoryList } from '../../../hooks/useCategory'
-import { formatCurrency } from '../../../utils/formatCurrency'
 import type { Category } from '../../../types/categorys/category'
 
 const TrashProductList = () => {
   const { data, isLoading } = useTrashedProducts()
   const products = Array.isArray(data) ? data : [] // ✅ fix lỗi some is not a function
-  const forceDeleteProduct = useForceDeleteProduct()
 
   const { data: categories = [] } = useCategoryList()
   const restoreProduct = useRestoreProduct()
@@ -76,19 +74,7 @@ const TrashProductList = () => {
               </Button>
             ),
           },
-          {
-            title: 'Xoá thật',
-            render: (_: any, record: any) => (
-              <Popconfirm
-                title="Bạn chắc chắn muốn xoá vĩnh viễn sản phẩm này?"
-                okText="Xoá thật"
-                cancelText="Huỷ"
-                onConfirm={() => forceDeleteProduct.mutate(record.id)}
-              >
-                <Button danger>Xoá</Button>
-              </Popconfirm>
-            ),
-          }
+         
 
         ]}
       />
