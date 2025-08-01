@@ -2,13 +2,17 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { MessageCircle, X, Send, Bot, User, Sparkles, Zap } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Sparkles, Zap, FileText, Paperclip, AlertCircle } from "lucide-react"
+import { useClientMessages, useSendClientMessage } from "../../../../hooks/useClientChat"
+import type { ClientMessage } from "../../../../types/clientMessage.type"
 
 interface Message {
   id: string
   text: string
   sender: "user" | "bot"
   timestamp: Date
+  isRealMessage?: boolean
+  attachment?: string
 }
 
 export default function ChatBot() {
@@ -24,7 +28,13 @@ export default function ChatBot() {
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [showSparkles, setShowSparkles] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // API hooks
+  const { data: realMessages, isLoading: isLoadingMessages, error: apiError } = useClientMessages()
+  const { mutate: sendMessage, isPending: isSending } = useSendClientMessage()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -41,8 +51,38 @@ export default function ChatBot() {
     }
   }, [isOpen])
 
+  // Handle API errors
+  useEffect(() => {
+    if (apiError) {
+      setError("Không thể kết nối với máy chủ. Vui lòng thử lại sau.")
+    } else {
+      setError(null)
+    }
+  }, [apiError])
+
+  // Sync real messages from API
+  useEffect(() => {
+    if (realMessages && realMessages.length > 0) {
+      const apiMessages: Message[] = realMessages.map((msg: ClientMessage) => ({
+        id: msg.id.toString(),
+        text: msg.noi_dung,
+        sender: msg.nguoi_gui.name === "Chat Support" ? "bot" : "user",
+        timestamp: new Date(msg.created_at),
+        isRealMessage: true,
+        attachment: msg.tep_dinh_kem,
+      }))
+
+      // Merge with existing messages, avoiding duplicates
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id))
+        const newMessages = apiMessages.filter(msg => !existingIds.has(msg.id))
+        return [...prev, ...newMessages]
+      })
+    }
+  }, [realMessages])
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return
+    if (!inputMessage.trim() && !selectedFile) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -54,49 +94,38 @@ export default function ChatBot() {
     setMessages((prev) => [...prev, userMessage])
     setInputMessage("")
     setIsTyping(true)
+    setError(null)
 
-    // Simulate bot response with longer delay for more realistic feel
-    setTimeout(() => {
-      const botResponse = getBotResponse(inputMessage)
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: botResponse,
-        sender: "bot",
-        timestamp: new Date(),
+    // Send to API
+    const formData = new FormData()
+    if (inputMessage.trim()) formData.append("noi_dung", inputMessage)
+    if (selectedFile) formData.append("tep_dinh_kem", selectedFile)
+
+    sendMessage(formData, {
+      onSuccess: () => {
+        setIsTyping(false)
+        setSelectedFile(null)
+        setTimeout(() => {
+          scrollToBottom()
+        }, 100)
+      },
+      onError: (error) => {
+        setIsTyping(false)
+        setError("Không thể gửi tin nhắn. Vui lòng thử lại.")
+        // Remove the message if sending failed
+        setMessages((prev) => prev.filter(msg => msg.id !== userMessage.id))
+        console.error("Send message error:", error)
       }
-      setMessages((prev) => [...prev, botMessage])
-      setIsTyping(false)
-    }, 1500)
+    })
   }
 
-  const getBotResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase()
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    setSelectedFile(file || null)
+  }
 
-    if (input.includes("giá") || input.includes("bao nhiêu")) {
-      return "💰 Để biết thông tin giá cả chi tiết, bạn có thể xem trực tiếp trên trang sản phẩm hoặc liên hệ hotline: 1900-xxxx để được tư vấn tốt nhất!"
-    }
-
-    if (input.includes("giao hàng") || input.includes("ship")) {
-      return "🚚 Chúng tôi hỗ trợ giao hàng toàn quốc với thời gian từ 1-3 ngày tùy theo khu vực. Miễn phí ship cho đơn hàng từ 500k! ⚡"
-    }
-
-    if (input.includes("bảo hành")) {
-      return "🛡️ Tất cả sản phẩm đều được bảo hành chính hãng. Thời gian bảo hành từ 6 tháng đến 2 năm tùy theo từng sản phẩm. Yên tâm mua sắm nhé!"
-    }
-
-    if (input.includes("thanh toán")) {
-      return "💳 Chúng tôi hỗ trợ đa dạng hình thức thanh toán: COD, chuyển khoản, thẻ tín dụng, ví điện tử (Momo, ZaloPay). Thuận tiện và an toàn!"
-    }
-
-    if (input.includes("hello") || input.includes("xin chào") || input.includes("hi")) {
-      return "👋 Xin chào! Rất vui được hỗ trợ bạn hôm nay. Bạn cần tư vấn về sản phẩm thể thao nào? Tôi sẵn sàng giúp đỡ! 🏃‍♂️"
-    }
-
-    if (input.includes("cảm ơn") || input.includes("thanks")) {
-      return "🙏 Không có gì! Rất vui được hỗ trợ bạn. Nếu có thêm câu hỏi nào khác, đừng ngần ngại nhé! 😊"
-    }
-
-    return "🤖 Cảm ơn bạn đã liên hệ! Để được hỗ trợ tốt nhất, bạn có thể gọi hotline: 1900-xxxx hoặc để lại thông tin, chúng tôi sẽ liên hệ lại sớm nhất. ✨"
+  const isImageFile = (filename: string) => {
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(filename)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -121,9 +150,8 @@ export default function ChatBot() {
 
           <button
             onClick={() => setIsOpen(true)}
-            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110 ${
-              isOpen ? "scale-0 rotate-180" : "scale-100 rotate-0"
-            }`}
+            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110 ${isOpen ? "scale-0 rotate-180" : "scale-100 rotate-0"
+              }`}
           >
             <MessageCircle size={28} className="drop-shadow-lg" />
             {/* Notification dot */}
@@ -182,8 +210,24 @@ export default function ChatBot() {
             </button>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-400 p-3 mx-4 mt-2 rounded">
+              <div className="flex items-center">
+                <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          )}
+
           {/* Messages with Enhanced Styling */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-white">
+            {isLoadingMessages && (
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+              </div>
+            )}
+
             {messages.map((message, index) => (
               <div
                 key={message.id}
@@ -191,11 +235,10 @@ export default function ChatBot() {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div
-                  className={`max-w-[85%] p-4 rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-105 ${
-                    message.sender === "user"
+                  className={`max-w-[85%] p-4 rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-105 ${message.sender === "user"
                       ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-br-md shadow-blue-200"
                       : "bg-white text-gray-800 rounded-bl-md shadow-gray-200 border border-gray-100"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start space-x-3">
                     {message.sender === "bot" && (
@@ -203,7 +246,28 @@ export default function ChatBot() {
                         <Bot size={16} className="text-white" />
                       </div>
                     )}
-                    <p className="text-sm leading-relaxed">{message.text}</p>
+                    <div className="flex-1">
+                      <p className="text-sm leading-relaxed">{message.text}</p>
+                      {message.attachment && (
+                        isImageFile(message.attachment) ? (
+                          <img
+                            src={message.attachment}
+                            alt="Ảnh đính kèm"
+                            className="rounded mt-2 max-w-xs max-h-40 object-cover border"
+                          />
+                        ) : (
+                          <a
+                            href={message.attachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors mt-2"
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span className="text-sm underline">Xem tệp đính kèm</span>
+                          </a>
+                        )
+                      )}
+                    </div>
                     {message.sender === "user" && (
                       <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                         <User size={16} className="text-white" />
@@ -259,14 +323,41 @@ export default function ChatBot() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim()}
-                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl px-4 py-3 transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg"
-              >
-                <Send size={18} />
-              </button>
+              <div className="flex flex-col space-y-2">
+                <label className="relative cursor-pointer">
+                  <input type="file" onChange={handleFileChange} className="hidden" />
+                  <div className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+                    <Paperclip className="w-5 h-5 text-gray-600" />
+                  </div>
+                </label>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isSending || (!inputMessage.trim() && !selectedFile)}
+                  className="w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg"
+                >
+                  {isSending ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Send size={18} />
+                  )}
+                </button>
+              </div>
             </div>
+
+            {/* File preview */}
+            {selectedFile && (
+              <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg mt-3">
+                <FileText className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-blue-800">{selectedFile.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedFile(null)}
+                  className="ml-auto text-blue-600 hover:text-blue-800"
+                >
+                  ×
+                </button>
+              </div>
+            )}
 
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 mt-3">
