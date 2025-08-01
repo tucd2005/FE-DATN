@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useProfile } from "../../../hooks/useProfile"
+import { useWalletBalance } from "../../../hooks/useClientWallet"
 import OrderHistory from "./component/list-don-hang"
 import { useNavigate } from "react-router-dom"
 import ChangePasswordForm from "./component/ChangePasswordForm"
@@ -8,6 +9,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("personal")
   const navigate = useNavigate()
   const { data: profile, isLoading } = useProfile()
+  const { data: walletData, isLoading: walletLoading } = useWalletBalance()
 
   const tabs = [
     {
@@ -20,6 +22,20 @@ export default function ProfilePage() {
             strokeLinejoin="round"
             strokeWidth={2}
             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: "wallet",
+      label: "Ví điện tử",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
           />
         </svg>
       ),
@@ -62,11 +78,19 @@ export default function ProfilePage() {
             strokeLinejoin="round"
             strokeWidth={2}
             d="M12 11c1.1 0 2 .9 2 2v1h-4v-1c0-1.1.9-2 2-2zm6 0V9a6 6 0 10-12 0v2H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-1zM8 9a4 4 0 118 0v2H8V9z"
-            />
+          />
         </svg>
       ),
     },
   ]
+
+  const handlePasswordSuccess = () => {
+    // Xử lý khi đổi mật khẩu thành công
+  }
+
+  const handlePasswordCancel = () => {
+    // Xử lý khi hủy đổi mật khẩu
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50">
@@ -99,11 +123,10 @@ export default function ProfilePage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl font-medium text-sm transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg transform scale-105"
-                      : "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-                  }`}
+                  className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl font-medium text-sm transition-all duration-200 ${activeTab === tab.id
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg transform scale-105"
+                    : "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                    }`}
                 >
                   <span className={activeTab === tab.id ? "text-white" : "text-gray-400"}>{tab.icon}</span>
                   <span>{tab.label}</span>
@@ -180,10 +203,7 @@ export default function ProfilePage() {
                       <div className="text-center lg:text-left mb-6">
                         <h3 className="text-3xl font-bold text-gray-900 mb-2">{profile?.name || "Chưa có tên"}</h3>
                         <p className="text-xl text-gray-600 mb-2">{profile?.email}</p>
-                        <p className="text-sm text-gray-500 flex items-center justify-center lg:justify-start">
-                       
-                        
-                        </p>
+                        <p className="text-sm text-gray-500 flex items-center justify-center lg:justify-start"></p>
                       </div>
 
                       {/* Stats Cards */}
@@ -295,11 +315,7 @@ export default function ProfilePage() {
                             </svg>
                             <label className="text-sm font-semibold text-gray-700">Địa chỉ</label>
                           </div>
-                          <p className="text-gray-900 font-medium">
-                            {profile?.address
-                              ? `${profile.address.chiTiet}, ${profile.address.phuongXa}, ${profile.address.quanHuyen}, ${profile.address.tinhThanh}`
-                              : "Chưa cập nhật"}
-                          </p>
+                          <p className="text-gray-900 font-medium">Chưa cập nhật</p>
                         </div>
 
                         <div className="lg:col-span-2 bg-gradient-to-r from-teal-50 to-emerald-50 p-6 rounded-xl border border-teal-100">
@@ -333,6 +349,154 @@ export default function ProfilePage() {
           </div>
         )}
 
+        {/* Tab ví điện tử */}
+        {activeTab === "wallet" && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-500 to-emerald-500 px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-3 h-3 bg-white/30 rounded-full"></div>
+                  <h2 className="text-2xl font-bold text-white">Ví điện tử</h2>
+                </div>
+                <button
+                  onClick={() => navigate("/vi-dien-tu")}
+                  className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/25 transition-all duration-200 border border-white/20"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                  Quản lý ví
+                </button>
+              </div>
+            </div>
+            <div className="p-8">
+              {walletLoading ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full mb-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                  </div>
+                  <p className="text-gray-500 text-lg">Đang tải thông tin ví...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Số dư ví */}
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-2xl border border-blue-200">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-blue-900">Số dư hiện tại</h3>
+                          <p className="text-sm text-blue-600">Ví điện tử của bạn</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-blue-900 mb-2">
+                        {walletData?.balance
+                          ? new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(walletData.balance)
+                          : "0 ₫"}
+                      </div>
+                      <p className="text-blue-600 text-sm">Có thể sử dụng để thanh toán</p>
+                    </div>
+                  </div>
+
+                  {/* Thống kê ví */}
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-8 rounded-2xl border border-green-200">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-green-900">Thống kê</h3>
+                          <p className="text-sm text-green-600">Hoạt động ví</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700">Tổng nạp tiền:</span>
+                        <span className="font-semibold text-green-900">2,500,000 ₫</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700">Tổng chi tiêu:</span>
+                        <span className="font-semibold text-green-900">1,200,000 ₫</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-700">Số giao dịch:</span>
+                        <span className="font-semibold text-green-900">15</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Các tùy chọn ví */}
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button
+                  onClick={() => navigate("/vi-dien-tu/lich-su")}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-6 rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 transform hover:scale-105"
+                >
+                  <div className="text-center">
+                    <svg className="w-8 h-8 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                    <h3 className="font-semibold mb-2">Lịch sử</h3>
+                    <p className="text-sm opacity-90">Xem giao dịch</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => navigate("/vi-dien-tu/rut-tien")}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105"
+                >
+                  <div className="text-center">
+                    <svg className="w-8 h-8 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                      />
+                    </svg>
+                    <h3 className="font-semibold mb-2">Rút tiền</h3>
+                    <p className="text-sm opacity-90">Chuyển về tài khoản</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab đơn hàng */}
         {activeTab === "security" && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -346,9 +510,11 @@ export default function ProfilePage() {
           </div>
         )}
 
- {activeTab === "password" && <ChangePasswordForm />}
+        {activeTab === "password" && (
+          <ChangePasswordForm onSuccess={handlePasswordSuccess} onCancel={handlePasswordCancel} />
+        )}
+
         {/* Tab thông báo */}
-        
         {activeTab === "notifications" && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-teal-500 to-emerald-500 px-8 py-6">
@@ -373,8 +539,6 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
-
-         
       </main>
     </div>
   )

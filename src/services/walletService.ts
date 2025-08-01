@@ -27,5 +27,5 @@ export const walletService = {
   updateStatus: (
     id: number,
     data: { status: string; rejection_reason?: string }
-  ) => instanceAxios.patch(`/admin/wallet-transactions/${id}`, data), 
+  ) => instanceAxios.patch(`/admin/wallet-transactions/${id}`, data),
 };

@@ -32,6 +32,10 @@ export interface WithdrawRequest {
   acc_name: string;
 }
 
+export interface DepositRequest {
+  amount: number;
+}
+
 export interface TransactionFilters {
   type?: string;
   status?: string;
@@ -42,18 +46,22 @@ export interface TransactionFilters {
 }
 
 export const clientWalletService = {
-  // Lấy số dư ví
-  getBalance: () => instanceAxios.get("/client/wallet/balance"),
+  // Lấy số dư ví - endpoint thực tế: /wallet
+  getBalance: () => instanceAxios.get("/wallet"),
 
-  // Lấy lịch sử giao dịch
-  getTransactions: (params?: TransactionFilters) =>
-    instanceAxios.get("/client/wallet/transactions", { params }),
+  // Lấy lịch sử giao dịch - endpoint này bị comment trong backend
+  // getTransactions: (params?: TransactionFilters) =>
+  //   instanceAxios.get("/wallet/transactions", { params }),
 
-  // Rút tiền từ ví
+  // Nạp tiền vào ví - endpoint thực tế: /wallet/deposit
+  deposit: (data: DepositRequest) =>
+    instanceAxios.post("/wallet/deposit", data),
+
+  // Rút tiền từ ví - endpoint thực tế: /wallet/withdraw
   withdraw: (data: WithdrawRequest) =>
-    instanceAxios.post("/client/wallet/withdraw", data),
+    instanceAxios.post("/wallet/withdraw", data),
 
-  // Hoàn tiền vào ví
-  refund: (data: { order_id: number; amount: number }) =>
-    instanceAxios.post("/client/wallet/refund", data),
+  // Hoàn tiền vào ví - endpoint này bị comment trong backend
+  // refund: (data: { order_id: number; amount: number }) =>
+  //   instanceAxios.post("/wallet/refund", data),
 };
