@@ -1,24 +1,34 @@
+import { useEffect, useState } from "react"
+import instanceAxios from "../../../../utils/axios"
+import { Link } from "react-router-dom"
+
+type TPostClient = {
+  id: number
+  tieu_de: string
+  mo_ta_ngan: string
+  anh_dai_dien: string
+  created_at: string
+}
+
+const BANNER_PREFIX = 'http://127.0.0.1:8000/storage/'
+
+
 export default function XuHuongTheThao() {
-  const trends = [
-    {
-      title: "Running Tech",
-      subtitle: "Công nghệ chạy bộ tiên tiến nhất",
-      growth: "+65%",
-      image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3BvcnR8ZW58MHx8MHx8fDA%3D", 
-    },
-    {
-      title: "Athleisure Style",
-      subtitle: "Phong cách thể thao hàng ngày",
-      growth: "+48%",
-      image: "https://images.unsplash.com/photo-1659081442328-b99758bb2053?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", 
-    },
-    {
-      title: "Sustainable Sports",
-      subtitle: "Thể thao bền vững thân thiện môi trường",
-      growth: "+72%",
-      image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8c3BvcnR8ZW58MHx8MHx8fDA%3D",
-    },
-  ]
+  const [posts, setPosts] = useState<TPostClient[]>([])
+
+  useEffect(() => {
+    const getBlogs = async () => {
+      try {
+
+        const response = await instanceAxios.get("/posts")
+        setPosts(response?.data.data.data)
+      } catch (error) {
+        console.error("Error fetching posts:", error)
+      }
+    }
+    getBlogs()
+  }, []);
+
 
   return (
     <section data-aos="fade-up" className="py-16">
@@ -31,26 +41,27 @@ export default function XuHuongTheThao() {
           <p className="text-gray-600">Cập nhật những xu hướng thể thao mới nhất và được ưa chuộng nhất hiện nay</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {trends.map((trend, index) => (
-            <div
+          {posts?.map((trend, index) => (
+            <Link
+              to={`/bai_viet/${trend.id}`}
               key={index}
               className="relative overflow-hidden rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-shadow"
             >
               <img
                 data-aos="fade-up"
-                src={trend.image}
-                alt={trend.title}
+                src={BANNER_PREFIX + trend.anh_dai_dien}
+                alt={trend.tieu_de}
                 className="w-full h-64 object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-              <span className="absolute top-4 right-4 bg-green-500 text-white px-2 py-1 text-xs font-medium rounded">
+              {/* <span className="absolute top-4 right-4 bg-green-500 text-white px-2 py-1 text-xs font-medium rounded">
                 {trend.growth}
-              </span>
+              </span> */}
               <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-xl font-bold mb-1">{trend.title}</h3>
-                <p className="text-sm opacity-90">{trend.subtitle}</p>
+                <h3 className="text-lg font-bold mb-1 line-clamp-1">{trend.tieu_de}</h3>
+                <p className="text-sm opacity-90 line-clamp-2">{trend.mo_ta_ngan}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         <div className="text-center mt-8">

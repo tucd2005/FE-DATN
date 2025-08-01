@@ -1,6 +1,7 @@
 import { Carousel } from "antd";
 import instanceAxios from "../../../../utils/axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type TCategory = {
   id: number,
@@ -38,10 +39,10 @@ export default function DanhMuc() {
         <Carousel arrows infinite slidesToShow={5} autoplay autoplaySpeed={3000} swipeToSlide={true}>
           {cate?.map((e, index) => (
             <div key={e.ten + index} className="px-3">
-              <div className="flex items-center rounded-[16px] p-2 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
+              <Link to={'/san-pham?danhmuc=' + e.id} className="flex items-center rounded-[16px] p-2 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
                 <img src={e.image} alt={e.ten} className="h-16 aspect-square object-cover rounded-lg" />
                 <span className="font-semibold mx-auto"> {e.ten}</span>
-              </div>
+              </Link>
             </div>
           ))}
         </Carousel>
