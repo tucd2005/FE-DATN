@@ -14,7 +14,8 @@ const ProductTabs = ({
     productId,
     selectedVariant,
 }: ProductTabsProps) => {
-    const [activeTab, setActiveTab] = useState("description");
+  const [activeTab, setActiveTab] = useState("reviews");
+
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewForm, setReviewForm] = useState({
         so_sao: 5,
@@ -84,8 +85,7 @@ const ProductTabs = ({
             <div className="border-b border-gray-200">
                 <nav className="flex space-x-8">
                     {[
-                        { id: "description", label: "Mô tả" },
-                        { id: "specifications", label: "Thông số" },
+                      
                         { id: "reviews", label: "Đánh giá (234)" },
                     ].map((tab) => (
                         <button
