@@ -1,9 +1,27 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Tag, Button, Descriptions, Skeleton, Image, Row, Col, Divider } from "antd";
+import {
+  Card,
+  Tag,
+  Button,
+  Descriptions,
+  Skeleton,
+  Image,
+  Row,
+  Col,
+  Divider,
+} from "antd";
 import dayjs from "dayjs";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useReviewDetail } from "../../../hooks/useReview";
+
+// Hàm xử lý ảnh: nếu là ảnh tương đối thì thêm domain, nếu không có thì dùng placeholder
+const toFullImageUrl = (image?: string) =>
+  image
+    ? image.startsWith("http")
+      ? image
+      : `http://127.0.0.1:8000/storage/${image}`
+    : "https://placehold.co/200x200?text=Image";
 
 const ReviewDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,15 +30,8 @@ const ReviewDetailPage: React.FC = () => {
 
   const review = data?.data;
 
-  // Ảnh sản phẩm
-  const productImageUrl = review?.product?.image?.startsWith("http")
-    ? review.product.image
-    : "https://placehold.co/200x200?text=Product";
-
-  // Ảnh bình luận (nếu có)
-  const reviewImageUrl = review?.image?.startsWith("http")
-    ? review.image
-    : "https://placehold.co/200x200?text=Review";
+  const productImageUrl = toFullImageUrl(review?.product?.image);
+  const reviewImageUrl = toFullImageUrl(review?.image);
 
   return (
     <div style={{ maxWidth: 1300, margin: "0 auto", padding: 24 }}>
@@ -45,7 +56,7 @@ const ReviewDetailPage: React.FC = () => {
           <Skeleton active paragraph={{ rows: 6 }} />
         ) : review ? (
           <>
-            {/* Phần ảnh to phía trên */}
+            {/* Phần ảnh phía trên */}
             <Row gutter={24} style={{ marginBottom: 24 }}>
               <Col xs={24} md={12} style={{ textAlign: "center" }}>
                 <Image
@@ -57,7 +68,9 @@ const ReviewDetailPage: React.FC = () => {
                   preview
                   fallback="https://placehold.co/200x200?text=Product"
                 />
-                <div style={{ marginTop: 8, fontWeight: 600 }}>{review.product?.name || "Sản phẩm"}</div>
+                <div style={{ marginTop: 8, fontWeight: 600 }}>
+                  {review.product?.name || "Sản phẩm"}
+                </div>
               </Col>
               <Col xs={24} md={12} style={{ textAlign: "center" }}>
                 <Image

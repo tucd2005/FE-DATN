@@ -1,14 +1,13 @@
 import React from 'react';
-import { Table, Button, Tag, Image, Popconfirm, Space, Card, Typography } from 'antd';
-import { DeleteOutlined, UndoOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useTrashedCategories, useRestoreCategoryFromTrash, useForceDeleteCategoryFromTrash } from '../../../hooks/useCategory';
+import { Table, Button, Tag, Image , Space, Card, Typography } from 'antd';
+import {  UndoOutlined,  } from '@ant-design/icons';
+import { useTrashedCategories, useRestoreCategoryFromTrash,  } from '../../../hooks/useCategory';
 
 const { Title, Text } = Typography;
 
 const DanhMucDaXoa: React.FC = () => {
     const { data: categories, isLoading } = useTrashedCategories();
     const restoreCategory = useRestoreCategoryFromTrash();
-    const forceDeleteCategory = useForceDeleteCategoryFromTrash();
 
     const columns = [
         {
@@ -103,24 +102,7 @@ const DanhMucDaXoa: React.FC = () => {
                     >
                         Khôi phục
                     </Button>
-                    <Popconfirm
-                        title="Xóa vĩnh viễn"
-                        description="Bạn có chắc chắn muốn xóa vĩnh viễn danh mục này? Hành động này không thể hoàn tác."
-                        icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
-                        onConfirm={() => forceDeleteCategory.mutate(record.id)}
-                        okText="Xóa"
-                        cancelText="Hủy"
-                        okType="danger"
-                    >
-                        <Button
-                            danger
-                            size="small"
-                            icon={<DeleteOutlined />}
-                            loading={forceDeleteCategory.isPending}
-                        >
-                            Xóa vĩnh viễn
-                        </Button>
-                    </Popconfirm>
+                   
                 </Space>
             ),
         },

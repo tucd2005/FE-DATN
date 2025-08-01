@@ -110,3 +110,9 @@ export const productlist = {
     return res.data?.data || [];
   },
 };
+//top 4 
+export const productServiceclient = {
+  getRelatedProducts: (productId: number) => {
+    return instanceAxios.get(`/products/${productId}/related`);
+  },
+};

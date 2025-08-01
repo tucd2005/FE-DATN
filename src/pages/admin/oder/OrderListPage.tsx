@@ -207,24 +207,33 @@ const OrderListPage: React.FC = () => {
         const allowedNextStatuses = ORDER_STATUS_FLOW[currentStatus] || [];
 
         return (
-          <Select
-            size="small"
-            value={currentStatus}
-            loading={pendingId === record.id}
-            style={{ width: 180 }}
-            onChange={(value) => handleChangeStatus(record.id, value)}
-            disabled={pendingId !== null}
-          >
-            {ORDER_STATUS_OPTIONS.map((opt) => (
-              <Option
-                key={opt.value}
-                value={opt.value}
-                disabled={!allowedNextStatuses.includes(opt.value) && opt.value !== currentStatus}
-              >
-                {opt.label}
-              </Option>
-            ))}
-          </Select>
+        <Select
+  size="small"
+  value={currentStatus}
+  loading={pendingId === record.id}
+  style={{ width: 180 }}
+  onChange={(value) => handleChangeStatus(record.id, value)}
+  disabled={pendingId !== null}
+>
+  {ORDER_STATUS_OPTIONS
+    .filter(
+      (opt) =>
+        !(
+          (currentStatus === "cho_xac_nhan" || currentStatus === "dang_chuan_bi") &&
+          opt.value === "da_huy"
+        )
+    )
+    .map((opt) => (
+      <Option
+        key={opt.value}
+        value={opt.value}
+        disabled={!allowedNextStatuses.includes(opt.value) && opt.value !== currentStatus}
+      >
+        {opt.label}
+      </Option>
+    ))}
+</Select>
+
         );
       },
     },

@@ -46,32 +46,12 @@ const ReviewListPage: React.FC = () => {
       dataIndex: "user",
       render: (user: User) => user?.name || "-",
     },
-    {
-      title: "Sản phẩm",
-      dataIndex: "product",
-      render: (product: Product) => {
-        // Tự động bỏ qua URL giả
-        const imageUrl =
-          product?.image && product.image.startsWith("http") && !product.image.includes("via.placeholder.com")
-            ? product.image
-            : "https://placehold.co/40x40";
-
-        return (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Image
-              src={imageUrl}
-              alt={product?.name || "-"}
-              width={40}
-              height={40}
-              style={{ objectFit: "cover", marginRight: 8, borderRadius: 4 }}
-              preview={false}
-              fallback="https://placehold.co/40x40"
-            />
-            <span>{product?.name || "-"}</span>
-          </div>
-        );
-      },
-    },
+{
+  title: "Sản phẩm",
+  dataIndex: "product",
+  render: (product: Product) => product?.name || "-",
+}
+,
     {
       title: "Nội dung",
       dataIndex: "content",

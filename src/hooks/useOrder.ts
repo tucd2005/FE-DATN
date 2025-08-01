@@ -2,12 +2,24 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cancelOrder, getOrderDetail, getOrders, orderService } from "../services/orderService";
 import { toast } from "react-toastify";
 
+// Interface cho tham số lọc
+interface OrderListParams {
+  page?: number;
+  search?: string;
+  status?: string;
+  paymentStatus?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 // Lấy danh sách đơn hàng
-export const useOrderList = (page: number = 1) => {
+export const useOrderList = (params: OrderListParams = {}) => {
+  const { page = 1, search, status, paymentStatus, dateFrom, dateTo } = params;
+  
   return useQuery({
-    queryKey: ["orders", page],
+    queryKey: ["orders", page, search, status, paymentStatus, dateFrom, dateTo],
     queryFn: () =>
-      orderService.getAllOrders(page).then((res) => res.data), 
+      orderService.getAllOrders(page, { search, status, paymentStatus, dateFrom, dateTo }).then((res) => res.data), 
   });
 };
 
@@ -38,7 +50,7 @@ export const useUpdateOrderStatus = () => {
   // Hook lấy danh sách đơn hàng client
 export const useOrders = (page = 1) => {
   return useQuery({
-    queryKey: ["orders", page],
+    queryKey: ["client-orders", page],
     queryFn: () => getOrders(page),
   });
 };
