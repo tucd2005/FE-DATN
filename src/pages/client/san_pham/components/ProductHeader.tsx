@@ -34,20 +34,7 @@ const ProductHeader = ({
                 <p className="text-gray-600 font-medium">
                     <span className="text-teal-600 font-bold">{totalProducts}</span> sản phẩm được tìm thấy
                 </p>
-                {(selectedCategories.length > 0 && !selectedCategories.includes("Tất cả")) || priceRange[1] < 4000000 ? (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {selectedCategories.length > 0 && !selectedCategories.includes("Tất cả") && (
-                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                                Danh mục: {selectedCategories.length} đã chọn
-                            </span>
-                        )}
-                        {priceRange[1] < 4000000 && (
-                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                Giá tối đa: {(priceRange[1] / 1000000).toFixed(1)}M
-                            </span>
-                        )}
-                    </div>
-                ) : null}
+
             </div>
 
             <div className="flex items-center gap-4">

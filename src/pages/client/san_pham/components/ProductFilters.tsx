@@ -1,5 +1,6 @@
 import { Filter, Tag, Zap } from "lucide-react";
 import { useCategoriesClient } from "../../../../hooks/useCategoryClient";
+import { useState, useEffect } from "react";
 
 interface ProductFiltersProps {
     selectedCategories: string[];
@@ -20,12 +21,42 @@ const ProductFilters = ({
         data: categories = [], 
         isLoading: categoriesLoading 
     } = useCategoriesClient();
+    
+    // Local state for price range input
+    const [localPriceRange, setLocalPriceRange] = useState(priceRange);
+
+    // Debounce price range changes
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onPriceRangeChange(localPriceRange);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [localPriceRange, onPriceRangeChange]);
 
     const formatPrice = (price?: string | number) => {
         const num = Number(price);
         if (!isNaN(num)) return num.toLocaleString("vi-VN") + "đ";
         return "0đ";
     };
+
+    // Handle category change with controlled logic
+    const handleCategoryChange = (category: string) => {
+        if (category === "Tất cả") {
+            if (!selectedCategories.includes("Tất cả")) {
+                onCategoryChange("Tất cả");
+            }
+        } else {
+            if (selectedCategories.includes("Tất cả")) {
+                onCategoryChange(category);
+            } else if (selectedCategories.includes(category)) {
+                onCategoryChange(category); // Remove category
+            } else {
+                onCategoryChange(category); // Add category
+            }
+        }
+    };
+
     return (
         <div className="w-80 flex-shrink-0">
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm sticky top-24">
@@ -53,7 +84,7 @@ const ProductFilters = ({
                                     <input
                                         type="checkbox"
                                         checked={selectedCategories.includes("Tất cả")}
-                                        onChange={() => onCategoryChange("Tất cả")}
+                                        onChange={() => handleCategoryChange("Tất cả")}
                                         className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
                                     />
                                     <span className="ml-3 text-gray-700 group-hover:text-teal-600 transition-colors font-medium">
@@ -65,7 +96,7 @@ const ProductFilters = ({
                                         <input
                                             type="checkbox"
                                             checked={selectedCategories.includes(category.id.toString())}
-                                            onChange={() => onCategoryChange(category.id.toString())}
+                                            onChange={() => handleCategoryChange(category.id.toString())}
                                             className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
                                         />
                                         <span className="ml-3 text-gray-700 group-hover:text-teal-600 transition-colors font-medium">
@@ -77,8 +108,6 @@ const ProductFilters = ({
                         )}
                     </div>
                 </div>
-
-
 
                 {/* Price */}
                 <div className="mb-8">
@@ -93,17 +122,17 @@ const ProductFilters = ({
                                 min="0"
                                 max="4000000"
                                 step="100000"
-                                value={priceRange[1]}
-                                onChange={(e) => onPriceRangeChange([priceRange[0], Number.parseInt(e.target.value)])}
+                                value={localPriceRange[1]}
+                                onChange={(e) => setLocalPriceRange([localPriceRange[0], Number.parseInt(e.target.value)])}
                                 className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer appearance-none"
                                 style={{
-                                    background: `linear-gradient(to right, #e5e7eb 0%, #e5e7eb ${(priceRange[1] / 4000000) * 100}%, #d1d5db ${(priceRange[1] / 4000000) * 100}%, #d1d5db 100%)`
+                                    background: `linear-gradient(to right, #e5e7eb 0%, #e5e7eb ${(localPriceRange[1] / 4000000) * 100}%, #d1d5db ${(localPriceRange[1] / 4000000) * 100}%, #d1d5db 100%)`
                                 }}
                             />
                             <div className="flex justify-between text-sm font-medium text-gray-600 mt-3">
                                 <span className="bg-gray-100 px-2 py-1 rounded-md">0đ</span>
                                 <span className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-2 py-1 rounded-md">
-                                    {formatPrice(priceRange[1])}
+                                    {formatPrice(localPriceRange[1])}
                                 </span>
                             </div>
                         </div>
@@ -122,4 +151,4 @@ const ProductFilters = ({
     );
 };
 
-export default ProductFilters; 
+export default ProductFilters;

@@ -80,7 +80,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
                         </span>
                     )}
                 </div>
-                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800">{product.ten}</h3>
+                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800 capitalize">{product.ten}</h3>
 
                 <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product.mo_ta}</p>
 
