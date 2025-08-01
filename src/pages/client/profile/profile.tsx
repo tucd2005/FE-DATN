@@ -1,13 +1,39 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useProfile } from "../../../hooks/useProfile"
 import OrderHistory from "./component/list-don-hang"
 import { useNavigate } from "react-router-dom"
 import ChangePasswordForm from "./component/ChangePasswordForm"
+import instanceAxios from "../../../utils/axios"
+
+type TUserProfile = {
+  orders: number
+  reviews: number
+  Wishlist: number
+  rank: string
+}
 
 export default function ProfilePage() {
+  const [dataProfile, setDataProfile] = useState<TUserProfile>({
+    orders: 0,
+    reviews: 0,
+    Wishlist: 0,
+    rank: "Chưa có hạng",
+  })
   const [activeTab, setActiveTab] = useState("personal")
   const navigate = useNavigate()
   const { data: profile, isLoading } = useProfile()
+
+  useEffect(() => {
+    const getProfileData = async () => {
+      try {
+        const response = await instanceAxios.get("/client/overview")
+        setDataProfile(response.data)
+      } catch (error) {
+        console.error("Error fetching profile data:", error)
+      }
+    }
+    getProfileData();
+  }, [])
 
   const tabs = [
     {
@@ -62,7 +88,7 @@ export default function ProfilePage() {
             strokeLinejoin="round"
             strokeWidth={2}
             d="M12 11c1.1 0 2 .9 2 2v1h-4v-1c0-1.1.9-2 2-2zm6 0V9a6 6 0 10-12 0v2H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2h-1zM8 9a4 4 0 118 0v2H8V9z"
-            />
+          />
         </svg>
       ),
     },
@@ -99,11 +125,10 @@ export default function ProfilePage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl font-medium text-sm transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg transform scale-105"
-                      : "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-                  }`}
+                  className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl font-medium text-sm transition-all duration-200 ${activeTab === tab.id
+                    ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg transform scale-105"
+                    : "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                    }`}
                 >
                   <span className={activeTab === tab.id ? "text-white" : "text-gray-400"}>{tab.icon}</span>
                   <span>{tab.label}</span>
@@ -181,28 +206,28 @@ export default function ProfilePage() {
                         <h3 className="text-3xl font-bold text-gray-900 mb-2">{profile?.name || "Chưa có tên"}</h3>
                         <p className="text-xl text-gray-600 mb-2">{profile?.email}</p>
                         <p className="text-sm text-gray-500 flex items-center justify-center lg:justify-start">
-                       
-                        
+
+
                         </p>
                       </div>
 
                       {/* Stats Cards */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl text-center">
-                          <div className="text-2xl font-bold text-blue-600">12</div>
+                          <div className="text-2xl font-bold text-blue-600">{dataProfile.orders}</div>
                           <div className="text-sm text-blue-500">Đơn hàng</div>
                         </div>
                         <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl text-center">
-                          <div className="text-2xl font-bold text-green-600">5</div>
+                          <div className="text-2xl font-bold text-green-600">{dataProfile.reviews}</div>
                           <div className="text-sm text-green-500">Đánh giá</div>
                         </div>
                         <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl text-center">
-                          <div className="text-2xl font-bold text-purple-600">3</div>
+                          <div className="text-2xl font-bold text-purple-600">{dataProfile.Wishlist}</div>
                           <div className="text-sm text-purple-500">Yêu thích</div>
                         </div>
                         <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl text-center">
-                          <div className="text-2xl font-bold text-orange-600">VIP</div>
                           <div className="text-sm text-orange-500">Hạng</div>
+                          <div className="text-2xl font-bold text-orange-600">{dataProfile.rank}</div>
                         </div>
                       </div>
 
@@ -346,9 +371,9 @@ export default function ProfilePage() {
           </div>
         )}
 
- {activeTab === "password" && <ChangePasswordForm />}
+        {activeTab === "password" && <ChangePasswordForm />}
         {/* Tab thông báo */}
-        
+
         {activeTab === "notifications" && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-teal-500 to-emerald-500 px-8 py-6">
@@ -374,7 +399,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-         
+
       </main>
     </div>
   )
