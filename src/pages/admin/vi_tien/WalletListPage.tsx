@@ -16,7 +16,7 @@ import {
 } from "../../../hooks/useWallet";
 
 const { Option } = Select;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const WalletListPage: React.FC = () => {
   const [filters, setFilters] = useState({ keyword: "", type: "", status: "" });
@@ -62,7 +62,26 @@ const WalletListPage: React.FC = () => {
    
       { title: "ID", dataIndex: "id" },
   
-      { title: "Wallet ID", dataIndex: "wallet_id" },
+{
+  title: "Wallet ID",
+  dataIndex: "wallet_id",
+  render: (_: any, record: any) => {
+    const id = record?.id;
+    const name = record?.acc_name ?? "Không rõ";
+    return `${name} (ID ví: ${id})`;
+  },
+},
+{
+  title: "Email",
+  dataIndex: ["user", "email"],
+  render: (val) => val ?? "Chưa có",
+},
+{
+  title: "Số điện thoại",
+  dataIndex: ["user", "so_dien_thoai"],
+  render: (val) => val ?? "Chưa có",
+},
+
       {
         title: "Loại",
         dataIndex: "type",
@@ -101,7 +120,7 @@ const WalletListPage: React.FC = () => {
       { title: "Số TK", dataIndex: "bank_account" },
       { title: "Chủ tài khoản", dataIndex: "acc_name" },
       { title: "Mô tả", dataIndex: "description" },
-      { title: "Mã đơn hàng liên quan", dataIndex: "related_order_id" },
+      
       {
         title: "Thời gian tạo",
         dataIndex: "created_at",
@@ -144,73 +163,79 @@ const WalletListPage: React.FC = () => {
       }
       ,
     ];
-    
+  
 
-  return (
-    <div>
-      <Title level={4} className="mb-4">Quản lý giao dịch ví</Title>
+ return (
+  <div style={{ padding: 24 }}>
+    <Title level={4} className="mb-4">Quản lý giao dịch ví</Title>
 
-      {/* Bộ lọc */}
-      <Space style={{ marginBottom: 16 }} wrap>
-        <Input
-          placeholder="Tìm kiếm theo tên, email, sđt"
-          allowClear
-          onChange={(e) => setFilters((f) => ({ ...f, keyword: e.target.value }))}
-        />
-        <Select
-          allowClear
-          placeholder="Loại"
-          style={{ width: 120 }}
-          onChange={(val) => setFilters((f) => ({ ...f, type: val }))}
-        >
-          <Option value="deposit">Nạp</Option>
-          <Option value="withdrawal">Rút</Option>
-        </Select>
-        <Select
-          allowClear
-          placeholder="Trạng thái"
-          style={{ width: 140 }}
-          onChange={(val) => setFilters((f) => ({ ...f, status: val }))}
-        >
-          <Option value="pending">Chờ xử lý</Option>
-          <Option value="success">Thành công</Option>
-          <Option value="rejected">Từ chối</Option>
-        </Select>
-      </Space>
+    {/* Bộ lọc */}
+    <Space style={{ marginBottom: 16 }} wrap>
+      <Input
+        placeholder="Tìm kiếm theo tên, email, sđt"
+        allowClear
+        onChange={(e) => setFilters((f) => ({ ...f, keyword: e.target.value }))}
+      />
+ <Select
+  allowClear
+  placeholder="Loại"
+  style={{ width: 120 }}
+  onChange={(val) => setFilters((f) => ({ ...f, type: val }))}
+>
+  <Option value="deposit">Nạp</Option>
+  <Option value="withdraw">Rút</Option> 
+</Select>
 
-      {/* Bảng danh sách */}
+      <Select
+        allowClear
+        placeholder="Trạng thái"
+        style={{ width: 140 }}
+        onChange={(val) => setFilters((f) => ({ ...f, status: val }))}
+      >
+        <Option value="pending">Chờ xử lý</Option>
+        <Option value="success">Thành công</Option>
+        <Option value="rejected">Từ chối</Option>
+      </Select>
+    </Space>
+
+    {/* Bảng danh sách */}
+    <div style={{ overflowX: "auto" }}>
       <Table
         rowKey="id"
         loading={isLoading}
         dataSource={data?.data || []}
         pagination={{ total: data?.total }}
         columns={columns}
+        scroll={{ x: "max-content" }}
+        bordered
       />
-
-      {/* Modal nhập lý do từ chối */}
-      <Modal
-        title="Nhập lý do từ chối"
-        open={isModalOpen}
-        onOk={handleRejectSubmit}
-        onCancel={() => {
-          setIsModalOpen(false);
-          form.resetFields();
-        }}
-        okText="Xác nhận"
-        cancelText="Hủy"
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Lý do từ chối"
-            name="rejection_reason"
-            rules={[{ required: true, message: "Vui lòng nhập lý do" }]}
-          >
-            <Input.TextArea rows={4} placeholder="Nhập lý do từ chối giao dịch" />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
-  );
+
+    {/* Modal nhập lý do từ chối */}
+    <Modal
+      title="Nhập lý do từ chối"
+      open={isModalOpen}
+      onOk={handleRejectSubmit}
+      onCancel={() => {
+        setIsModalOpen(false);
+        form.resetFields();
+      }}
+      okText="Xác nhận"
+      cancelText="Hủy"
+    >
+      <Form form={form} layout="vertical">
+        <Form.Item
+          label="Lý do từ chối"
+          name="rejection_reason"
+          rules={[{ required: true, message: "Vui lòng nhập lý do" }]}
+        >
+          <Input.TextArea rows={4} placeholder="Nhập lý do từ chối giao dịch" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  </div>
+);
+
 };
 
 export default WalletListPage;
