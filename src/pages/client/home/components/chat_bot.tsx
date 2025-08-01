@@ -236,8 +236,8 @@ export default function ChatBot() {
               >
                 <div
                   className={`max-w-[85%] p-4 rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-105 ${message.sender === "user"
-                      ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-br-md shadow-blue-200"
-                      : "bg-white text-gray-800 rounded-bl-md shadow-gray-200 border border-gray-100"
+                    ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-br-md shadow-blue-200"
+                    : "bg-white text-gray-800 rounded-bl-md shadow-gray-200 border border-gray-100"
                     }`}
                 >
                   <div className="flex items-start space-x-3">
