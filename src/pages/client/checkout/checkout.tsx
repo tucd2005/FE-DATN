@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { CreditCard, Banknote } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCheckout, useVnpayPayment } from "../../../hooks/useCheckout";
-import axios from "axios";
 
 import type { CreateOrderPayload } from "../../../services/checkoutService";
 import { useCartStore } from "../../../stores";
@@ -31,6 +30,7 @@ interface CartItem {
   hinh_anh: string;
   attributes?: { ten: string; gia_tri: string }[];
 }
+
 interface ProductOrder {
   productId: number;
   variantId: number;
@@ -45,11 +45,36 @@ interface ProductOrder {
   attributes?: { ten: string; gia_tri: string }[];
 }
 
+// Định nghĩa kiểu cho API tỉnh thành
+interface Province {
+  code: string;
+  name: string;
+  wards?: Ward[];
+}
+
+interface Ward {
+  code: string;
+  name: string;
+}
+
+// Định nghĩa kiểu cho API response thực tế
+interface VietnamProvinceResponse {
+  success: boolean;
+  data: Array<{
+    province: string;
+    id: string;
+    wards: Array<{
+      name: string;
+      mergedFrom: string[];
+    }>;
+  }>;
+}
 
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const clearCart = useCartStore((state) => state.clearCart);
+  
   // Hooks must be called at the top level
   const checkoutMutation = useCheckout();
   const vnpayMutation = useVnpayPayment();
@@ -62,13 +87,10 @@ const CheckoutPage = () => {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
-  const [provinces, setProvinces] = useState<Array<{ code: string; name: string; districts?: Array<{ code: string; name: string; wards?: Array<{ code: string; name: string }> }> }>>([]);
-  const [districts, setDistricts] = useState<Array<{ code: string; name: string; wards?: Array<{ code: string; name: string }> }>>([]);
-  const [wards, setWards] = useState<Array<{ code: string; name: string }>>([]);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
-  // Đã dùng toast từ react-toastify, không cần state showToast/toastMessage nữa
   const [isLoading, setIsLoading] = useState(false);
   const [formError] = useState<string | null>(null);
 
@@ -87,7 +109,14 @@ const CheckoutPage = () => {
   const productOrder: ProductOrder | undefined = state.productOrder;
   const cartItems: CartItem[] | undefined = state.cartItems;
 
-  // Thay thế showToastMessage bằng toast
+  // Move useShippingFee hook to top level to avoid conditional calling
+  const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
+  const provinceNameForApi = selectedProvinceObj?.name || "";
+  const { shippingFee = 0 } = useShippingFee(provinceNameForApi);
+
+  console.log("Selected province code:", selectedProvince);
+  console.log("Selected province object:", selectedProvinceObj);
+  console.log("Province name for API:", provinceNameForApi);
 
   const validateForm = () => {
     if (!tenNguoiDat || tenNguoiDat.trim().length < 2) {
@@ -104,9 +133,6 @@ const CheckoutPage = () => {
     }
     if (!selectedProvince) {
       return "Vui lòng chọn tỉnh/thành phố!";
-    }
-    if (!selectedDistrict) {
-      return "Vui lòng chọn quận/huyện!";
     }
     if (!selectedWard) {
       return "Vui lòng chọn phường/xã!";
@@ -125,11 +151,13 @@ const CheckoutPage = () => {
     price: number;
     discountPrice: number | null;
     image: string;
-
-    
     description: string;
     attributes?: Array<{ ten: string; gia_tri: string }>;
-    bien_the?: any;
+    bien_the?: {
+      id: number;
+      thuoc_tinh?: { ten_thuoc_tinh: string; gia_tri: string }[];
+      hinh_anh?: string;
+    };
   }> = [];
 
   if (productOrder) {
@@ -142,7 +170,7 @@ const CheckoutPage = () => {
         color: productOrder.color,
         quantity: productOrder.quantity,
         price: productOrder.discountPrice || productOrder.price,
-        discountPrice: productOrder.discountPrice,
+        discountPrice: productOrder.discountPrice || null,
         image: productOrder.image,
         description: productOrder.description,
         attributes: productOrder.attributes,
@@ -226,10 +254,9 @@ const CheckoutPage = () => {
     }
   
     const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
-    const selectedDistrictObj = districts.find((d) => String(d.code) === String(selectedDistrict));
     const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
   
-    if (!selectedProvinceObj || !selectedDistrictObj || !selectedWardObj) {
+    if (!selectedProvinceObj || !selectedWardObj) {
       toast.error("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
       return;
     }
@@ -249,13 +276,13 @@ const CheckoutPage = () => {
       ten_nguoi_dat: tenNguoiDat,
       dia_chi: address,
       thanh_pho: selectedProvinceObj.name,
-      huyen: selectedDistrictObj.name,
+      huyen: "", // Bỏ huyện
       xa: selectedWardObj.name,
       so_dien_thoai: phone,
       email: email,
       phuong_thuc_thanh_toan: selectedPaymentMethod.name,
       phuong_thuc_thanh_toan_id: selectedPaymentMethod.id,
-      ma_giam_gia: discountInfo?.ma || undefined,
+      ma_giam_gia: discountInfo?.ma || "",
       tong_tien: discountInfo ? discountInfo.tong_phai_tra : total,
       items: orderItems.map((item) => ({
         san_pham_id: item.san_pham_id,
@@ -270,16 +297,12 @@ const CheckoutPage = () => {
           { gia_tri: item.color, thuoc_tinh: "Màu sắc" },
         ].filter(attr => attr.gia_tri !== ""),
       })),
-      // Nếu backend hỗ trợ mã giảm giá, hãy thêm vào interface CreateOrderPayload và truyền ở đây
-      // ma_giam_gia: discountInfo?.ma || undefined,
     };
   
-   
     setIsLoading(true);
   
     checkoutMutation.mutate(payload, {
       onSuccess: async (data) => {
-  
         await clearCart(); 
         console.log("selectedPayment:", selectedPayment, data);
         if (selectedPayment === "zalopay") {
@@ -299,7 +322,8 @@ const CheckoutPage = () => {
             } else {
               toast.error("Không nhận được link thanh toán ZaloPay!");
             }
-          } catch (error) {
+          } catch (zaloPayError) {
+            console.error("ZaloPay error:", zaloPayError);
             toast.error("Thanh toán ZaloPay thất bại!");
           }
           return;
@@ -312,7 +336,7 @@ const CheckoutPage = () => {
             }
       
             const vnpayPayload = {
-              don_hang_id: data.order.id,  // ✅ dùng id
+              don_hang_id: data.order.id,
               phuong_thuc_thanh_toan_id: 2,
               ngon_ngu: "vn"
             };
@@ -338,7 +362,6 @@ const CheckoutPage = () => {
                 toast.error(`Thanh toán VNPAY thất bại: ${response?.data?.message || 'Lỗi không xác định'}`);
               }
             } else {
-              
               toast.error("Thanh toán VNPAY thất bại!");
             }
           }
@@ -364,41 +387,51 @@ const CheckoutPage = () => {
     });
   }
 
-  // Fetch provinces/districts/wards from open API
+  // Fetch provinces/wards from new API
   useEffect(() => {
-    axios.get("https://provinces.open-api.vn/api/?depth=3").then((res) => {
-      const data = res.data;
-      setProvinces(
-        data.map((province: any) => ({
-          code: String(province.code),
-          name: province.name,
-          districts: province.districts.map((d: any) => ({
-            code: String(d.code),
-            name: d.name,
-            wards: d.wards.map((w: any) => ({ code: String(w.code), name: w.name })),
-          })),
-        }))
-      );
-    });
+    console.log("Đang fetch dữ liệu tỉnh thành...");
+    fetch("https://vietnamlabs.com/api/vietnamprovince")
+      .then(res => {
+        console.log("API Response status:", res.status);
+        return res.json();
+      })
+      .then((result: VietnamProvinceResponse) => {
+        console.log("API Response data:", result);
+        const data = result.data || [];
+        console.log("Số lượng tỉnh nhận được:", data.length);
+        
+        const mappedProvinces = data.map((province) => ({
+          code: String(province.id),
+          name: province.province,
+          wards: (province.wards || []).map((w, index) => ({
+            code: String(index + 1), // Tạo code cho ward
+            name: w.name
+          }))
+        }));
+        
+        console.log("Provinces đã map:", mappedProvinces);
+        setProvinces(mappedProvinces);
+      })
+      .catch((error) => {
+        console.error("Error fetching provinces:", error);
+        toast.error("Không thể tải dữ liệu tỉnh thành!");
+      });
   }, []);
 
-  // Update districts when province changes
+  // Update wards when province changes
   useEffect(() => {
     const province = provinces.find((p) => String(p.code) === String(selectedProvince));
-    setDistricts(province?.districts || []);
-    setSelectedDistrict("");
-    setWards([]);
+    setWards(province?.wards || []);
     setSelectedWard("");
   }, [selectedProvince, provinces]);
 
-  // Update wards when district changes
+  // Debug logging
   useEffect(() => {
-    const district = districts.find((d) => String(d.code) === String(selectedDistrict));
-    setWards(district?.wards || []);
-    setSelectedWard("");
-  }, [selectedDistrict, districts]);
+    console.log("Provinces state updated:", provinces);
+    console.log("Số lượng provinces:", provinces.length);
+  }, [provinces]);
 
-  // Đã chuyển getBienTheImg sang component con, không cần ở đây nữa
+  console.log("Tên tỉnh gửi lên API:", provinceNameForApi);
 
   // Check if we have valid data - render empty state if not
   if (!productOrder && (!cartItems || cartItems.length === 0)) {
@@ -417,12 +450,6 @@ const CheckoutPage = () => {
       </div>
     );
   }
-
-  const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
-  const provinceNameForApi = selectedProvinceObj?.name || "";
-  const { shippingFee = 0 } = useShippingFee(provinceNameForApi);
-
-  console.log("Tên tỉnh gửi lên API:", provinceNameForApi);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -448,12 +475,9 @@ const CheckoutPage = () => {
               note={note}
               setNote={setNote}
               provinces={provinces}
-              districts={districts}
               wards={wards}
               selectedProvince={selectedProvince}
               setSelectedProvince={setSelectedProvince}
-              selectedDistrict={selectedDistrict}
-              setSelectedDistrict={setSelectedDistrict}
               selectedWard={selectedWard}
               setSelectedWard={setSelectedWard}
               formError={formError}
@@ -476,7 +500,7 @@ const CheckoutPage = () => {
               discountInfo={discountInfo}
               setDiscountInfo={setDiscountInfo}
               subtotal={subtotal}
-              shippingFee={shippingFee}
+              shippingFee={shippingFee || 0}
               total={total}
               userDiscountCodes={userDiscountCodes}
               checkDiscountMutation={checkDiscountMutation}
@@ -492,4 +516,5 @@ const CheckoutPage = () => {
     </div>
   );
 };
+
 export default CheckoutPage;

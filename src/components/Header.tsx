@@ -83,7 +83,7 @@ const Header = () => {
                       Thông tin cá nhân
                     </Link>
                     <Link
-                      to="/don-hang"
+                      to="/chi-tiet-don-hang"
                       className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
                     >
                       Đơn hàng của tôi
