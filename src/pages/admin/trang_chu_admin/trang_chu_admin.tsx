@@ -31,7 +31,7 @@ const TrangChuAdmin = () => {
 
         <Card>
           <Statistic
-            title="Người dùng hoạt động"
+            title="Người dùng "
             value={data.nguoi_dung_hoat_dong}
             prefix={<UserOutlined />}
             valueStyle={{ color: '#3f8600' }}
