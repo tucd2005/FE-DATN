@@ -71,24 +71,7 @@ const AttributeDeletedListPage: React.FC = () => {
           >
             Khôi phục
           </Button>
-          <Popconfirm
-            title="Xóa vĩnh viễn"
-            description="Bạn có chắc chắn muốn xóa vĩnh viễn thuộc tính này? Hành động này không thể hoàn tác."
-            icon={<ExclamationCircleOutlined style={{ color: "red" }} />}
-            onConfirm={() => forceDeleteAttribute.mutate(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okType="danger"
-          >
-            <Button
-              danger
-              size="small"
-              icon={<DeleteOutlined />}
-              loading={forceDeleteAttribute.isPending}
-            >
-              Xóa vĩnh viễn
-            </Button>
-          </Popconfirm>
+          
         </Space>
       ),
     },
@@ -100,7 +83,7 @@ const AttributeDeletedListPage: React.FC = () => {
       <div className="mb-6">
         <Title level={2} className="flex items-center">
           <span className="mr-3">🗑️</span> Thuộc tính đã xóa
-        </Title>
+        </Title>  
         <Text className="text-gray-600">
           Quản lý các thuộc tính đã được xóa mềm. Bạn có thể khôi phục hoặc xóa vĩnh viễn.
         </Text>
