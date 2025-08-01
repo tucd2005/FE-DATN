@@ -63,7 +63,7 @@ const WalletListPage: React.FC = () => {
       { title: "ID", dataIndex: "id" },
   
 {
-  title: "Wallet ID",
+  title: "Người dùng (id ví)",
   dataIndex: "wallet_id",
   render: (_: any, record: any) => {
     const id = record?.id;
