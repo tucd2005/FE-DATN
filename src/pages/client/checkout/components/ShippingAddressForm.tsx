@@ -3,13 +3,9 @@ import React from "react";
 interface Province {
   code: string;
   name: string;
-  districts?: District[];
-}
-interface District {
-  code: string;
-  name: string;
   wards?: Ward[];
 }
+
 interface Ward {
   code: string;
   name: string;
@@ -27,12 +23,9 @@ interface ShippingAddressFormProps {
   note: string;
   setNote: (v: string) => void;
   provinces: Province[];
-  districts: District[];
   wards: Ward[];
   selectedProvince: string;
   setSelectedProvince: (v: string) => void;
-  selectedDistrict: string;
-  setSelectedDistrict: (v: string) => void;
   selectedWard: string;
   setSelectedWard: (v: string) => void;
   formError: string | null;
@@ -50,12 +43,9 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   note,
   setNote,
   provinces,
-  districts,
   wards,
   selectedProvince,
   setSelectedProvince,
-  selectedDistrict,
-  setSelectedDistrict,
   selectedWard,
   setSelectedWard,
   formError,
@@ -65,7 +55,12 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2 mb-2">
-          <span className="w-5 h-5 text-blue-600"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+          <span className="w-5 h-5 text-blue-600">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
           <h2 className="text-xl font-semibold text-gray-900">Địa chỉ giao hàng</h2>
         </div>
         <p className="text-gray-600 text-sm">Thông tin người nhận hàng</p>
@@ -137,7 +132,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
             <p className="text-xs text-red-500 mt-1">{formError}</p>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Tỉnh/Thành phố *</label>
             <div className="relative">
@@ -153,29 +148,13 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
                   </option>
                 ))}
               </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
             {formError && formError.includes("tỉnh/thành phố") && (
-              <p className="text-xs text-red-500 mt-1">{formError}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Quận/Huyện *</label>
-            <div className="relative">
-              <select
-                value={selectedDistrict}
-                onChange={(e) => setSelectedDistrict(e.target.value)}
-                disabled={!selectedProvince}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
-              >
-                <option value="">Chọn quận/huyện</option>
-                {districts.map((d) => (
-                  <option key={d.code} value={String(d.code)}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {formError && formError.includes("quận/huyện") && (
               <p className="text-xs text-red-500 mt-1">{formError}</p>
             )}
           </div>
@@ -185,7 +164,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
               <select
                 value={selectedWard}
                 onChange={(e) => setSelectedWard(e.target.value)}
-                disabled={!selectedDistrict}
+                disabled={!selectedProvince}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
               >
                 <option value="">Chọn phường/xã</option>
@@ -195,6 +174,11 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
                   </option>
                 ))}
               </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
             {formError && formError.includes("phường/xã") && (
               <p className="text-xs text-red-500 mt-1">{formError}</p>
