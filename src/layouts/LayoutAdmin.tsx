@@ -19,6 +19,7 @@ import {
   CarOutlined,
 
   FileTextOutlined,
+  MessageOutlined,
 
 } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
@@ -59,7 +60,7 @@ export default function LayoutAdmin() {
         >
           {/* 1. Dashboard */}
           <Menu.Item key="/admin" icon={<DashboardOutlined style={{ fontSize: 18 }} />}>
-            Thống kê 
+            Thống kê
           </Menu.Item>
 
           {/* 2. Quản lý sản phẩm */}
@@ -83,8 +84,11 @@ export default function LayoutAdmin() {
           <Menu.Item key="/admin/banners" icon={<PictureOutlined style={{ fontSize: 18 }} />}>
             Banner
           </Menu.Item>
+          <Menu.Item key="/admin/chat-bot" icon={<MessageOutlined style={{ fontSize: 18 }} />}>
+            Nhắn tin với khách hàng
+          </Menu.Item>
           <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
-            vận chuyển 
+            vận chuyển
           </Menu.Item>
 
           {/* 4. Quản lý đơn hàng & đánh giá */}
@@ -98,7 +102,7 @@ export default function LayoutAdmin() {
             Ví tiền
           </Menu.Item>
           <Menu.Item key="/admin/bai_viet" icon={<FileTextOutlined style={{ fontSize: 18 }} />}>
-           Bài viết 
+            Bài viết
           </Menu.Item>
           <Menu.Item key="/admin/lien-he" icon={<PhoneOutlined style={{ fontSize: 18 }} />}>
             Liên hệ
