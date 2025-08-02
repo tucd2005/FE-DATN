@@ -14,12 +14,12 @@ export const clientMessageService = {
 
   sendMessageToAdmin: async (data: FormData): Promise<ClientMessage> => {
     try {
-      // Validate data
+      // Validate data - cho phép gửi chỉ có file đính kèm
       const noiDung = data.get("noi_dung");
       const tepDinhKem = data.get("tep_dinh_kem");
 
       if (!noiDung && !tepDinhKem) {
-        throw new Error("Tin nhắn không được để trống");
+        throw new Error("Tin nhắn hoặc file đính kèm phải có ít nhất một");
       }
 
       const res = await instanceAxios.post("/tin-nhans", data, {

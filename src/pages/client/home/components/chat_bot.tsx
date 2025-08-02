@@ -85,22 +85,30 @@ export default function ChatBot() {
 
   // Sync real messages from API
   useEffect(() => {
-    if (realMessages && realMessages.length > 0 && isAuthenticated && !isDemoMode) {
-      const apiMessages: Message[] = realMessages.map((msg: ClientMessage) => ({
-        id: msg.id.toString(),
-        text: msg.noi_dung,
-        sender: msg.nguoi_gui.name === "Chat Support" ? "bot" : "user",
-        timestamp: new Date(msg.created_at),
-        isRealMessage: true,
-        attachment: msg.tep_dinh_kem,
-      }))
+    if (realMessages && isAuthenticated && !isDemoMode) {
+      if (realMessages.length > 0) {
+        const apiMessages: Message[] = realMessages.map((msg: ClientMessage) => ({
+          id: msg.id.toString(),
+          text: msg.noi_dung,
+          sender: msg.nguoi_gui.name === "Chat Support" ? "bot" : "user",
+          timestamp: new Date(msg.created_at),
+          isRealMessage: true,
+          attachment: msg.tep_dinh_kem,
+        }))
 
-      // Merge with existing messages, avoiding duplicates
-      setMessages(prev => {
-        const existingIds = new Set(prev.map(m => m.id))
-        const newMessages = apiMessages.filter(msg => !existingIds.has(msg.id))
-        return [...prev, ...newMessages]
-      })
+        // Thay thế toàn bộ messages thay vì merge để tránh lặp lại
+        setMessages(apiMessages)
+      } else {
+        // Hiển thị tin nhắn chào mừng khi không có tin nhắn nào
+        setMessages([
+          {
+            id: "welcome",
+            text: "Xin chào! Tôi là trợ lý ảo của cửa hàng. Tôi có thể giúp gì cho bạn? ✨",
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ])
+      }
     }
   }, [realMessages, isAuthenticated, isDemoMode])
 
@@ -132,6 +140,7 @@ export default function ChatBot() {
   }
 
   const handleSendMessage = async () => {
+    // Cho phép gửi chỉ có file đính kèm hoặc chỉ có text
     if (!inputMessage.trim() && !selectedFile) return
 
     // Demo mode
@@ -172,14 +181,7 @@ export default function ChatBot() {
       return
     }
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputMessage,
-      sender: "user",
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
+    // Không thêm tin nhắn local trước khi gửi API để tránh lặp lại
     setInputMessage("")
     setIsTyping(true)
     setError(null)
@@ -204,8 +206,6 @@ export default function ChatBot() {
         } else {
           setError("Không thể gửi tin nhắn. Vui lòng thử lại.")
         }
-        // Remove the message if sending failed
-        setMessages((prev) => prev.filter(msg => msg.id !== userMessage.id))
         console.error("Send message error:", error)
       }
     })
@@ -403,17 +403,19 @@ export default function ChatBot() {
                       </div>
                     )}
                     <div className="flex-1">
-                      <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                      {message.text && (
+                        <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
+                      )}
                       {message.attachment && (
                         isImageFile(message.attachment) ? (
                           <img
-                            src={`http://localhost:8000/storage/${message.attachment}`}
+                            src={message.attachment.startsWith('http') ? message.attachment : `http://localhost:8000/storage/${message.attachment}`}
                             alt="Ảnh đính kèm"
                             className="rounded mt-2 max-w-xs max-h-40 object-cover border"
                           />
                         ) : (
                           <a
-                            href={`http://localhost:8000/storage/${message.attachment}`}
+                            href={message.attachment.startsWith('http') ? message.attachment : `http://localhost:8000/storage/${message.attachment}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors mt-2"
