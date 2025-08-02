@@ -307,7 +307,7 @@ export default function ChatBot() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
               </div>
               <div>
-                <span className="font-semibold text-base">Trợ lý ảo</span>
+                <span className="font-semibold text-base">Liên hệ chúng tôi</span>
                 <div className="text-xs opacity-90 flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span>
