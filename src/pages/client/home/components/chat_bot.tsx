@@ -2,9 +2,17 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { MessageCircle, X, Send, Bot, User, Sparkles, Zap, FileText, Paperclip, AlertCircle } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Sparkles, Zap, FileText, Paperclip, AlertCircle, LogIn, Settings } from "lucide-react"
 import { useClientMessages, useSendClientMessage } from "../../../../hooks/useClientChat"
+import { useAuth } from "../../../../hooks/useAuth"
 import type { ClientMessage } from "../../../../types/clientMessage.type"
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: any;
+  };
+}
 
 interface Message {
   id: string
@@ -17,6 +25,7 @@ interface Message {
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isDemoMode, setIsDemoMode] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -30,11 +39,21 @@ export default function ChatBot() {
   const [showSparkles, setShowSparkles] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // API hooks
+  // Auth hook
+  const { isLoggedIn } = useAuth()
+
+  // API hooks - chỉ chạy khi đã đăng nhập và không ở demo mode
   const { data: realMessages, isLoading: isLoadingMessages, error: apiError } = useClientMessages()
   const { mutate: sendMessage, isPending: isSending } = useSendClientMessage()
+
+  // Kiểm tra authentication
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken")
+    setIsAuthenticated(!!token && isLoggedIn)
+  }, [isLoggedIn])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -53,16 +72,20 @@ export default function ChatBot() {
 
   // Handle API errors
   useEffect(() => {
-    if (apiError) {
-      setError("Không thể kết nối với máy chủ. Vui lòng thử lại sau.")
+    if (apiError && !isDemoMode) {
+      if ((apiError as any)?.response?.status === 401) {
+        setError("Vui lòng đăng nhập để sử dụng tính năng chat.")
+      } else {
+        setError("Không thể kết nối với máy chủ. Vui lòng thử lại sau.")
+      }
     } else {
       setError(null)
     }
-  }, [apiError])
+  }, [apiError, isDemoMode])
 
   // Sync real messages from API
   useEffect(() => {
-    if (realMessages && realMessages.length > 0) {
+    if (realMessages && realMessages.length > 0 && isAuthenticated && !isDemoMode) {
       const apiMessages: Message[] = realMessages.map((msg: ClientMessage) => ({
         id: msg.id.toString(),
         text: msg.noi_dung,
@@ -79,10 +102,75 @@ export default function ChatBot() {
         return [...prev, ...newMessages]
       })
     }
-  }, [realMessages])
+  }, [realMessages, isAuthenticated, isDemoMode])
+
+  // Demo mode responses
+  const getDemoResponse = (userMessage: string) => {
+    const lowerMessage = userMessage.toLowerCase()
+
+    if (lowerMessage.includes("giá") || lowerMessage.includes("bao nhiêu")) {
+      return "Cảm ơn bạn đã quan tâm! Giá sản phẩm của chúng tôi rất cạnh tranh và phù hợp với chất lượng. Bạn có thể xem chi tiết giá tại trang sản phẩm hoặc liên hệ trực tiếp với chúng tôi để được tư vấn cụ thể. 💰"
+    }
+
+    if (lowerMessage.includes("giao") || lowerMessage.includes("ship")) {
+      return "Chúng tôi cung cấp dịch vụ giao hàng nhanh chóng và an toàn! 🚚\n\n- Giao hàng trong nội thành: 2-3 ngày\n- Giao hàng tỉnh: 3-5 ngày\n- Miễn phí ship cho đơn hàng từ 500k\n- Hỗ trợ thanh toán khi nhận hàng"
+    }
+
+    if (lowerMessage.includes("bảo hành") || lowerMessage.includes("warranty")) {
+      return "Tất cả sản phẩm của chúng tôi đều có chế độ bảo hành chính hãng! 🛡️\n\n- Bảo hành 12 tháng cho tất cả sản phẩm\n- Bảo hành 24 tháng cho giày thể thao cao cấp\n- Hỗ trợ đổi trả trong 30 ngày\n- Dịch vụ bảo hành tận nơi"
+    }
+
+    if (lowerMessage.includes("size") || lowerMessage.includes("kích thước")) {
+      return "Chúng tôi có đầy đủ các size từ 35-45 cho giày nam và 34-42 cho giày nữ! 👟\n\nBạn có thể:\n- Xem bảng size tại trang sản phẩm\n- Chat với chúng tôi để được tư vấn size phù hợp\n- Đến cửa hàng để thử trực tiếp"
+    }
+
+    if (lowerMessage.includes("cảm ơn") || lowerMessage.includes("thanks")) {
+      return "Rất vui được phục vụ bạn! 😊 Nếu bạn cần thêm thông tin gì, đừng ngại hỏi nhé!"
+    }
+
+    return "Cảm ơn bạn đã liên hệ! Tôi có thể giúp bạn với:\n\n💰 Thông tin giá cả\n🚚 Dịch vụ giao hàng\n🛡️ Chế độ bảo hành\n👟 Tư vấn size giày\n\nBạn quan tâm đến vấn đề gì?"
+  }
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() && !selectedFile) return
+
+    // Demo mode
+    if (isDemoMode) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: inputMessage,
+        sender: "user",
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, userMessage])
+      setInputMessage("")
+      setIsTyping(true)
+      setError(null)
+
+      // Simulate bot response
+      setTimeout(() => {
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: getDemoResponse(inputMessage),
+          sender: "bot",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, botResponse])
+        setIsTyping(false)
+        setTimeout(() => {
+          scrollToBottom()
+        }, 100)
+      }, 1000)
+
+      return
+    }
+
+    // Real mode - Kiểm tra authentication
+    if (!isAuthenticated) {
+      setError("Vui lòng đăng nhập để gửi tin nhắn.")
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -109,9 +197,13 @@ export default function ChatBot() {
           scrollToBottom()
         }, 100)
       },
-      onError: (error) => {
+      onError: (error: any) => {
         setIsTyping(false)
-        setError("Không thể gửi tin nhắn. Vui lòng thử lại.")
+        if (error?.response?.status === 401) {
+          setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
+        } else {
+          setError("Không thể gửi tin nhắn. Vui lòng thử lại.")
+        }
         // Remove the message if sending failed
         setMessages((prev) => prev.filter(msg => msg.id !== userMessage.id))
         console.error("Send message error:", error)
@@ -132,6 +224,26 @@ export default function ChatBot() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
+    }
+  }
+
+  const handleLoginClick = () => {
+    window.location.href = "/login"
+  }
+
+  const toggleDemoMode = () => {
+    setIsDemoMode(!isDemoMode)
+    setError(null)
+    if (!isDemoMode) {
+      // Reset messages when entering demo mode
+      setMessages([
+        {
+          id: "1",
+          text: "Xin chào! Tôi là trợ lý ảo của cửa hàng. Bạn đang ở chế độ demo. Tôi có thể giúp gì cho bạn? ✨",
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ])
     }
   }
 
@@ -198,17 +310,61 @@ export default function ChatBot() {
                 <span className="font-semibold text-base">Trợ lý ảo</span>
                 <div className="text-xs opacity-90 flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span>Đang hoạt động</span>
+                  <span>
+                    {isDemoMode ? "Demo Mode" : isAuthenticated ? "Đang hoạt động" : "Chưa đăng nhập"}
+                  </span>
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="hover:bg-white/20 rounded-full p-2 transition-all duration-300 transform hover:scale-110 relative z-10"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center space-x-2 relative z-10">
+              {/* Demo Mode Toggle */}
+              <button
+                onClick={toggleDemoMode}
+                className={`p-2 rounded-full transition-all duration-300 ${isDemoMode
+                  ? "bg-yellow-500 hover:bg-yellow-600"
+                  : "bg-white/20 hover:bg-white/30"
+                  }`}
+                title={isDemoMode ? "Tắt Demo Mode" : "Bật Demo Mode"}
+              >
+                <Settings size={16} />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-white/20 rounded-full p-2 transition-all duration-300 transform hover:scale-110"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
+
+          {/* Demo Mode Indicator */}
+          {isDemoMode && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mx-4 mt-2 rounded">
+              <div className="flex items-center">
+                <AlertCircle className="w-5 h-5 text-yellow-400 mr-2" />
+                <p className="text-sm text-yellow-700">Đang ở chế độ Demo - Không cần đăng nhập</p>
+              </div>
+            </div>
+          )}
+
+          {/* Authentication Status */}
+          {!isAuthenticated && !isDemoMode && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mx-4 mt-2 rounded">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <AlertCircle className="w-5 h-5 text-yellow-400 mr-2" />
+                  <p className="text-sm text-yellow-700">Vui lòng đăng nhập để chat</p>
+                </div>
+                <button
+                  onClick={handleLoginClick}
+                  className="flex items-center space-x-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                >
+                  <LogIn size={12} />
+                  <span>Đăng nhập</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -222,7 +378,7 @@ export default function ChatBot() {
 
           {/* Messages with Enhanced Styling */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-white">
-            {isLoadingMessages && (
+            {isLoadingMessages && isAuthenticated && !isDemoMode && (
               <div className="flex justify-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
               </div>
@@ -247,17 +403,17 @@ export default function ChatBot() {
                       </div>
                     )}
                     <div className="flex-1">
-                      <p className="text-sm leading-relaxed">{message.text}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
                       {message.attachment && (
                         isImageFile(message.attachment) ? (
                           <img
-                            src={message.attachment}
+                            src={`http://localhost:8000/storage/${message.attachment}`}
                             alt="Ảnh đính kèm"
                             className="rounded mt-2 max-w-xs max-h-40 object-cover border"
                           />
                         ) : (
                           <a
-                            href={message.attachment}
+                            href={`http://localhost:8000/storage/${message.attachment}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors mt-2"
@@ -314,25 +470,37 @@ export default function ChatBot() {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Nhập tin nhắn của bạn..."
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white shadow-inner"
+                  placeholder={
+                    isDemoMode
+                      ? "Nhập tin nhắn để test demo..."
+                      : isAuthenticated
+                        ? "Nhập tin nhắn của bạn..."
+                        : "Vui lòng đăng nhập để chat..."
+                  }
+                  disabled={!isAuthenticated && !isDemoMode}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white shadow-inner disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
-                {inputMessage && (
+                {inputMessage && (isAuthenticated || isDemoMode) && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <Zap size={16} className="text-teal-500 animate-pulse" />
                   </div>
                 )}
               </div>
               <div className="flex flex-col space-y-2">
-                <label className="relative cursor-pointer">
-                  <input type="file" onChange={handleFileChange} className="hidden" />
-                  <div className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+                <label className={`relative cursor-pointer ${(!isAuthenticated && !isDemoMode) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    disabled={!isAuthenticated && !isDemoMode}
+                  />
+                  <div className={`w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors ${(!isAuthenticated && !isDemoMode) ? 'cursor-not-allowed' : ''}`}>
                     <Paperclip className="w-5 h-5 text-gray-600" />
                   </div>
                 </label>
                 <button
                   onClick={handleSendMessage}
-                  disabled={isSending || (!inputMessage.trim() && !selectedFile)}
+                  disabled={isSending || (!inputMessage.trim() && !selectedFile) || (!isAuthenticated && !isDemoMode)}
                   className="w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg"
                 >
                   {isSending ? (
@@ -365,7 +533,8 @@ export default function ChatBot() {
                 <button
                   key={action}
                   onClick={() => setInputMessage(action.split(" ")[1])}
-                  className="text-xs bg-gradient-to-r from-teal-100 to-teal-200 text-teal-700 px-3 py-1 rounded-full hover:from-teal-200 hover:to-teal-300 transition-all duration-300 transform hover:scale-105"
+                  disabled={!isAuthenticated && !isDemoMode}
+                  className="text-xs bg-gradient-to-r from-teal-100 to-teal-200 text-teal-700 px-3 py-1 rounded-full hover:from-teal-200 hover:to-teal-300 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {action}
                 </button>
