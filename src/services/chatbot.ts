@@ -26,16 +26,6 @@ export const messageService = {
     }
   },
 
-  getAllMessages: async (): Promise<ChatMessage[]> => {
-    try {
-      const res = await instanceAxios.get("/admin/tin-nhans/all/messages");
-      return res.data.data || [];
-    } catch (error) {
-      console.error("Error fetching all messages:", error);
-      throw error;
-    }
-  },
-
   sendMessageToUser: async (data: FormData): Promise<ChatMessage> => {
     try {
       // Validate data
@@ -63,3 +53,4 @@ export const messageService = {
     }
   },
 };
+

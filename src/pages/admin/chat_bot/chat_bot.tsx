@@ -1,16 +1,13 @@
-"use client"
-
 import type React from "react"
 import { useState, useMemo, useEffect, useRef } from "react"
 import { FileText, Send, User, Paperclip } from "lucide-react"
-import { useMessagesWithUser, useSendMessage, useUserList, useAllMessages } from "../../../hooks/useChat"
+import { useMessagesWithUser, useSendMessage, useUserList } from "../../../hooks/useChat"
 import type { User as ChatUser, Message as ChatMessage } from "../../../types/message.type"
 
 const MessagePage: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const { data: users, isLoading: isLoadingUsers } = useUserList()
   const { data: messages, isLoading: isLoadingMessages } = useMessagesWithUser(selectedUserId || 0)
-  const { data: allMessages, isLoading: isLoadingAllMessages } = useAllMessages()
   const { mutate: sendMessage, isPending: isSending } = useSendMessage()
 
   const [messageContent, setMessageContent] = useState("")
@@ -63,13 +60,6 @@ const MessagePage: React.FC = () => {
     }
   }, [users, selectedUserId, isLoadingUsers])
 
-  // Tự động chọn user đầu tiên khi allMessages có sẵn
-  useEffect(() => {
-    if (users && users.length > 0 && allMessages && !selectedUserId && !isLoadingUsers && !isLoadingAllMessages) {
-      setSelectedUserId(users[0].id)
-    }
-  }, [users, allMessages, selectedUserId, isLoadingUsers, isLoadingAllMessages])
-
   // Scroll xuống cuối ngay khi user được chọn
   useEffect(() => {
     if (selectedUserId && messages && messages.length > 0) {
@@ -112,35 +102,16 @@ const MessagePage: React.FC = () => {
 
   const getSelectedUser = () => users?.find((user) => user.id === selectedUserId)
 
+  // Simplified user list without all messages dependency
   const sortedUsers = useMemo(() => {
-    if (!users || !allMessages) return []
+    if (!users) return []
     
-    return users
-      .map((user: ChatUser) => {
-        // Tìm tin nhắn cuối cùng liên quan đến user này
-        const userMessages = allMessages.filter(
-          (msg: ChatMessage) => msg.nguoi_gui_id === user.id || msg.nguoi_nhan_id === user.id
-        )
-        
-        const lastMessage = userMessages.sort(
-          (a: ChatMessage, b: ChatMessage) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )[0]
-
-        return {
-          ...user,
-          lastMessageTime: lastMessage ? new Date(lastMessage.created_at).getTime() : 0,
-          lastMessage: lastMessage?.noi_dung || "Chưa có tin nhắn",
-          lastMessageDate: lastMessage ? new Date(lastMessage.created_at) : null,
-        }
-      })
-      .sort((a, b) => {
-        // Sắp xếp theo thời gian tin nhắn gần nhất (mới nhất lên đầu)
-        if (a.lastMessageTime === 0 && b.lastMessageTime === 0) return 0
-        if (a.lastMessageTime === 0) return 1
-        if (b.lastMessageTime === 0) return -1
-        return b.lastMessageTime - a.lastMessageTime
-      })
-  }, [users, allMessages])
+    return users.map((user: ChatUser) => ({
+      ...user,
+      lastMessage: "Chưa có tin nhắn",
+      lastMessageDate: null,
+    }))
+  }, [users])
 
   return (
     <div className="flex h-[650px] bg-gray-50 overflow-hidden">
@@ -152,7 +123,7 @@ const MessagePage: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {isLoadingUsers || isLoadingAllMessages ? (
+          {isLoadingUsers ? (
             <div className="flex items-center justify-center p-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
