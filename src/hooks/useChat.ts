@@ -5,9 +5,10 @@ export const useUserList = () => {
   return useQuery({
     queryKey: ["admin-users-message"],
     queryFn: messageService.getUserList,
-    retry: (failureCount, error) => {
+    retry: (failureCount, error: unknown) => {
       // Không retry nếu lỗi 401 (unauthorized)
-      if (error?.response?.status === 401) {
+      const apiError = error as { response?: { status?: number } };
+      if (apiError?.response?.status === 401) {
         return false;
       }
       return failureCount < 3;
@@ -21,25 +22,10 @@ export const useMessagesWithUser = (userId: number) => {
     queryFn: () => messageService.getMessagesWithUser(userId),
     enabled: !!userId,
     refetchInterval: 3000, // 👈 refetch mỗi 3 giây
-    retry: (failureCount, error) => {
+    retry: (failureCount, error: unknown) => {
       // Không retry nếu lỗi 401 (unauthorized)
-      if (error?.response?.status === 401) {
-        return false;
-      }
-      return failureCount < 3;
-    },
-  });
-};
-
-// Hook mới để lấy tất cả tin nhắn cho việc sắp xếp danh sách
-export const useAllMessages = () => {
-  return useQuery({
-    queryKey: ["all-messages"],
-    queryFn: messageService.getAllMessages,
-    refetchInterval: 3000, // 👈 refetch mỗi 3 giây
-    retry: (failureCount, error) => {
-      // Không retry nếu lỗi 401 (unauthorized)
-      if (error?.response?.status === 401) {
+      const apiError = error as { response?: { status?: number } };
+      if (apiError?.response?.status === 401) {
         return false;
       }
       return failureCount < 3;
@@ -56,10 +42,6 @@ export const useSendMessage = () => {
       const receiverId = Number(variables.get("nguoi_nhan_id"));
       queryClient.invalidateQueries({
         queryKey: ["messages-with-user", receiverId],
-      });
-      // Invalidate tất cả tin nhắn để cập nhật danh sách
-      queryClient.invalidateQueries({
-        queryKey: ["all-messages"],
       });
     },
     onError: (error) => {

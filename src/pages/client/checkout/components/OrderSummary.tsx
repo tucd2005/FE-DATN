@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "react-toastify";
 
 interface Attribute {
   ten?: string;
@@ -15,7 +16,11 @@ interface OrderItem {
   discountPrice: number | null;
   description: string;
   attributes?: Attribute[];
-  bien_the?: any;
+  bien_the?: {
+    id: number;
+    hinh_anh?: string;
+    thuoc_tinh?: { ten_thuoc_tinh: string; gia_tri: string }[];
+  };
   san_pham_id: number;
 }
 
@@ -34,8 +39,22 @@ interface OrderSummaryProps {
   subtotal: number;
   shippingFee: number;
   total: number;
-  userDiscountCodes: any[];
-  checkDiscountMutation: any;
+  userDiscountCodes: Array<{
+    id: number;
+    ma: string;
+    loai: string;
+    gia_tri: number;
+    gia_tri_don_hang?: number;
+    so_luong?: number;
+    ngay_bat_dau?: string;
+    ngay_ket_thuc?: string;
+    mo_ta?: string;
+    san_pham_id?: number | number[];
+  }>;
+  checkDiscountMutation: {
+    mutate: (data: any, options: any) => void;
+    isPending: boolean;
+  };
   formatPrice: (price: number) => string;
   agreedToTerms: boolean;
   setAgreedToTerms: (v: boolean) => void;
@@ -176,6 +195,32 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     },
                     onError: (err: any) => {
                       setDiscountInfo(null);
+                      // Hiển thị thông báo lỗi từ backend
+                      if (err && typeof err === 'object' && 'response' in err) {
+                        const response = (err as { response?: { data?: { error?: string; message?: string } } }).response;
+                        const errorMessage = response?.data?.error || response?.data?.message || '';
+                        
+                        // Chuyển đổi lỗi kỹ thuật thành thông báo thân thiện
+                        let friendlyMessage = 'Mã giảm giá không hợp lệ';
+                        
+                        if (errorMessage.includes("Mã giảm giá không hợp lệ")) {
+                          friendlyMessage = errorMessage;
+                        } else if (errorMessage.includes("đã hết hạn")) {
+                          friendlyMessage = "Mã giảm giá đã hết hạn";
+                        } else if (errorMessage.includes("đã được sử dụng hết")) {
+                          friendlyMessage = "Mã giảm giá đã được sử dụng hết";
+                        } else if (errorMessage.includes("chưa đạt mức tối thiểu")) {
+                          friendlyMessage = "Đơn hàng chưa đạt mức tối thiểu để áp dụng mã";
+                        } else if (errorMessage.includes("quá số lần cho phép")) {
+                          friendlyMessage = "Bạn đã sử dụng mã này quá số lần cho phép";
+                        } else if (errorMessage) {
+                          friendlyMessage = errorMessage;
+                        }
+                        
+                        toast.error(friendlyMessage);
+                      } else {
+                        toast.error('Mã giảm giá không hợp lệ');
+                      }
                     }
                   }
                 );

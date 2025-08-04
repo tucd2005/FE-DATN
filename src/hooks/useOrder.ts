@@ -23,7 +23,6 @@ export const useOrderList = (params: OrderListParams = {}) => {
   });
 };
 
-
 export const useOrderDetail = (id: number) => {
     return useQuery({
       queryKey: ["order", id],
@@ -31,7 +30,6 @@ export const useOrderDetail = (id: number) => {
       enabled: !!id, // chỉ chạy khi có id
     });
   };
-
 
 
 export const useUpdateOrderStatus = () => {
@@ -46,7 +44,6 @@ export const useUpdateOrderStatus = () => {
     });
   };
 
-
   // Hook lấy danh sách đơn hàng client
 export const useOrders = (page = 1) => {
   return useQuery({
@@ -54,7 +51,6 @@ export const useOrders = (page = 1) => {
     queryFn: () => getOrders(page),
   });
 };
-
 
 export const useOrderDetailclient = (orderId: number | string) => {
   return useQuery({

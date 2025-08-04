@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CreditCard, Banknote } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -324,7 +323,23 @@ const CheckoutPage = () => {
             }
           } catch (zaloPayError) {
             console.error("ZaloPay error:", zaloPayError);
-            toast.error("Thanh toán ZaloPay thất bại!");
+            if (zaloPayError && typeof zaloPayError === 'object' && 'response' in zaloPayError) {
+              const response = (zaloPayError as { response?: { data?: { error?: string; message?: string } } }).response;
+              const errorMessage = response?.data?.error || response?.data?.message || '';
+              let friendlyMessage = "Thanh toán ZaloPay thất bại. Vui lòng thử lại!";
+              
+              if (errorMessage.includes("No query results for model")) {
+                friendlyMessage = "Sản phẩm không còn tồn tại. Vui lòng kiểm tra lại giỏ hàng!";
+              } else if (errorMessage.includes("không đủ tồn kho")) {
+                friendlyMessage = "Sản phẩm không đủ số lượng trong kho!";
+              } else if (errorMessage) {
+                friendlyMessage = errorMessage;
+              }
+              
+              toast.error(friendlyMessage);
+            } else {
+              toast.error("Thanh toán ZaloPay thất bại!");
+            }
           }
           return;
         }
@@ -353,13 +368,24 @@ const CheckoutPage = () => {
           } catch (error) {
             console.error("Lỗi khi gọi VNPAY:", error);
             if (error && typeof error === 'object' && 'response' in error) {
-              const response = (error as { response?: { data?: { message?: string; errors?: Record<string, unknown> } } }).response;
+              const response = (error as { response?: { data?: { error?: string; message?: string; errors?: Record<string, unknown> } } }).response;
               console.error("VNPAY error response:", response?.data);
       
               if (response?.data?.errors) {
-                toast.error(`Lỗi VNPAY: ${JSON.stringify(response.data.errors)}`);
+                toast.error("Thanh toán VNPAY thất bại. Vui lòng thử lại!");
               } else {
-                toast.error(`Thanh toán VNPAY thất bại: ${response?.data?.message || 'Lỗi không xác định'}`);
+                const errorMessage = response?.data?.error || response?.data?.message || '';
+                let friendlyMessage = "Thanh toán VNPAY thất bại. Vui lòng thử lại!";
+                
+                if (errorMessage.includes("No query results for model")) {
+                  friendlyMessage = "Sản phẩm không còn tồn tại. Vui lòng kiểm tra lại giỏ hàng!";
+                } else if (errorMessage.includes("không đủ tồn kho")) {
+                  friendlyMessage = "Sản phẩm không đủ số lượng trong kho!";
+                } else if (errorMessage) {
+                  friendlyMessage = errorMessage;
+                }
+                
+                toast.error(friendlyMessage);
               }
             } else {
               toast.error("Thanh toán VNPAY thất bại!");
@@ -367,6 +393,7 @@ const CheckoutPage = () => {
           }
         } else {
           // COD → điều hướng sang trang cảm ơn
+          toast.success("Đặt hàng thành công!");
           navigate("/cam-on", {
             state: { orderCode: data.ma_don_hang }
           });
@@ -376,9 +403,31 @@ const CheckoutPage = () => {
       onError: (err: unknown) => {
         console.error("Lỗi khi đặt hàng:", err);
         if (err && typeof err === 'object' && 'response' in err) {
-          const response = (err as { response?: { data?: { message?: string } } }).response;
+          const response = (err as { response?: { data?: { error?: string; message?: string } } }).response;
           console.error("Server response:", response?.data);
-          toast.error(`Đặt hàng thất bại: ${response?.data?.message || 'Lỗi server'}`);
+          
+          // Xử lý thông báo lỗi thân thiện
+          const errorMessage = response?.data?.error || response?.data?.message || '';
+          
+          // Chuyển đổi lỗi kỹ thuật thành thông báo thân thiện
+          let friendlyMessage = "Đặt hàng thất bại. Vui lòng thử lại!";
+          
+          if (errorMessage.includes("No query results for model [App\\Models\\Variant]")) {
+            friendlyMessage = "Sản phẩm đã hết hàng hoặc đã bị xóa";
+          } else if (errorMessage.includes("không đủ tồn kho")) {
+            friendlyMessage = "Sản phẩm không đủ số lượng trong kho. Vui lòng giảm số lượng hoặc chọn sản phẩm khác!";
+          } else if (errorMessage.includes("không có giá")) {
+            friendlyMessage = "Sản phẩm chưa có giá. Vui lòng liên hệ cửa hàng!";
+          } else if (errorMessage.includes("Mã giảm giá")) {
+            friendlyMessage = errorMessage;
+          } else if (errorMessage.includes("Bạn không có quyền")) {
+            friendlyMessage = "Vui lòng đăng nhập để đặt hàng!";
+          } else if (errorMessage) {
+            // Nếu có thông báo lỗi cụ thể từ backend, sử dụng nó
+            friendlyMessage = errorMessage;
+          }
+          
+          toast.error(friendlyMessage);
         } else {
           toast.error("Đặt hàng thất bại. Vui lòng thử lại!");
         }
