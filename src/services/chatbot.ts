@@ -28,7 +28,7 @@ export const messageService = {
 
   getAllMessages: async (): Promise<ChatMessage[]> => {
     try {
-      const res = await instanceAxios.get("/admin/tin-nhans/all/messages");
+      const res = await instanceAxios.get("/admin/tin-nhans");
       return res.data.data || [];
     } catch (error) {
       console.error("Error fetching all messages:", error);
