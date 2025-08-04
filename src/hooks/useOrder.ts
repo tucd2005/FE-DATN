@@ -78,12 +78,12 @@ export const useCancelOrder = () => {
 export const useReturnOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (params: { id: number | string; ly_do_tra_hang: string }) => orderService.returnOrder(params.id, { ly_do_tra_hang: params.ly_do_tra_hang }),
+    mutationFn: (params: { id: number | string; data: FormData }) =>
+      orderService.returnOrder(params.id, params.data),
     onSuccess: (data) => {
       toast.success("Trả hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["order-detail"] });
-      // Trả về dữ liệu đơn hàng mới nhất cho callback
       return data;
     },
   });

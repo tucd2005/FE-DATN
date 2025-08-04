@@ -61,6 +61,18 @@ export default function OrderTracking() {
   const { mutate: markAsDelivered, isPending } = useMarkOrderAsDelivered();
   const [isRequestingCancel, setIsRequestingCancel] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState<number | null>(null);
+  const [returnImages, setReturnImages] = useState<File[]>([]);
+
+const handleReturnImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files) {
+    const files = Array.from(e.target.files);
+    setReturnImages(prev => [...prev, ...files]);
+  }
+};
+
+const removeReturnImage = (index: number) => {
+  setReturnImages(prev => prev.filter((_, i) => i !== index));
+};
   const [reviewForm, setReviewForm] = useState({
     so_sao: 5,
     noi_dung: '',
@@ -171,18 +183,29 @@ export default function OrderTracking() {
   }
 
   const confirmReturnOrder = () => {
+    if (!order?.id) return;
     if (!returnReason || (returnReason === "Khác" && !customReturnReason)) return;
-    returnOrder({
-      id: order.id,
-      ly_do_tra_hang: returnReason === "Khác" ? customReturnReason : returnReason
-    }, {
-      onSuccess: () => {
-        setShowReturnModal(false);
-        setReturnReason("");
-        setCustomReturnReason("");
-      }
+
+    const formData = new FormData();
+    formData.append("ly_do_tra_hang", returnReason === "Khác" ? customReturnReason : returnReason);
+    returnImages.forEach((file) => {
+      formData.append("hinh_anh_tra_hang[]", file);
     });
+
+    returnOrder(
+      { id: order.id, data: formData },
+      {
+        onSuccess: () => {
+          setShowReturnModal(false);
+          setReturnReason("");
+          setCustomReturnReason("");
+          setReturnImages([]);
+        }
+      }
+    );
   }
+
+
 
   if (isLoading) {
     return (
@@ -596,26 +619,15 @@ export default function OrderTracking() {
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900 text-lg mb-2">{productName}</h4>
                         <div className="flex gap-2 mb-3 flex-wrap">
-                          {attributes.map((attr, idx) => {
-                            const isColor = typeof attr.gia_tri === "string" && attr.gia_tri.startsWith("#") && (attr.gia_tri.length === 7 || attr.gia_tri.length === 4);
-                            return (
+                          {order.gia_tri_bien_the &&
+                            order.gia_tri_bien_the.split(",").map((val, i) => (
                               <span
-                                key={idx}
-                                className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700 flex items-center gap-2"
+                                key={i}
+                                className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
                               >
-                                {attr.thuoc_tinh}:
-                                {isColor ? (
-                                  <span
-                                    className="inline-block w-5 h-5 rounded-full border border-gray-300 ml-1"
-                                    style={{ backgroundColor: attr.gia_tri }}
-                                    title={attr.gia_tri}
-                                  />
-                                ) : (
-                                  <span className="ml-1">{attr.gia_tri}</span>
-                                )}
+                                {val.trim()}
                               </span>
-                            );
-                          })}
+                            ))}
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
@@ -810,6 +822,36 @@ export default function OrderTracking() {
                   />
                 )}
               </div>
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium">Hình ảnh minh họa (nếu có)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleReturnImagesChange}
+                  className="w-full"
+                />
+                {returnImages.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {returnImages.map((img, idx) => (
+                      <div key={idx} className="relative w-20 h-20">
+                        <img
+                          src={URL.createObjectURL(img)}
+                          alt={`Ảnh ${idx + 1}`}
+                          className="w-full h-full object-cover rounded-lg border"
+                        />
+                        <button
+                          onClick={() => removeReturnImage(idx)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center hover:bg-red-600"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => setShowReturnModal(false)}
@@ -904,4 +946,4 @@ export default function OrderTracking() {
   )
 }
 
-// * ok ae 
+// * ok ae
