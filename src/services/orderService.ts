@@ -62,8 +62,8 @@ export const orderService = {
   },
 
   // Trả hàng (client)
-  returnOrder: async (orderId: number | string, body?: { ly_do_tra_hang: string }) => {
-    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`, body);
+ returnOrder: async (orderId: number | string, data: FormData) => {
+    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`, data);
     return res.data;
   },
 

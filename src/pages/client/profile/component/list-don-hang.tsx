@@ -145,22 +145,15 @@ console.log("data",filteredOrders);
                           <div className="flex-1">
                             <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
                             <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {item.thuoc_tinh_bien_the.map((tt, i) =>
-                                tt.gia_tri.startsWith("#") ? (
-                                  <span key={i} className="flex items-center gap-1">
-                                    {tt.ten_thuoc_tinh}:
-                                    <span
-                                      className="w-4 h-4 inline-block rounded border border-gray-300"
-                                      style={{ backgroundColor: tt.gia_tri }}
-                                      title={tt.ten_thuoc_tinh}
-                                    ></span>
+                              {order.gia_tri_bien_the &&
+                                order.gia_tri_bien_the.split(",").map((val, i) => (
+                                  <span
+                                    key={i}
+                                    className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
+                                  >
+                                    {val.trim()}
                                   </span>
-                                ) : (
-                                  <span key={i}>
-                                    {tt.ten_thuoc_tinh}: {tt.gia_tri}
-                                  </span>
-                                )
-                              )}
+                                ))}
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900">{Number(item.don_gia).toLocaleString("vi-VN")}₫</div>
