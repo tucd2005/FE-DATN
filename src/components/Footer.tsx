@@ -98,7 +98,7 @@ const Footer = () => {
                         <div className="space-y-3 text-gray-600">
                             <div className="flex items-center space-x-2">
                                 <Phone className="w-4 h-4" />
-                                <span>1900 2024</span>
+                                <span>1900 2025</span>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Mail className="w-4 h-4" />
