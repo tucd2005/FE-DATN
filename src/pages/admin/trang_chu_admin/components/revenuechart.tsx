@@ -1,45 +1,91 @@
-import { Line } from 'react-chartjs-2';
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const data = {
-  labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-  datasets: [
-    {
-      label: 'Doanh thu',
-      data: [12000, 19000, 3000, 5000, 20000, 30000],
-      fill: false,
-      backgroundColor: 'rgb(59, 130, 246)',
-      borderColor: 'rgba(59, 130, 246, 0.5)',
+interface RevenueItem {
+  month: string;
+  revenue: number;
+}
+
+interface RevenueChartProps {
+  data: RevenueItem[];
+}
+
+const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
+  // Xử lý loại bỏ tháng trùng
+  const uniqueData = Array.from(
+    new Map(data.map((item) => [item.month, item])).values()
+  );
+
+  const chartData = {
+    labels: uniqueData.map((item) => item.month),
+    datasets: [
+      {
+        label: "Doanh thu (VNĐ)",
+        data: uniqueData.map((item) => item.revenue),
+        backgroundColor: "rgba(59, 130, 246, 0.7)", // blue-500 opacity
+        borderColor: "rgba(59, 130, 246, 1)",
+        borderWidth: 1,
+        borderRadius: 6,
+        barThickness: 40,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          font: {
+            size: 14,
+          },
+        },
+      },
+      title: {
+        display: true,
+        text: "📊 Doanh thu 6 tháng gần nhất",
+        font: {
+          size: 18,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) =>
+            `${context.dataset.label}: ${context.raw.toLocaleString("vi-VN")} đ`,
+        },
+      },
     },
-  ],
-};
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
+    scales: {
+      y: {
+        ticks: {
+          callback: (value: any) => `${value.toLocaleString("vi-VN")} đ`,
+        },
+        title: {
+          display: true,
+          text: "Doanh thu (VNĐ)",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Tháng",
+        },
+      },
     },
-    title: {
-      display: true,
-      text: 'Doanh thu trong 6 tháng gần nhất',
-    },
-  },
-};
+  };
 
-const RevenueChart = () => {
-  return <Line options={options} data={data} />;
+  return <Bar data={chartData} options={options} />;
 };
 
 export default RevenueChart;

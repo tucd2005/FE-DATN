@@ -1,106 +1,80 @@
-import { useForm, type FieldErrors } from "react-hook-form"
-import Dialog from "../../../components/Dialog";
-import { Button, Form } from "antd";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Field from "../../../components/Field";
-import api from "../../../api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useSendMessage from "../../../hooks/useSendMessage";
+import React from "react";
+import { Button, Form, Input, Upload, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { useCreateBanner } from "../../../hooks/useBanner";
 
-type TBannerPayload = {
-    tieu_de: string;
-    mo_ta?: string;
-    hinh_anh: string;
-    lien_ket?: string;
-}
+const BannerAddForm: React.FC = () => {
+    const [form] = Form.useForm();
+    const navigate = useNavigate();
+    const { mutate, isPending } = useCreateBanner();
 
-const bannerSchema = z.object({
-    tieu_de: z
-        .string({ required_error: "Tiêu đề không được để trống" })
-        .min(1, "Tiêu đề không được để trống"),
-    mo_ta: z.string().optional(),
-    hinh_anh: z
-        .string({ required_error: "Tiêu đề không được để trống" })
-        .min(1, "Tiêu đề không được để trống"),
-    lien_ket: z.string().optional()
-})
-
-const AddBanner = () => {
-    const queryClient = useQueryClient();
-    const { sendMessage } = useSendMessage();
-
-    const { handleSubmit, control, formState: { errors }, reset } = useForm<TBannerPayload>({
-        resolver: zodResolver(bannerSchema),
-    });
-
-    const { mutate, isPending } = useMutation({
-        mutationFn: (data: TBannerPayload) => api.post("/admin/banner", data),
-        onSuccess: () => {
-            sendMessage("success", "Thêm banner thành công");
-            queryClient.invalidateQueries({ queryKey: ["banners"] });
-            reset();
-        },
-        onError: () => {
-            sendMessage("error", "Thêm banner thất bại");
-
+    const onFinish = async (values: any) => {
+        const fileObj = values.hinh_anh?.[0]?.originFileObj;
+        if (!fileObj) {
+            message.error("Vui lòng chọn hình ảnh");
+            return;
         }
 
-    })
 
-    const onSubmit = async (data: TBannerPayload) => {
-        mutate(data);
-    }
+        const formData = new FormData();
+        formData.append("tieu_de", values.tieu_de);
+        formData.append("hinh_anh", fileObj); // 🟢 Gửi file ảnh thật
 
-    const onError = (error: FieldErrors) => {
-        console.log("Form errors:", error);
-    }
+        mutate(formData, {
+            onSuccess: () => {
+                message.success("Thêm banner thành công!");
+                navigate("/admin/banners");
+            },
+            onError: (err: any) => {
+                message.error("Thêm banner thất bại!");
+                console.error(err);
+            },
+        });
+    };
 
     return (
-        <Dialog
-            title="Thêm Banner"
-            openButton={
-                <Button type="primary">
-                    Thêm Banner
-                </Button>
-            }
-            onClose={reset}
-            okButton="Thêm mới"
-            onConfirm={handleSubmit(onSubmit, onError)}
-            loading={isPending}
-        >
-            <Form className="flex flex-col gap-2">
-                <Field<TBannerPayload>
-                    name="tieu_de"
-                    control={control}
+        <div className="p-4 max-w-lg mx-auto">
+            <h2 className="text-xl font-semibold mb-4">Thêm Banner</h2>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={onFinish}
+                initialValues={{ tieu_de: "" }}
+            >
+                <Form.Item
                     label="Tiêu đề"
-                    message={errors.tieu_de?.message}
-                    isInvalid={!!errors.tieu_de}
-                />
-                <Field<TBannerPayload>
-                    name="mo_ta"
-                    control={control}
-                    label="Mô tả"
-                    message={errors.mo_ta?.message}
-                    isInvalid={!!errors.mo_ta}
-                />
-                <Field<TBannerPayload>
-                    name="hinh_anh"
-                    control={control}
-                    label="Hình ảnh"
-                    message={errors.hinh_anh?.message}
-                    isInvalid={!!errors.hinh_anh}
-                />
-                <Field<TBannerPayload>
-                    name="lien_ket"
-                    control={control}
-                    label="Liên kết"
-                    message={errors.lien_ket?.message}
-                    isInvalid={!!errors.lien_ket}
-                />
-            </Form>
-        </Dialog>
-    )
-}
+                    name="tieu_de"
+                    rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+                >
+                    <Input placeholder="Nhập tiêu đề banner" />
+                </Form.Item>
 
-export default AddBanner
+                <Form.Item
+                    label="Hình ảnh"
+                    name="hinh_anh"
+                    valuePropName="fileList"
+                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                    rules={[{ required: true, message: "Vui lòng chọn hình ảnh" }]}
+                >
+                    <Upload
+                        beforeUpload={() => false} // Ngăn antd upload auto
+                        maxCount={1}
+                        accept="image/*"
+                        listType="picture"
+                    >
+                        <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                    </Upload>
+                </Form.Item>
+
+                <Form.Item>
+                    <Button type="primary" htmlType="submit" loading={isPending} block>
+                        Thêm Banner
+                    </Button>
+                </Form.Item>
+            </Form>
+        </div>
+    );
+};
+
+export default BannerAddForm;

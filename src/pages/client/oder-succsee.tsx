@@ -7,14 +7,35 @@ import instanceAxios from "../../utils/axios"
 
 interface OrderDetail {
   id: number
+  san_pham_id: number
+  bien_the_id: number
   so_luong: number
   don_gia: string
   tong_tien: string
+  so_tien_duoc_giam: string
   thuoc_tinh_bien_the: string
+  created_at: string
+  updated_at: string
   product: {
     id: number
     ten: string
     hinh_anh: string
+    mo_ta: string
+    so_luong: number
+    so_luong_da_ban: number
+    created_at: string
+    updated_at: string
+  }
+  variant: {
+    id: number
+    san_pham_id: number
+    so_luong: number
+    hinh_anh: string
+    so_luong_da_ban: number
+    gia: string
+    gia_khuyen_mai: string
+    created_at: string
+    updated_at: string
   }
 }
 
@@ -30,6 +51,10 @@ interface Order {
   trang_thai_thanh_toan: string
   so_tien_thanh_toan: number
   so_tien_duoc_giam: string
+  ten_nguoi_dat: string
+  sdt_nguoi_dat: string
+  ten_san_pham: string
+  gia_tri_bien_the: string
   created_at: string
   updated_at: string
   order_detail: OrderDetail[]
@@ -87,20 +112,30 @@ export default function PaymentResultPage() {
     )
   }
 
-  if (!data || data.code !== "00" || !data.order) {
+  if (
+    !data ||
+    data.code !== "00" ||
+    !data.order ||
+    data.order.trang_thai_thanh_toan !== "da_thanh_toan"
+  ) {
+    // Kiểm tra nếu là hủy thanh toán
+    const isUserCancel =
+      data?.code === "24" ||
+      (data?.message && data.message.toLowerCase().includes("hủy")) ||
+      data?.order?.trang_thai_thanh_toan !== "da_thanh_toan";
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
           <div className="mb-6">
             <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4 animate-pulse" />
-            <h1 className="text-2xl font-bold text-red-600 mb-3">Thanh toán thất bại!</h1>
+            <h1 className="text-2xl font-bold text-red-600 mb-3">
+              {isUserCancel ? "Bạn đã hủy thanh toán" : "Thanh toán thất bại!"}
+            </h1>
             <div className="bg-red-50 rounded-lg p-4 mb-6">
-              <p className="text-red-700 font-medium">{data?.message || "Không xác định"}</p>
-              {data?.code && (
-                <p className="text-red-500 text-sm mt-2">
-                  Mã lỗi: <span className="font-mono bg-red-100 px-2 py-1 rounded">{data.code}</span>
-                </p>
-              )}
+              <p className="text-red-700 font-medium">
+                {isUserCancel ? "Giao dịch đã bị hủy theo yêu cầu của bạn." : (data?.message || "Không xác định")}
+              </p>
+            
             </div>
           </div>
           <a
@@ -153,14 +188,16 @@ export default function PaymentResultPage() {
     return colorMap[status] || "bg-gray-100 text-gray-800"
   }
 
-  const parseProductAttributes = (str: string) => {
+  const parseProductAttributes = (str: string): string => {
+    if (!str) return "";
     try {
-      const attrs = JSON.parse(str)
-      return attrs.map((a: any) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ")
+      const attrs: Array<{ thuoc_tinh: string; gia_tri: string }> = JSON.parse(str);
+      if (!Array.isArray(attrs)) return "";
+      return attrs.map((a) => `${a.thuoc_tinh}: ${a.gia_tri}`).join(", ");
     } catch {
-      return ""
+      return "";
     }
-  }
+  };
 
   const copyOrderCode = () => {
     if (order?.ma_don_hang) {
@@ -170,7 +207,38 @@ export default function PaymentResultPage() {
     }
   }
 
-  const fullAddress = `${order.dia_chi}, ${order.xa}, ${order.huyen}, ${order.thanh_pho}`
+  const fullAddress = [order.dia_chi, order.xa, order.huyen, order.thanh_pho].filter(Boolean).join(", ");
+
+  function getImageUrl(hinh_anh: string | string[] | undefined): string {
+    if (!hinh_anh) return "/placeholder.svg";
+
+    // Nếu là array
+    if (Array.isArray(hinh_anh)) {
+      if (hinh_anh.length > 0) {
+        return `http://127.0.0.1:8000/storage/${hinh_anh[0]}`;
+      }
+      return "/placeholder.svg";
+    }
+
+    // Nếu là string
+    if (typeof hinh_anh === 'string') {
+      try {
+        // Nếu là mảng JSON thì parse
+        const parsed = JSON.parse(hinh_anh);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return `http://127.0.0.1:8000/storage/${parsed[0]}`;
+        }
+      } catch {
+        // Nếu không phải JSON hoặc lỗi khi parse, tiếp tục kiểm tra định dạng string
+        if (hinh_anh.startsWith("http")) {
+          return hinh_anh;
+        }
+        return `http://127.0.0.1:8000/storage/${hinh_anh}`;
+      }
+    }
+
+    return "/placeholder.svg";
+  }
 
   return (
     <div
@@ -195,7 +263,6 @@ export default function PaymentResultPage() {
             </p>
           </div>
 
-          {/* Payment Amount */}
           {/* Payment Amount */}
           {!isCancelled && (
             <div className="p-8">
@@ -224,39 +291,74 @@ export default function PaymentResultPage() {
             </div>
           </div>
           <div className="p-6 space-y-4">
-            {orderDetails.map((item, index) => (
-              <div
-                key={item.id}
-                className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex-shrink-0">
-                  <img
-                    src={`http://127.0.0.1:8000/storage/${item.product.hinh_anh}`}
-                    alt={item.product.ten}
-                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
-                  />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-gray-800 text-lg">{item.product.ten}</h4>
-                  {parseProductAttributes(item.thuoc_tinh_bien_the) && (
-                    <p className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full inline-block">
-                      {parseProductAttributes(item.thuoc_tinh_bien_the)}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
-                      Số lượng: {item.so_luong}
-                    </span>
-                    <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
-                      Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
-                    </span>
-                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
-                      Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
-                    </span>
+            {orderDetails.map((item) => {
+              // Lấy hình ảnh từ variant hoặc product
+              const variantImage = getImageUrl(item.variant?.hinh_anh);
+              const productImage = getImageUrl(item.product?.hinh_anh);
+              const imgSrc = variantImage !== "/placeholder.svg" ? variantImage : productImage;
+              
+              // Lấy tên sản phẩm từ product hoặc order
+              const productName = item.product?.ten || order.ten_san_pham || "Sản phẩm không xác định";
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex-shrink-0">
+                    <img
+                      src={imgSrc}
+                      alt={productName}
+                      className="w-20 h-20 object-cover rounded-lg border-2 border-gray-100"
+                      onError={e => {
+                        const target = e.target as HTMLImageElement;
+                        if (!target.src.endsWith('/placeholder.svg')) {
+                          target.src = '/placeholder.svg';
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <h4 className="font-semibold text-gray-800 text-lg">{productName}</h4>
+                    {parseProductAttributes(item.thuoc_tinh_bien_the) && (
+                      <div className="flex flex-wrap gap-2">
+                        {JSON.parse(item.thuoc_tinh_bien_the).map((attr: { thuoc_tinh: string; gia_tri: string }, idx: number) => {
+                          const isColor = typeof attr.gia_tri === "string" && attr.gia_tri.startsWith("#") && (attr.gia_tri.length === 7 || attr.gia_tri.length === 4);
+                          return (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700 flex items-center gap-2"
+                            >
+                              {attr.thuoc_tinh}:
+                              {isColor ? (
+                                <span
+                                  className="inline-block w-5 h-5 rounded-full border border-gray-300 ml-1"
+                                  style={{ backgroundColor: attr.gia_tri }}
+                                  title={attr.gia_tri}
+                                />
+                              ) : (
+                                <span className="ml-1">{attr.gia_tri}</span>
+                              )}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
+                        Số lượng: {item.so_luong}
+                      </span>
+                      <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
+                        Đơn giá: {formatCurrency(Number.parseFloat(item.don_gia))} VNĐ
+                      </span>
+                      <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
+                        Thành tiền: {formatCurrency(Number.parseFloat(item.tong_tien))} VNĐ
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -315,12 +417,12 @@ export default function PaymentResultPage() {
               <User className="w-5 h-5 text-gray-600 mt-1" />
               <div className="space-y-1">
                 <p className="text-sm text-gray-600">Thông tin khách hàng</p>
-                <p className="font-medium text-gray-800">{order.user?.name ?? "Không xác định"}</p>
-                <p className="text-gray-700">{order.user?.email ?? order.email_nguoi_dat}</p>
-
+                <p className="font-medium text-gray-800">{order.ten_nguoi_dat || order.user?.name || "Không xác định"}</p>
+                <p className="text-gray-700">{order.email_nguoi_dat || order.user?.email || ""}</p>
+                {order.sdt_nguoi_dat && <p className="text-gray-700">{order.sdt_nguoi_dat}</p>}
               </div>
             </div>
-
+            
             {/* Address */}
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
               <MapPin className="w-5 h-5 text-gray-600 mt-1" />

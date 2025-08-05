@@ -13,7 +13,7 @@ interface OtpForm {
   otp: string
 }
 
-export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
+const  VerifyOtp = ({ email, onClose }: VerifyOtpProps) => {
   const {
     register,
     handleSubmit,
@@ -119,3 +119,4 @@ export default function VerifyOtp({ email, onClose }: VerifyOtpProps) {
     </form>
   )
 }
+export default  VerifyOtp

@@ -1,33 +1,67 @@
-import React from "react";
-import { Form, Input, InputNumber, Button, DatePicker, Select, Switch } from "antd";
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  DatePicker,
+  Select,
+  Switch,
+  message,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useCreateDiscountCode } from "../../../hooks/useDiscountCodes";
+import { useProducts } from "../../../hooks/useProduct";
+
 
 export default function AddDiscountCodePage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateDiscountCode();
+  const [apDungCho, setApDungCho] = useState("toan_don");
+
+  const { data: products = [], isLoading } = useProducts();
 
   const onFinish = (values: any) => {
-    mutate(
-      {
-        ...values,
-        san_pham_id: values.san_pham_id || null,
-        ngay_bat_dau: dayjs(values.ngay_bat_dau).format("YYYY-MM-DD HH:mm:ss"),
-        ngay_ket_thuc: dayjs(values.ngay_ket_thuc).format("YYYY-MM-DD HH:mm:ss"),
-      },
-      {
-        onSuccess: () => {
-          navigate("/admin/ma-giam-gia"); // điều hướng về trang danh sách
-        },
-      }
-    );
-  };
+    const payload = {
+      ...values,
+      ngay_bat_dau: dayjs(values.ngay_bat_dau).format("YYYY-MM-DD HH:mm:ss"),
+      ngay_ket_thuc: dayjs(values.ngay_ket_thuc).format("YYYY-MM-DD HH:mm:ss"),
+    };
 
+    console.log("Payload gửi lên:", payload); // kiểm tra lại sau khi convert
+
+    mutate(payload, {
+      onSuccess: () => {
+        message.success("Tạo mã giảm giá thành công");
+        navigate("/admin/ma-giam-gia");
+      },
+      onError: (error: any) => {
+        if (error.response?.data?.errors) {
+          const errorData = error.response.data.errors;
+          Object.keys(errorData).forEach((key) => {
+            message.error(`${key}: ${errorData[key][0]}`);
+          });
+        } else {
+          message.error("Đã có lỗi xảy ra");
+        }
+      },
+    });
+  };
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto", padding: 24, background: "#fff", borderRadius: 8 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>Thêm mã giảm giá mới</h1>
+    <div
+      style={{
+        maxWidth: 600,
+        margin: "0 auto",
+        padding: 24,
+        background: "#fff",
+        borderRadius: 8,
+      }}
+    >
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>
+        Thêm mã giảm giá mới
+      </h1>
       <Form
         form={form}
         layout="vertical"
@@ -38,31 +72,69 @@ export default function AddDiscountCodePage() {
           loai: "phan_tram",
         }}
       >
-        <Form.Item label="Mã" name="ma" rules={[{ required: true, message: "Nhập mã" }]}>
+        <Form.Item
+          label="Mã"
+          name="ma"
+          rules={[{ required: true, message: "Nhập mã" }]}
+        >
           <Input />
         </Form.Item>
-        <Form.Item label="Tên" name="ten" rules={[{ required: true, message: "Nhập tên" }]}>
+        <Form.Item
+          label="Tên"
+          name="ten"
+          rules={[{ required: true, message: "Nhập tên" }]}
+        >
           <Input />
+        </Form.Item>
+        
+        <Form.Item label="Mô tả" name="mo_ta">
+          <Input.TextArea rows={3} placeholder="Nhập mô tả mã giảm giá" />
         </Form.Item>
         <Form.Item label="Loại" name="loai" rules={[{ required: true }]}>
-          <Select options={[
-            { value: "phan_tram", label: "Phần trăm" },
-            { value: "tien_mat", label: "Tiền mặt" }
-          ]} />
+          <Select
+            options={[
+              { value: "phan_tram", label: "Phần trăm" },
+              { value: "tien_mat", label: "Tiền mặt" },
+            ]}
+          />
         </Form.Item>
         <Form.Item label="Áp dụng cho" name="ap_dung_cho" rules={[{ required: true }]}>
-          <Select options={[
-            { value: "toan_don", label: "Toàn đơn" },
-            { value: "san_pham", label: "Sản phẩm cụ thể" }
-          ]} />
+          <Select
+            onChange={(val) => setApDungCho(val)}
+            options={[
+              { value: "toan_don", label: "Toàn đơn" },
+              { value: "san_pham", label: "Sản phẩm cụ thể" },
+            ]}
+          />
         </Form.Item>
-        <Form.Item label="ID Sản phẩm (nếu có)" name="san_pham_id">
-          <InputNumber style={{ width: "100%" }} />
-        </Form.Item>
+
+        {apDungCho === "san_pham" && (
+          <Form.Item
+            label="Chọn sản phẩm"
+            name="san_pham_id"
+            rules={[{ required: true, message: "Vui lòng chọn sản phẩm" }]}
+          >
+            <Select
+              showSearch
+              loading={isLoading}
+              placeholder="Chọn sản phẩm"
+              optionFilterProp="label"
+              options={products.map((p: any) => ({
+                label: `${p.ten} (ID: ${p.id})`,
+                value: p.id,
+              }))}
+            />
+          </Form.Item>
+        )}
+
         <Form.Item label="Giá trị" name="gia_tri" rules={[{ required: true }]}>
           <InputNumber min={0} style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item label="Giá trị đơn hàng tối thiểu" name="gia_tri_don_hang" rules={[{ required: true }]}>
+        <Form.Item
+          label="Giá trị đơn hàng tối thiểu"
+          name="gia_tri_don_hang"
+          rules={[{ required: true }]}
+        >
           <InputNumber min={0} style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>

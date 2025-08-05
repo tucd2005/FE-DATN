@@ -1,82 +1,146 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Image, Popconfirm, Space, Table } from 'antd';
-import React from 'react';
-import api from '../../../api';
-import type { IBanner } from '../../../types/banner,type';
-import AddBanner from './AddBanner';
-import useSendMessage from '../../../hooks/useSendMessage';
+import React from "react";
+import {
+  Table,
+  Image,
+  Tag,
+  Spin,
+  Button,
+  Popconfirm,
+  Typography,
+} from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import { useBannerList, useDeleteBanner } from "../../../hooks/useBanner";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const QuanLyBanner: React.FC = () => {
-  const queryClient = useQueryClient();
-  const { sendMessage } = useSendMessage();
+const { Title } = Typography;
 
-  const { data: banners, isPending } = useQuery({
-    queryKey: ['banners'],
-    queryFn: async () => {
-      const response = await api.get('/admin/banner');
-      return response.data;
-    },
-    refetchOnWindowFocus: false,
-  })
+const BannerListPage: React.FC = () => {
+  const navigate = useNavigate();
 
-  const archiveBanner = async (id: string) => {
-    try {
-      const res = await api.delete(`/admin/banner/${id}`);
-      queryClient.invalidateQueries({ queryKey: ['banners'] });
-      sendMessage('success', 'Xoá banner thành công');
-      console.log(res);
-    } catch (error) {
-      sendMessage('error', 'Xoá banner thất bại');
-      console.log(error);
-    }
-  }
+  const { data: banners, isLoading } = useBannerList();
+
+  const { mutate: deleteBanner, isLoading: isDeleting } = useDeleteBanner();
+
+  const handleDelete = (id: number) => {
+    deleteBanner(id, {
+      onSuccess: () => toast.success("Xoá banner thành công"),
+      onError: () => toast.error("Xoá banner thất bại"),
+    });
+  };
 
   const columns = [
     {
-      title: 'Hình ảnh',
-      dataIndex: 'hinh_anh',
-      key: 'hinh_anh',
-      render: (src: string) => <Image width={120} src={src} />,
+      title: "ID",
+      dataIndex: "id",
+      width: 60,
     },
     {
-      title: 'Tiêu đề',
-      dataIndex: 'tieu_de',
-      key: 'tieu_de',
+      title: "Tiêu đề",
+      dataIndex: "tieu_de",
+      width: 200,
+      ellipsis: true,
     },
     {
-      title: 'Mô tả',
-      dataIndex: 'mo_ta',
-      key: 'mo_ta',
+      title: "Hình ảnh",
+      dataIndex: "hinh_anh",
+      render: (value: string) => (
+        <Image
+          width={120}
+          src={`http://localhost:8000/storage/${value}`}
+          alt="banner"
+          fallback="/no-image.png"
+        />
+      ),
     },
     {
-      title: 'Liên kết',
-      dataIndex: 'lien_ket',
-      key: 'lien_ket',
-      render: (url: string) => url ? <a href={url} target="_blank" rel="noreferrer">{url}</a> : 'Không có liên kết',
+      title: "Trạng thái",
+      dataIndex: "trang_thai",
+      render: (status: string) =>
+        status === "hien" ? (
+          <Tag color="green">Hiện</Tag>
+        ) : (
+          <Tag color="red">Ẩn</Tag>
+        ),
     },
     {
-      title: 'Hành động',
-      key: 'actions',
-      render: (_: any, record: IBanner) => (
-        <Space>
-          {/* Có thể thêm nút Sửa ở đây */}
-          <Popconfirm title="Bạn có chắc muốn xoá?" onConfirm={() => archiveBanner(record.id.toString())}>
-            <Button danger>Xoá</Button>
+      title: "Ngày tạo",
+      dataIndex: "created_at",
+      render: (date: string) =>
+        new Date(date).toLocaleString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      width: 160,
+      render: (_: any, record: any) => (
+        <div className="flex gap-2">
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => navigate(`/admin/banners/edit/${record.id}`)}
+          >
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xoá banner này?"
+            okText="Xoá"
+            cancelText="Hủy"
+            onConfirm={() => handleDelete(record.id)}
+          >
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
+              Xoá
+            </Button>
           </Popconfirm>
-        </Space>
+        </div>
       ),
     },
   ];
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Quản lý Banner</h2>
-        <AddBanner />
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[300px]">
+        <Spin size="large" />
       </div>
-      <Table loading={isPending} dataSource={banners} columns={columns} pagination={{ pageSize: 5 }} />
+    );
+  }
+console.log("Banners:", banners);
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <Title level={4}>Danh sách Banner</Title>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/admin/banners/add")}
+        >
+          Thêm Banner
+        </Button>
+      </div>
+
+ <Table
+  loading={isLoading}
+  columns={columns}
+  dataSource={Array.isArray(banners) ? banners : []}
+  rowKey="id"
+/>
     </div>
   );
 };
 
-export default QuanLyBanner;
+export default BannerListPage;

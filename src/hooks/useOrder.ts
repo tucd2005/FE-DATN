@@ -1,16 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { cancelOrder, getOrderDetail, getOrders, orderService } from "../services/orderService";
 import { toast } from "react-toastify";
 
+// Interface cho tham số lọc
+interface OrderListParams {
+  page?: number;
+  search?: string;
+  status?: string;
+  paymentStatus?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 // Lấy danh sách đơn hàng
-export const useOrderList = (page: number = 1) => {
+export const useOrderList = (params: OrderListParams = {}) => {
+  const { page = 1, search, status, paymentStatus, dateFrom, dateTo } = params;
+  
   return useQuery({
-    queryKey: ["orders", page],
+    queryKey: ["orders", page, search, status, paymentStatus, dateFrom, dateTo],
     queryFn: () =>
-      orderService.getAllOrders(page).then((res) => res.data), 
+      orderService.getAllOrders(page, { search, status, paymentStatus, dateFrom, dateTo }).then((res) => res.data), 
   });
 };
-
 
 export const useOrderDetail = (id: number) => {
     return useQuery({
@@ -19,7 +30,6 @@ export const useOrderDetail = (id: number) => {
       enabled: !!id, // chỉ chạy khi có id
     });
   };
-
 
 
 export const useUpdateOrderStatus = () => {
@@ -34,15 +44,13 @@ export const useUpdateOrderStatus = () => {
     });
   };
 
-
   // Hook lấy danh sách đơn hàng client
 export const useOrders = (page = 1) => {
   return useQuery({
-    queryKey: ["orders", page],
+    queryKey: ["client-orders", page],
     queryFn: () => getOrders(page),
   });
 };
-
 
 export const useOrderDetailclient = (orderId: number | string) => {
   return useQuery({
@@ -55,7 +63,7 @@ export const useOrderDetailclient = (orderId: number | string) => {
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: number | string) => orderService.cancelOrder(orderId),
+    mutationFn: (params: { id: number | string; ly_do_huy: string }) => orderService.cancelOrder(params.id, { ly_do_huy: params.ly_do_huy }),
     onSuccess: (data) => {
       toast.success("Hủy đơn hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -70,12 +78,12 @@ export const useCancelOrder = () => {
 export const useReturnOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: number | string) => orderService.returnOrder(orderId),
+    mutationFn: (params: { id: number | string; data: FormData }) =>
+      orderService.returnOrder(params.id, params.data),
     onSuccess: (data) => {
       toast.success("Trả hàng thành công");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["order-detail"] });
-      // Trả về dữ liệu đơn hàng mới nhất cho callback
       return data;
     },
   });
@@ -94,3 +102,10 @@ export const useMarkOrderAsDelivered = () => {
     },
   });
 };
+
+export function useCancelOrderadmin() {
+  return useMutation({
+    mutationFn: ({ id, ly_do_huy }: { id: number; ly_do_huy: string }) =>
+      cancelOrder(id, ly_do_huy),
+  });
+}

@@ -56,15 +56,15 @@ export const orderService = {
     instanceAxios.get(`/admin/orders/${id}`).then((res) => res.data),
 
   // Hủy đơn hàng (client)
-  cancelOrder: async (orderId: number | string) => {
-    const res = await instanceAxios.post(`/order/huy-don/${orderId}`);
-    return res.data; // trả về dữ liệu đơn hàng mới nhất
+  cancelOrder: async (orderId: number | string, body?: { ly_do_huy: string }) => {
+    const res = await instanceAxios.post(`/order/huy-don/${orderId}`, body);
+    return res.data;
   },
 
   // Trả hàng (client)
-  returnOrder: async (orderId: number | string) => {
-    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`);
-    return res.data; // trả về dữ liệu đơn hàng mới nhất
+ returnOrder: async (orderId: number | string, data: FormData) => {
+    const res = await instanceAxios.post(`/order/tra-hang/${orderId}`, data);
+    return res.data;
   },
 
   // Đánh dấu đã giao (admin)
@@ -74,6 +74,7 @@ export const orderService = {
 
 
 };
+
 
 // API lấy danh sách đơn hàng (có thể truyền params page, per_page nếu backend hỗ trợ)
 export const getOrders = async (page = 1): Promise<GetOrdersResponse> => {
@@ -87,4 +88,9 @@ export const getOrders = async (page = 1): Promise<GetOrdersResponse> => {
 export const getOrderDetail = async (orderId: number | string) => {
   const { data } = await instanceAxios.get(`/client/orders/${orderId}`)
   return data
+}
+
+///hủy don admin 
+export function cancelOrder(id: number, ly_do_huy: string) {
+  return instanceAxios.post(`/admin/orders/cancel/${id}`, { ly_do_huy });
 }

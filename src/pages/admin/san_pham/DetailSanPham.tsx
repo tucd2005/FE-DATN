@@ -1,15 +1,18 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Card, Descriptions, Image, Tag, Button, Table, Dropdown, Menu, Row, Col } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Image, Tag, Button, Table, Popconfirm, Row, Col } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useProductDetail } from '../../../hooks/useProduct';
+import { variantService } from '../../../services/variantService';
 import type { ColumnsType } from 'antd/es/table';
 import type { Variant } from '../../../types/product.type';
+import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data: product, isLoading } = useProductDetail(Number(id));
-
+  const queryClient = useQueryClient();
   if (isLoading) return <p>Loading...</p>;
   if (!product) return <p>Không tìm thấy sản phẩm</p>;
 
@@ -46,8 +49,9 @@ const ProductDetailPage: React.FC = () => {
     },
   })) as ColumnsType<Variant>;
 
+
   const variantColumns: ColumnsType<Variant> = [
-    { title: 'STT', render: (_: any, __: any, index: number) => index + 1, width: 50 },
+    { title: 'STT', render: (_: unknown, __: Variant, index: number) => index + 1, width: 50 },
     {
       title: 'Ảnh',
       dataIndex: 'hinh_anh',
@@ -62,7 +66,9 @@ const ProductDetailPage: React.FC = () => {
               src = getImageUrl(arr[0]);
             }
           } catch {
-            src = img.startsWith('http') ? img : `http://127.0.0.1:8000/storage/${img}`;
+            src = typeof img === 'string' && img.startsWith('http')
+              ? img
+              : `http://127.0.0.1:8000/storage/${img}`;
           }
         }
         return <Image src={src} width={60} height={60} />;
@@ -71,6 +77,8 @@ const ProductDetailPage: React.FC = () => {
     ...dynamicAttributeColumns,
     { title: 'Giá', dataIndex: 'gia', render: (gia: number) => gia ? gia.toLocaleString() + '₫' : '-' },
     { title: 'Giá khuyến mãi', dataIndex: 'gia_khuyen_mai', render: (gia: number) => gia ? gia.toLocaleString() + '₫' : '-' },
+    { title: 'Số lượng', dataIndex: 'so_luong', render: (sl: number) => sl?.toLocaleString() ?? '-' },
+
     {
       title: 'Trạng thái',
       render: (_: any, record: Variant) => (
@@ -81,17 +89,34 @@ const ProductDetailPage: React.FC = () => {
     },
     {
       title: 'Chức năng',
-      render: () => (
-        <Dropdown
-          trigger={['click']}
-          overlay={<Menu><Menu.Item key="1">Đóng bán</Menu.Item><Menu.Item key="2">Sửa</Menu.Item></Menu>}
-        >
-          <Button icon={<MoreOutlined />} />
-        </Dropdown>
+      render: (_: any, record: Variant) => (
+        <span>
+          <Link to={`/admin/bien-the/edit/${record.id}`}>
+            <Button icon={<EditOutlined />} size="small" style={{ marginRight: 8 }}>Sửa</Button>
+          </Link>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa mềm biến thể này?"
+            onConfirm={async () => {
+              try {
+                await variantService.delete(record.id);
+                toast.success("Đã xóa biến thể!");
+                queryClient.invalidateQueries({
+                  queryKey: ['product', Number(id)],
+                });
+              } catch {
+                toast.error("Xóa biến thể thất bại!");
+              }
+            }}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button icon={<DeleteOutlined />} size="small" danger>Xóa</Button>
+          </Popconfirm>
+        </span>
       ),
     },
   ];
-
+  console.log(product);
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -104,17 +129,28 @@ const ProductDetailPage: React.FC = () => {
             <Descriptions.Item label="Tên">{product.ten}</Descriptions.Item>
             <Descriptions.Item label="Mô tả">{product.mo_ta}</Descriptions.Item>
             <Descriptions.Item label="Danh mục">
-              {product.danh_muc?.ten || product.danh_muc_id}
+              {product.ten_danh_muc || `ID: ${product.danh_muc_id}`}
             </Descriptions.Item>
+
             <Descriptions.Item label="Ngày tạo">{product.created_at}</Descriptions.Item>
             <Descriptions.Item label="Ngày cập nhật">{product.updated_at}</Descriptions.Item>
           </Descriptions>
         </Col>
+
       </Row>
 
       {product.variants?.length > 0 && (
         <>
+
           <h3 className="text-base font-semibold mb-2">Thông tin biến thể</h3>
+          <div style={{ marginBottom: 16 }}>
+            <Link to={`/admin/bien-the/add/${product.id}`}>
+              <Button type="primary">Thêm biến thể</Button>
+            </Link>
+            <Link to={`/admin/bien-the/deleted/${product.id}`}>
+              <Button danger style={{ marginLeft: 10 }}>Biến thể đã xóa</Button>
+            </Link>
+          </div>
           <Table<Variant>
             columns={variantColumns}
             dataSource={product.variants}

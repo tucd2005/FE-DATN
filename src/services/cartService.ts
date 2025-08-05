@@ -14,6 +14,7 @@ export interface CartItemAPI {
       ten_thuoc_tinh: string;
       gia_tri: string;
     }>;
+    hinh_anh?: string | string[];
   } | null;
 }
 

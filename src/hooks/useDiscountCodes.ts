@@ -126,3 +126,4 @@ export const useUserDiscountCodes = () =>
     queryKey: ["user-discount-codes"],
     queryFn: () => discountCodeService.getUserDiscounts().then((res: any) => res.data.data),
   });
+

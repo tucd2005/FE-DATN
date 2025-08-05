@@ -127,7 +127,7 @@ const RegisterClient = () => {
             </div>
 
             {/* Terms */}
-            <div className="flex items-start space-x-2 text-sm">
+            {/* <div className="flex items-start space-x-2 text-sm">
               <input
                 id="terms"
                 type="checkbox"
@@ -143,7 +143,7 @@ const RegisterClient = () => {
                   chính sách bảo mật
                 </Link>.
               </label>
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <button
