@@ -40,22 +40,25 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <Title level={1} className="text-4xl font-bold mb-4">Liên hệ với chúng tôi</Title>
-          <Paragraph className="text-muted-foreground max-w-2xl mx-auto">
-            Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ với chúng tôi qua các kênh dưới đây.
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white flex items-center justify-center py-12">
+      <main className="container mx-auto px-4 max-w-7xl">
+        <div className="text-center mb-16">
+          <Title level={1} className="text-5xl font-extrabold text-gray-900 tracking-tight">
+            Liên Hệ Với Chúng Tôi
+          </Title>
+          <Paragraph className="text-xl text-gray-500 mt-4 max-w-2xl mx-auto">
+            Hãy gửi tin nhắn hoặc liên hệ qua các kênh bên dưới, chúng tôi sẽ phản hồi trong thời gian sớm nhất.
           </Paragraph>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
+        <div className="grid lg:grid-cols-3 gap-8">
+
           <Card
-            title="Gửi tin nhắn"
+            className="lg:col-span-2 backdrop-blur-lg bg-white/80 shadow-xl rounded-3xl border border-gray-100/50 transition-transform hover:scale-[1.02]"
+            title={<span className="text-2xl font-bold text-gray-900">Gửi Tin Nhắn</span>}
             styles={{
-              header: { padding: "16px", fontSize: "1.5rem", fontWeight: "bold" },
-              body: { padding: "24px" }
+              header: { padding: "20px 32px", borderBottom: "none" },
+              body: { padding: "32px" }
             }}
           >
             <Form
@@ -63,51 +66,70 @@ export default function ContactPage() {
               form={form}
               onFinish={onFinish}
               autoComplete="off"
-              className="space-y-4"
+              className="space-y-6"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Form.Item
-                  label="Họ"
+                  label={<span className="text-base font-medium text-gray-700">Họ</span>}
                   name="firstName"
                   rules={[{ required: true, message: 'Vui lòng nhập họ' }]}
                 >
-                  <Input placeholder="Nhập họ" />
+                  <Input
+                    className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                    placeholder="Nhập họ"
+                  />
                 </Form.Item>
                 <Form.Item
-                  label="Tên"
+                  label={<span className="text-base font-medium text-gray-700">Tên</span>}
                   name="lastName"
                   rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                 >
-                  <Input placeholder="Nhập tên" />
+                  <Input
+                    className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                    placeholder="Nhập tên"
+                  />
                 </Form.Item>
               </div>
 
               <Form.Item
-                label="Email"
+                label={<span className="text-base font-medium text-gray-700">Email</span>}
                 name="email"
                 rules={[{ required: true, type: 'email', message: 'Email không hợp lệ' }]}
               >
-                <Input placeholder="example@email.com" />
-              </Form.Item>
-
-              <Form.Item label="Số điện thoại" name="phone">
-                <Input placeholder="0123456789" />
+                <Input
+                  className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                  placeholder="example@email.com"
+                />
               </Form.Item>
 
               <Form.Item
-                label="Chủ đề"
+                label={<span className="text-base font-medium text-gray-700">Số điện thoại</span>}
+                name="phone"
+              >
+                <Input
+                  className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                  placeholder="0123456789"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={<span className="text-base font-medium text-gray-700">Chủ đề</span>}
                 name="subject"
                 rules={[{ required: true, message: 'Vui lòng nhập chủ đề' }]}
               >
-                <Input placeholder="Chủ đề tin nhắn" />
+                <Input
+                  className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                  placeholder="Chủ đề tin nhắn"
+                />
               </Form.Item>
 
               <Form.Item
-                label="Loại liên hệ"
+                label={<span className="text-base font-medium text-gray-700">Loại liên hệ</span>}
                 name="type"
                 rules={[{ required: true, message: 'Vui lòng chọn loại liên hệ' }]}
               >
                 <Select
+                  className="rounded-xl h-12"
                   placeholder="Chọn loại liên hệ"
                   loading={typesLoading}
                   allowClear
@@ -120,11 +142,15 @@ export default function ContactPage() {
               </Form.Item>
 
               <Form.Item
-                label="Tin nhắn"
+                label={<span className="text-base font-medium text-gray-700">Tin nhắn</span>}
                 name="message"
                 rules={[{ required: true, message: 'Vui lòng nhập nội dung' }]}
               >
-                <TextArea rows={5} placeholder="Nội dung tin nhắn..." />
+                <TextArea
+                  className="rounded-xl bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
+                  rows={6}
+                  placeholder="Nội dung tin nhắn..."
+                />
               </Form.Item>
 
               <Form.Item>
@@ -134,89 +160,100 @@ export default function ContactPage() {
                   block
                   htmlType="submit"
                   loading={loading || sendContact.isPending}
+                  className="h-12 text-lg font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 transition-all"
                 >
-                  Gửi tin nhắn
+                  Gửi Tin Nhắn
                 </Button>
               </Form.Item>
             </Form>
           </Card>
 
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <Card>
-              <div className="flex items-start space-x-4">
-                <EnvironmentOutlined className="h-6 w-6 text-primary mt-1" />
-                <div>
-                  <Title level={4}>Địa chỉ</Title>
-                  <Paragraph className="text-muted-foreground">
-                    123 Nguyễn Văn Linh<br />
-                    Phường 1, Quận 7<br />
-                    TP. Hồ Chí Minh, Việt Nam
-                  </Paragraph>
-                </div>
-              </div>
-            </Card>
 
-            <Card>
-              <div className="flex items-start space-x-4">
-                <PhoneOutlined className="h-6 w-6 text-primary mt-1" />
-                <div>
-                  <Title level={4}>Điện thoại</Title>
-                  <Paragraph className="text-muted-foreground">
+          <div className="space-y-6">
+            {[
+              {
+                icon: <EnvironmentOutlined className="h-10 w-10 text-indigo-600" />,
+                title: "Địa chỉ",
+                content: (
+                  <>
+                    Số 1 Trịnh Văn Bô<br />
+                    Nam Từ Liêm<br />
+                    TP. Hà Nội, Việt Nam
+                  </>
+                ),
+              },
+              {
+                icon: <PhoneOutlined className="h-10 w-10 text-indigo-600" />,
+                title: "Điện thoại",
+                content: (
+                  <>
                     Hotline: 1900 1234<br />
                     Di động: 0123 456 789
-                  </Paragraph>
-                </div>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-start space-x-4">
-                <MailOutlined className="h-6 w-6 text-primary mt-1" />
-                <div>
-                  <Title level={4}>Email</Title>
-                  <Paragraph className="text-muted-foreground">
+                  </>
+                ),
+              },
+              {
+                icon: <MailOutlined className="h-10 w-10 text-indigo-600" />,
+                title: "Email",
+                content: (
+                  <>
                     Hỗ trợ: support@fashionstore.vn<br />
                     Kinh doanh: sales@fashionstore.vn
-                  </Paragraph>
-                </div>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-start space-x-4">
-                <ClockCircleOutlined className="h-6 w-6 text-primary mt-1" />
-                <div>
-                  <Title level={4}>Giờ làm việc</Title>
-                  <Paragraph className="text-muted-foreground">
+                  </>
+                ),
+              },
+              {
+                icon: <ClockCircleOutlined className="h-10 w-10 text-indigo-600" />,
+                title: "Giờ làm việc",
+                content: (
+                  <>
                     Thứ 2 - Thứ 6: 8:00 - 18:00<br />
                     Thứ 7 - Chủ nhật: 9:00 - 17:00
-                  </Paragraph>
+                  </>
+                ),
+              },
+            ].map((item, index) => (
+              <Card
+                key={index}
+                className="backdrop-blur-lg bg-white/80 shadow-md rounded-2xl border border-gray-100/50 transition-transform hover:scale-[1.02]"
+              >
+                <div className="flex items-start space-x-4 p-6">
+                  {item.icon}
+                  <div>
+                    <Title level={4} className="text-lg font-semibold text-gray-900">
+                      {item.title}
+                    </Title>
+                    <Paragraph className="text-base text-gray-600">
+                      {item.content}
+                    </Paragraph>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            ))}
           </div>
         </div>
 
-        {/* Google Map */}
-        <div className="mt-12">
+
+        <div className="mt-16">
           <Card
-            title="Bản đồ"
+            className="backdrop-blur-lg bg-white/80 shadow-xl rounded-3xl border border-gray-100/50"
+            title={<span className="text-2xl font-bold text-gray-900">Bản đồ</span>}
             styles={{
-              header: { padding: "16px", fontSize: "1.5rem", fontWeight: "bold" },
+              header: { padding: "20px 32px", borderBottom: "none" },
               body: { padding: "24px" }
             }}
           >
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
               <iframe
                 title="Google Map"
                 width="100%"
                 height="100%"
-                style={{ border: 0, minHeight: 350 }}
+                style={{ border: 0, minHeight: 450 }}
                 loading="lazy"
                 allowFullScreen
                 referrerPolicy="no-referrer-when-downgrade"
                 src="https://www.google.com/maps?q=21.0381298,105.7472618&z=16&output=embed"
+                className="absolute inset-0"
               />
             </div>
           </Card>
