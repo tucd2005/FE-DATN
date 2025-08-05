@@ -560,7 +560,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Debug Info - Tạm thời để kiểm tra */}
+              {/* Debug Info - Tạm thời để kiểm tra
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-6">
                 <h4 className="text-sm font-medium text-yellow-800 mb-2">Debug Info:</h4>
                 <div className="text-xs text-yellow-700 space-y-1">
@@ -568,7 +568,7 @@ export default function ProfilePage() {
                   <div>Wallet Balance: {walletBalance ? JSON.stringify(walletBalance) : 'null'}</div>
                   <div>Balance Amount: {walletBalance?.balance || 'N/A'}</div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Thông tin chi tiết */}
               <div className="bg-gray-50 p-6 rounded-xl">
