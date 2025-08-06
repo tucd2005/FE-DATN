@@ -134,7 +134,7 @@ export const adminRouter = {
         { path: "bai_viet/add", element: <PostCreatePage /> },
         { path: "bai_viet/chi_tiet/:id", element: <PostDetailPage /> },
         { path: "bai_viet/edit/:id", element: <PostEditPage /> },
-         { path: "lien-he", element: <ContactListPage /> },
+        { path: "lien-he", element: <ContactListPage /> },
         { path: "lien-he/:id", element: <ContactDetailPage /> },
         { path: "chat-bot", element: <MessagePage /> },
 
