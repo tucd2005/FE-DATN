@@ -38,11 +38,11 @@ const RegisterClient = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="text-center p-6 border-b">
-          <div className="h-12 w-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-xl">F</span>
+          <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-xl">S</span>
           </div>
-          <div className="text-2xl font-bold mb-1">Đăng ký</div>
-          <p className="text-gray-500">Tạo tài khoản mới</p>
+          <h2 className="text-2xl font-bold">Đăng ký</h2>
+          <p className="text-gray-500 mt-1">Đăng ký ngay để trải nghiệm dịch vụ tốt nhất</p>
         </div>
 
         <div className="p-6">
@@ -70,7 +70,7 @@ const RegisterClient = () => {
                 <input
                   id="email"
                   type="email"
-                  placeholder="example@email.com"
+                  placeholder="Nhập email của bạn"
                   className="pl-10 py-2 px-4 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition"
                   {...register("email")}
                 />

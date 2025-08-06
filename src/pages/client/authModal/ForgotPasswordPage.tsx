@@ -27,13 +27,11 @@ export default function ForgotPasswordPage() {
         {!showVerify ? (
           <div className="bg-white shadow-md rounded-lg p-6">
             <div className="mb-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto flex items-center justify-center mb-3">
-                <span className="text-blue-600 text-xl font-bold">S</span>
+              <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-xl">S</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Quên mật khẩu</h2>
-              <p className="text-gray-600 mt-1 text-sm">
-                Nhập địa chỉ email của bạn để nhận mã xác thực.
-              </p>
+              <h2 className="text-2xl font-bold">Quên mật khẩu</h2>
+              <p className="text-gray-500 mt-1">Nhập địa chỉ email của bạn để nhận mã xác thực.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
