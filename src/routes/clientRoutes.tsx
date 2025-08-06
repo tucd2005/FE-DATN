@@ -28,25 +28,30 @@ export const clientRouter = {
   element: <ClientLayout />, // Có thể thay bằng <ClientLayout /> nếu có
   children: [
     { index: true, element: < HomeClient /> },
-    { path: "products", element: <ProductsPage /> },
-    { path: "contact", element: <ContactPage /> },
-    { path: "info-user", element: <ProfilePage /> },
-    { path: "info-user/edit", element: <EditProfilePage /> },
-    { path: "detail-product/:id", element: <OrderTracking /> },
-    { path: "order-history", element: <OrderHistory /> },
-    { path: "cart", element: <CartPage /> },
-    { path: "checkout", element: <CheckoutPage /> },
+    { path: "san-pham", element: <ProductsPage /> },
+    { path: "lien-he", element: <ContactPage /> },
+
+
+    { path: "thong-tin-khach-hang", element: <ProfilePage /> },
+    { path: "thong-tin-khach-hang/edit", element: <EditProfilePage /> },
+    { path: "chi-tiet-don-hang/:id", element: <OrderTracking /> },
+    { path: "chi-tiet-don-hang", element: <OrderHistory /> },
+    { path: "gio-hang", element: <CartPage /> },
+    { path: "thanh-toan", element: <CheckoutPage /> },
     { path: "payment/result", element: <PaymentResultPage /> },
     { path: "payment/result/zalo", element: <PaymentResultZaloPage /> },
-    { path: "products/:id", element: <ProductDetailclientPage /> },
-    { path: "news", element: <SportsNewsPage /> },
-    { path: "news/:id", element: <ArticleDetailPage /> },
+
+    { path: "san-pham/:id", element: <ProductDetailclientPage /> },
+
+    { path: "bai_viet", element: <SportsNewsPage /> },
+    { path: "bai_viet/:id", element: <ArticleDetailPage /> },
     { path: "payment-success", element: <PaymentSuccessPage /> },
     { path: "payment-failed", element: <PaymentFailedPage /> },
-    { path: "success", element: <Component /> },
+
+    { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
-    { path: "forgot-password", element: <ForgotPasswordPage /> }
+    { path: "/auth/forgot-password", element: <ForgotPasswordPage /> }
 
   ],
 };
