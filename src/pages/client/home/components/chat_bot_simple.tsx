@@ -256,16 +256,7 @@ return (
           </div>
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2 mt-3">
-            {["💰 Giá cả", "🚚 Giao hàng", "🛡️ Bảo hành"].map((action) => (
-              <button
-                key={action}
-                onClick={() => setInputMessage(action.split(" ")[1])}
-                className="text-xs bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1 rounded-full hover:from-purple-200 hover:to-purple-300 transition-all duration-300 transform hover:scale-105" /* Changed from-teal-100 to from-purple-100, to-teal-200 to to-purple-200, and text-teal-700 to text-purple-700 */
-                type="button"
-              >
-                {action}
-              </button>
-            ))}
+          
           </div>
         </div>
       </div>
