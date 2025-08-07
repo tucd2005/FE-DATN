@@ -1,8 +1,8 @@
-import React from "react";
-import { Table, Tag, Button, Image } from "antd";
+import React, { useState } from "react";
+import { Table, Tag, Button, Space, Rate, Image } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { useHideReview, useReviewList } from "../../../hooks/useReview";
+import { useReviewList, useHideReview } from "../../../hooks/useReview";
 import type { ColumnsType } from "antd/es/table";
 
 interface User {
@@ -19,16 +19,19 @@ interface Product {
 interface Review {
   id: number;
   user: User;
-  product: Product;
+  product?: Product;
+  variant?: any;
   content: string;
   rating: number;
-  is_hidden: number;
+  is_hidden: boolean;
+  image?: string | null;
   created_at: string;
   updated_at: string;
 }
 
 const ReviewListPage: React.FC = () => {
-  const { data, isLoading } = useReviewList();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useReviewList(currentPage); // <-- custom hook nhận trang
   const toggleHideMutation = useHideReview();
   const navigate = useNavigate();
 
@@ -45,27 +48,50 @@ const ReviewListPage: React.FC = () => {
       title: "Người dùng",
       dataIndex: "user",
       render: (user: User) => user?.name || "-",
-    },
-{
-  title: "Sản phẩm",
+    },  {
+  title: "Ảnh sản phẩm",
   dataIndex: "product",
-  render: (product: Product) => product?.name || "-",
-}
-,
+  render: (product: Product) => {
+    const imageUrl = product?.image
+      ? product.image.startsWith("http")
+        ? product.image
+        : `http://127.0.0.1:8000/storage/${product.image}`
+      : "https://placehold.co/80x80?text=No+Image";
+    return (
+      <Image
+        src={imageUrl}
+        alt="Ảnh sản phẩm"
+        style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8 }}
+      />
+    );
+  },
+},
+    {
+      title: "Sản phẩm",
+      render: (record: Review) =>
+        record.variant?.product_name || record.product?.name || "-",
+    },
+  
     {
       title: "Nội dung",
       dataIndex: "content",
+      render: (text) => <div style={{ maxWidth: 300 }}>{text}</div>,
     },
-    {
-      title: "Số sao",
-      dataIndex: "rating",
-      render: (rating: number) => <Tag color="gold">{rating} ⭐</Tag>,
-    },
+    
+ {
+  title: "Số sao",
+  dataIndex: "so_sao",
+  render: (so_sao: number) => <Rate disabled value={so_sao} />, // ✅ dùng Rate đúng cách
+},
     {
       title: "Trạng thái",
       dataIndex: "is_hidden",
-      render: (is_hidden: number) =>
-        is_hidden ? <Tag color="red">Đã ẩn</Tag> : <Tag color="green">Hiển thị</Tag>,
+      render: (is_hidden: boolean) =>
+        is_hidden ? (
+          <Tag color="red">Đã ẩn</Tag>
+        ) : (
+          <Tag color="green">Hiển thị</Tag>
+        ),
     },
     {
       title: "Ngày tạo",
@@ -76,11 +102,10 @@ const ReviewListPage: React.FC = () => {
       title: "Hành động",
       key: "action",
       render: (_: any, record: Review) => (
-        <>
+        <Space>
           <Button
             size="small"
             onClick={() => navigate(`/admin/danh-gia/${record.id}`)}
-            style={{ marginRight: 8 }}
           >
             Xem chi tiết
           </Button>
@@ -93,10 +118,11 @@ const ReviewListPage: React.FC = () => {
           >
             {record.is_hidden ? "Hiện" : "Ẩn"}
           </Button>
-        </>
+        </Space>
       ),
     },
   ];
+console.log("Review data:", data);
 
   return (
     <div className="p-4">
@@ -106,6 +132,12 @@ const ReviewListPage: React.FC = () => {
         dataSource={data?.data || []}
         columns={columns}
         rowKey="id"
+        pagination={{
+          current: data?.pagination?.current_page || 1,
+          total: data?.pagination?.total_items || 0,
+          pageSize: data?.pagination?.per_page || 10,
+          onChange: (page) => setCurrentPage(page),
+        }}
       />
     </div>
   );

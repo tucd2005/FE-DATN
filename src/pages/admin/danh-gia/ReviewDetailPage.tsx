@@ -9,113 +9,141 @@ import {
   Image,
   Row,
   Col,
-  Divider,
+  Space,
+  Typography,
+  Rate,
 } from "antd";
+import {
+  ArrowLeftOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  StarFilled,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useReviewDetail } from "../../../hooks/useReview";
 
-// Hàm xử lý ảnh: nếu là ảnh tương đối thì thêm domain, nếu không có thì dùng placeholder
+const { Title, Text } = Typography;
+
+// Hàm xử lý ảnh
 const toFullImageUrl = (image?: string) =>
   image
     ? image.startsWith("http")
       ? image
       : `http://127.0.0.1:8000/storage/${image}`
-    : "https://placehold.co/200x200?text=Image";
+    : "https://placehold.co/300x300?text=No+Image";
 
 const ReviewDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useReviewDetail(Number(id));
-
   const review = data?.data;
 
   const productImageUrl = toFullImageUrl(review?.product?.image);
   const reviewImageUrl = toFullImageUrl(review?.image);
+  const hasVariant = !!review?.variant;
+  console.log("Review data:", review);
 
   return (
-    <div style={{ maxWidth: 1300, margin: "0 auto", padding: 24 }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
       <Button
-        type="default"
         icon={<ArrowLeftOutlined />}
         onClick={() => navigate(-1)}
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 20, backgroundColor: '#1890ff', color: '#fff' }}
       >
         Quay lại
       </Button>
 
       <Card
         bordered={false}
-        style={{
-          borderRadius: 16,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-          padding: 24,
-        }}
+        style={{ borderRadius: 12, padding: 24, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
       >
         {isLoading ? (
           <Skeleton active paragraph={{ rows: 6 }} />
         ) : review ? (
-          <>
-            {/* Phần ảnh phía trên */}
-            <Row gutter={24} style={{ marginBottom: 24 }}>
-              <Col xs={24} md={12} style={{ textAlign: "center" }}>
+          <Row gutter={[32, 32]}>
+            {/* Left: Images and product info */}
+            <Col xs={24} md={10}>
+              <Card bordered={false} style={{ textAlign: "center", borderRadius: 12 }}>
                 <Image
                   src={productImageUrl}
-                  alt={review.product?.name || "-"}
-                  width={200}
-                  height={200}
-                  style={{ objectFit: "cover", borderRadius: 12 }}
-                  preview
-                  fallback="https://placehold.co/200x200?text=Product"
+                  alt="Ảnh sản phẩm"
+                  width="100%"
+                  height={250}
+                  style={{ objectFit: "cover", borderRadius: 10 }}
                 />
-                <div style={{ marginTop: 8, fontWeight: 600 }}>
-                  {review.product?.name || "Sản phẩm"}
-                </div>
-              </Col>
-              <Col xs={24} md={12} style={{ textAlign: "center" }}>
+                <Title level={5} style={{ marginTop: 12 }}>
+                  {hasVariant
+                    ? review.variant?.product_name
+                    : review.product?.name || "Sản phẩm"}
+                </Title>
+
+                {hasVariant && (
+                  <Space wrap style={{ marginTop: 8 }}>
+                    {review.variant.attributes?.map((attr: any, index: number) => (
+                      <Tag key={index} color="blue">
+                        {attr.attribute_name}: {attr.value}
+                      </Tag>
+                    ))}
+                  </Space>
+                )}
+              </Card>
+
+              <Card
+                bordered={false}
+                style={{ marginTop: 24, textAlign: "center", borderRadius: 12 }}
+                title="Ảnh bình luận"
+              >
                 <Image
                   src={reviewImageUrl}
                   alt="Ảnh bình luận"
-                  width={200}
-                  height={200}
-                  style={{ objectFit: "cover", borderRadius: 12 }}
-                  preview
-                  fallback="https://placehold.co/200x200?text=Review"
+                  width="100%"
+                  height={250}
+                  style={{ objectFit: "cover", borderRadius: 10 }}
+                  fallback="https://placehold.co/300x300?text=No+Image"
                 />
-                <div style={{ marginTop: 8, fontWeight: 600 }}>Ảnh bình luận</div>
-              </Col>
-            </Row>
+              </Card>
+            </Col>
 
-            <Divider />
+            {/* Right: Review info */}
+            <Col xs={24} md={14}>
+              <div
+                style={{
+                  marginBottom: 16,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Title level={4} style={{ margin: 0 }}>
+                  Đánh giá #{review.id}
+                </Title>
 
-            {/* Tiêu đề & rating */}
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-                Chi tiết đánh giá #{review.id}
-              </h2>
-              <Tag color="gold" style={{ fontSize: 16 }}>
-                {review.rating} ⭐
-              </Tag>
-            </div>
+                <Space>
+                  <Rate disabled defaultValue={review.rating} />
+                  <Text>({review.rating} sao)</Text>
+                </Space>
+              </div>
 
-            {/* Thông tin chi tiết */}
-            <Descriptions
-              column={{ xs: 1, sm: 1, md: 2 }}
-              bordered
-              size="middle"
-              labelStyle={{ fontWeight: 500, width: 160 }}
-              contentStyle={{ whiteSpace: "pre-line" }}
-            >
-              <Descriptions.Item label="ID">{review.id}</Descriptions.Item>
-              <Descriptions.Item label="Người dùng">{review.user?.name || "-"}</Descriptions.Item>
-              <Descriptions.Item label="Nội dung">{review.content}</Descriptions.Item>
-              <Descriptions.Item label="Ngày tạo">
-                {dayjs(review.created_at).format("DD/MM/YYYY HH:mm")}
-              </Descriptions.Item>
-            </Descriptions>
-          </>
+              <Descriptions
+                column={1}
+                size="middle"
+                layout="vertical"
+                labelStyle={{ fontWeight: 500, color: "#555" }}
+              >
+                <Descriptions.Item label="Người dùng">
+                  {review.user?.name || "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Nội dung">
+                  <Text>{review.content || "-"}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Ngày tạo">
+                  {dayjs(review.created_at).format("DD/MM/YYYY HH:mm")}
+                </Descriptions.Item>
+              </Descriptions>
+            </Col>
+          </Row>
         ) : (
-          <p>Không tìm thấy dữ liệu.</p>
+          <Text>Không tìm thấy dữ liệu đánh giá.</Text>
         )}
       </Card>
     </div>
