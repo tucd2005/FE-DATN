@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { messageService } from "../services/chatbot";
+import { messageService, sendChatMessage, type ChatRequest, type ChatResponse } from "../services/chatbot";
 
 export const useUserList = () => {
   return useQuery({
@@ -48,5 +48,12 @@ export const useSendMessage = () => {
       console.error("Send message error:", error);
       // Có thể thêm toast notification ở đây
     },
+  });
+};
+//chat ai 
+
+export const useChat = () => {
+  return useMutation<ChatResponse, Error, ChatRequest>({
+    mutationFn: sendChatMessage,
   });
 };

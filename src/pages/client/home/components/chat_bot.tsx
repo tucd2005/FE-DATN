@@ -7,12 +7,7 @@ import { useClientMessages, useSendClientMessage } from "../../../../hooks/useCl
 import { useAuth } from "../../../../hooks/useAuth"
 import type { ClientMessage } from "../../../../types/clientMessage.type"
 
-interface ApiError {
-  response?: {
-    status?: number;
-    data?: any;
-  };
-}
+
 
 interface Message {
   id: string
@@ -250,7 +245,7 @@ export default function ChatBot() {
   return (
     <>
       {/* Floating Chat Button with Pulse Effect */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 ">
         <div className="relative">
           {/* Pulse rings */}
           <div
@@ -276,8 +271,7 @@ export default function ChatBot() {
 
       {/* Chat Modal with Enhanced Effects */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-[450px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">
-          {/* Sparkles Effect */}
+<div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
           {showSparkles && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
               {[...Array(6)].map((_, i) => (
@@ -409,6 +403,7 @@ export default function ChatBot() {
                       {message.attachment && (
                         isImageFile(message.attachment) ? (
                           <img
+                          style={{ maxWidth: "100%", maxHeight: "200px" }}
                             src={message.attachment.startsWith('http') ? message.attachment : `http://localhost:8000/storage/${message.attachment}`}
                             alt="Ảnh đính kèm"
                             className="rounded mt-2 max-w-xs max-h-40 object-cover border"
@@ -488,21 +483,34 @@ export default function ChatBot() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col space-y-2">
-                <label className={`relative cursor-pointer ${(!isAuthenticated && !isDemoMode) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <div className="flex flex-row space-x-2">
+                {/* Nút đính kèm file */}
+                <label
+                  className={`relative cursor-pointer ${!isAuthenticated && !isDemoMode ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                >
                   <input
                     type="file"
                     onChange={handleFileChange}
                     className="hidden"
                     disabled={!isAuthenticated && !isDemoMode}
                   />
-                  <div className={`w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors ${(!isAuthenticated && !isDemoMode) ? 'cursor-not-allowed' : ''}`}>
+                  <div
+                    className={`w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors ${!isAuthenticated && !isDemoMode ? 'cursor-not-allowed' : ''
+                      }`}
+                  >
                     <Paperclip className="w-5 h-5 text-gray-600" />
                   </div>
                 </label>
+
+                {/* Nút gửi tin nhắn */}
                 <button
                   onClick={handleSendMessage}
-                  disabled={isSending || (!inputMessage.trim() && !selectedFile) || (!isAuthenticated && !isDemoMode)}
+                  disabled={
+                    isSending ||
+                    (!inputMessage.trim() && !selectedFile) ||
+                    (!isAuthenticated && !isDemoMode)
+                  }
                   className="w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg"
                 >
                   {isSending ? (
@@ -512,6 +520,7 @@ export default function ChatBot() {
                   )}
                 </button>
               </div>
+
             </div>
 
             {/* File preview */}
@@ -531,16 +540,7 @@ export default function ChatBot() {
 
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 mt-3">
-              {["💰 Giá cả", "🚚 Giao hàng", "🛡️ Bảo hành"].map((action) => (
-                <button
-                  key={action}
-                  onClick={() => setInputMessage(action.split(" ")[1])}
-                  disabled={!isAuthenticated && !isDemoMode}
-                  className="text-xs bg-gradient-to-r from-teal-100 to-teal-200 text-teal-700 px-3 py-1 rounded-full hover:from-teal-200 hover:to-teal-300 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {action}
-                </button>
-              ))}
+
             </div>
           </div>
         </div>
