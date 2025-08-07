@@ -1,91 +1,60 @@
-import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-interface RevenueItem {
-  month: string;
-  revenue: number;
-}
+import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { DualAxes } from '@ant-design/charts';
 
 interface RevenueChartProps {
-  data: RevenueItem[];
+  data: { date: string; revenue: number }[];
+  type?: 'bar' | 'line' | 'dual';
+  height?: number;
 }
 
-const RevenueChart: React.FC<RevenueChartProps> = ({ data }) => {
-  // Xử lý loại bỏ tháng trùng
-  const uniqueData = Array.from(
-    new Map(data.map((item) => [item.month, item])).values()
-  );
-
-  const chartData = {
-    labels: uniqueData.map((item) => item.month),
-    datasets: [
-      {
-        label: "Doanh thu (VNĐ)",
-        data: uniqueData.map((item) => item.revenue),
-        backgroundColor: "rgba(59, 130, 246, 0.7)", // blue-500 opacity
-        borderColor: "rgba(59, 130, 246, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-        barThickness: 40,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          font: {
-            size: 14,
-          },
+const RevenueChart: React.FC<RevenueChartProps> = ({ data, type = 'bar', height = 300 }) => {
+  if (type === 'dual') {
+    const config = {
+      data: [data, data],
+      xField: 'date',
+      yField: ['revenue'],
+      geometryOptions: [
+        {
+          geometry: 'column',
+          color: '#3f8600',
+          columnWidthRatio: 0.4,
         },
-      },
-      title: {
-        display: true,
-        text: "📊 Doanh thu 6 tháng gần nhất",
-        font: {
-          size: 18,
+        {
+          geometry: 'line',
+          color: '#ff7f0e',
         },
-      },
+      ],
       tooltip: {
-        callbacks: {
-          label: (context: any) =>
-            `${context.dataset.label}: ${context.raw.toLocaleString("vi-VN")} đ`,
-        },
+        formatter: (value: number) => `${new Intl.NumberFormat('vi-VN').format(value)} VND`,
       },
-    },
-    scales: {
-      y: {
-        ticks: {
-          callback: (value: any) => `${value.toLocaleString("vi-VN")} đ`,
-        },
-        title: {
-          display: true,
-          text: "Doanh thu (VNĐ)",
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Tháng",
-        },
-      },
-    },
-  };
+    };
+    return <DualAxes {...(config as any)} style={{ height }} />;
+  }
 
-  return <Bar data={chartData} options={options} />;
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      {type === 'bar' ? (
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip formatter={(value) => `${new Intl.NumberFormat('vi-VN').format(Number(value))} VND`} />
+          <Legend />
+          <Bar dataKey="revenue" fill="#3f8600" name="Doanh thu" />
+        </BarChart>
+      ) : (
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip formatter={(value) => `${new Intl.NumberFormat('vi-VN').format(Number(value))} VND`} />
+          <Legend />
+          <Line type="monotone" dataKey="revenue" stroke="#3f8600" strokeWidth={2} dot={{ r: 4 }} />
+        </LineChart>
+      )}
+    </ResponsiveContainer>
+  );
 };
 
 export default RevenueChart;

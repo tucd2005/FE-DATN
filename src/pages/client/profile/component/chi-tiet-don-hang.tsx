@@ -316,7 +316,7 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
                   <X className="w-4 h-4 mr-2" />
                   Hủy đơn hàng
                 </button>
-              )}
+              )} 
               {orderStatus === "da_giao" && (
                 <button
                   onClick={() => markAsDelivered(order.id)}
@@ -348,93 +348,149 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
             </h2>
 
             <div className="relative">
-              {/* Timeline trả hàng */}
-              {orderStatus === "tu_choi_tra_hang" ? (
-                // --- Chỉ hiển thị trạng thái từ chối trả hàng ---
-                <div className="flex flex-col items-center">
-                  <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse`}>
-                    <X className="w-8 h-8" />
+              {/* Nếu đang ở trạng thái trả hàng thì hiển thị timeline trả hàng */}
+              {["yeu_cau_tra_hang", "xac_nhan_tra_hang", "tra_hang_thanh_cong", "tu_choi_tra_hang"].includes(orderStatus || "") ? (
+                orderStatus === "tu_choi_tra_hang" ? (
+                  // --- Chỉ hiển thị trạng thái từ chối trả hàng ---
+                  <div className="flex flex-col items-center">
+                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse`}>
+                      <X className="w-8 h-8" />
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className="text-sm font-semibold text-red-700">Yêu cầu trả hàng đã bị từ chối!</p>
+                      <p className="text-gray-600">Lý do: {data.order.ly_do_tu_choi_tra_hang}</p>
+                    </div>
                   </div>
-                  <div className="mt-4 text-center">
-                    <p className="text-sm font-semibold text-red-700">Yêu cầu trả hàng đã bị từ chối!</p>
-                    <p className="text-gray-600">Lý do: {data.order.ly_do_tu_choi_tra_hang}</p>
+                ) : (
+                  // --- Timeline trả hàng ---
+                  <div className="flex justify-center items-center relative z-10">
+                    {/* Yêu cầu trả hàng */}
+                    <div className="flex flex-col items-center">
+                      <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                        ${orderStatus === "yeu_cau_tra_hang" ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                      `}>
+                        {/* icon trả hàng */}
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className={`text-sm font-semibold ${orderStatus === "yeu_cau_tra_hang" ? "text-yellow-700 scale-110" : "text-gray-400"}`}>Yêu cầu trả hàng</p>
+                        {orderStatus === "yeu_cau_tra_hang" && (
+                          <div className="mt-2 px-3 py-1 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
+                            <span className="text-xs font-medium text-yellow-700">Hiện tại</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Thanh kết nối */}
+                    <div className="h-1 w-24 bg-yellow-400 rounded-full -ml-2 -mr-2" />
+
+                    {/* Chờ xác nhận trả hàng */}
+                    <div className="flex flex-col items-center">
+                      <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                        ${orderStatus === "xac_nhan_tra_hang" ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                      `}>
+                        {/* icon chờ xác nhận */}
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className={`text-sm font-semibold ${orderStatus === "xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Đã xác nhận trả hàng</p>
+                        {orderStatus === "xac_nhan_tra_hang" && (
+                          <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
+                            <span className="text-xs font-medium text-blue-700">Hiện tại</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Thanh kết nối */}
+                    <div className="h-1 w-24 bg-green-400 rounded-full -ml-2 -mr-2" />
+
+                    {/* Trả hàng thành công */}
+                    <div className="flex flex-col items-center">
+                      <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
+                        ${orderStatus === "tra_hang_thanh_cong" ? "bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+                      `}>
+                        {/* icon thành công */}
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className={`text-sm font-semibold ${orderStatus === "tra_hang_thanh_cong" ? "text-green-700 scale-110" : "text-gray-400"}`}>Trả hàng thành công</p>
+                        {orderStatus === "tra_hang_thanh_cong" && (
+                          <div className="mt-2 px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full">
+                            <span className="text-xs font-medium text-green-700">Hiện tại</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )
               ) : (
-                // --- Hiển thị các trạng thái khác ---
-                <div className="flex justify-center items-center relative z-10">
-                  {/* Yêu cầu trả hàng */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-          ${orderStatus === "yeu_cau_tra_hang" ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-        `}>
-                      {/* icon trả hàng */}
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "yeu_cau_tra_hang" ? "text-yellow-700 scale-110" : "text-gray-400"}`}>Yêu cầu trả hàng</p>
-                      {orderStatus === "yeu_cau_tra_hang" && (
-                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
-                          <span className="text-xs font-medium text-yellow-700">Hiện tại</span>
-                        </div>
-                      )}
-                    </div>
+                // --- Timeline mặc định ---
+                <>
+                  <div className="absolute top-8 left-0 right-0 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
+                      style={{
+                        width: `${orderStatus === "tra_hang"
+                          ? 100
+                          : (
+                            getCurrentStepIndex() /
+                            (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
+                          ) * 100
+                          }%`,
+                      }}
+                    />
                   </div>
-
-                  {/* Thanh kết nối */}
-                  <div className="h-1 w-24 bg-yellow-400 rounded-full -ml-2 -mr-2" />
-
-                  {/* Chờ xác nhận trả hàng */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-          ${orderStatus === "xac_nhan_tra_hang" ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-        `}>
-                      {/* icon chờ xác nhận */}
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Đã xác nhận trả hàng</p>
-                      {orderStatus === "xac_nhan_tra_hang" && (
-                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
-                          <span className="text-xs font-medium text-blue-700">Hiện tại</span>
+                  <div className="flex justify-between relative z-10">
+                    {trackingSteps.map((step, index) => {
+                      const Icon = step.icon
+                      const completed = isStepCompleted(index)
+                      const active = isStepActive(index)
+                      const isSpecialStatus = step.id === "da_huy" || step.id === "tra_hang"
+                      if (isSpecialStatus && !active) return null
+                      return (
+                        <div key={step.id} className="flex flex-col items-center group">
+                          <div
+                            className={`w-16 h-16 flex items-center justify-center rounded-full border-4 transition-all duration-500 ${active
+                              ? `bg-gradient-to-r ${step.color} text-white border-white shadow-2xl scale-110 animate-pulse`
+                              : completed
+                                ? "bg-gradient-to-r from-teal-400 to-emerald-400 text-white border-teal-200 shadow-lg"
+                                : "bg-white text-gray-400 border-gray-300 shadow-md"
+                              } group-hover:scale-105`}
+                          >
+                            <Icon className={`w-7 h-7 transition-all duration-300 ${active ? "animate-bounce" : ""}`} />
+                          </div>
+                          <div className="mt-4 text-center">
+                            <p
+                              className={`text-sm font-semibold transition-all duration-300 ${active ? "text-teal-600 scale-110" : completed ? "text-emerald-600" : "text-gray-400"
+                                }`}
+                            >
+                              {step.title}
+                            </p>
+                            {active && (
+                              <div className="mt-2 px-3 py-1 bg-gradient-to-r from-teal-100 to-emerald-100 rounded-full">
+                                <span className="text-xs font-medium text-teal-700">Hiện tại</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      )
+                    })}
                   </div>
-
-                  {/* Thanh kết nối */}
-                  <div className="h-1 w-24 bg-green-400 rounded-full -ml-2 -mr-2" />
-
-                  {/* Trả hàng thành công */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-          ${orderStatus === "tra_hang_thanh_cong" ? "bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-        `}>
-                      {/* icon thành công */}
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "tra_hang_thanh_cong" ? "text-green-700 scale-110" : "text-gray-400"}`}>Trả hàng thành công</p>
-                      {orderStatus === "tra_hang_thanh_cong" && (
-                        <div className="mt-2 px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full">
-                          <span className="text-xs font-medium text-green-700">Hiện tại</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -551,8 +607,19 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
                     </div>
                     <div>
                       <p className="text-gray-600">Trạng thái thanh toán</p>
-                      
-                      <p className="font-medium text-gray-800">{order.trang_thai_thanh_toan || "Chưa xác định"}</p>
+                      {(() => {
+    const status = order.trang_thai_thanh_toan;
+    const map = PAYMENT_STATUS_MAP[status as keyof typeof PAYMENT_STATUS_MAP];
+    return map ? (
+      <span className={`font-medium text-${map.color}-600`}>
+        {map.label}
+      </span>
+    ) : (
+      <span className="font-medium text-gray-800">
+        {status || "Chưa xác định"}
+      </span>
+    );
+  })()}
                     </div>
                   </div>
                 </div>
@@ -702,9 +769,9 @@ const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
                 </div>
 
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Mã giảm giá:</span>
+                  <span className="text-gray-600">Số tiền được giảm :</span>
                   <span className="font-semibold text-green-600">
-                    -{formatPrice(Number(order.so_tien_duoc_giam || 0))}
+                  -{formatPrice(Number(order.so_tien_duoc_giam || 0))}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-4 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl px-4 border border-teal-100">

@@ -1,8 +1,9 @@
-// src/pages/admin/trang_chu_admin/trang_chu_admin.tsx
-import { Card, Statistic, Typography, Tag, List, Avatar, Spin } from "antd";
-import { UserOutlined, ShoppingCartOutlined, GiftOutlined } from "@ant-design/icons";
-import RevenueChart from "./components/revenuechart";
-import { useDashboard } from "../../../hooks/useDashboard"; // đường dẫn có thể cần chỉnh
+import { Card, Statistic, Typography, List, Avatar, Spin, Row, Col } from 'antd';
+import {  ShoppingCartOutlined, GiftOutlined } from '@ant-design/icons';
+import { useDashboard } from '../../../hooks/useDashboard';
+import { User } from 'lucide-react';
+import RevenueChart from './components/revenuechart';
+
 
 const { Title, Text } = Typography;
 
@@ -16,96 +17,98 @@ const TrangChuAdmin = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <Title level={3}>Bảng điều khiển</Title>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <Statistic
-            title="Tổng doanh thu"
-            value={data.tong_doanh_thu}
-            valueStyle={{ color: '#3f8600' }}
-            formatter={(value) =>
-              `${new Intl.NumberFormat('vi-VN').format(Number(value))}VND`
-            }
-            suffix={<Text className="text-green-600">{data.ty_le_tang_truong_doanh_thu}%</Text>}
-          />
-        </Card>
+      {/* Phần tổng quan */}
+      <Row gutter={16} className="mb-6">
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Tổng doanh thu"
+              value={data.tong_doanh_thu}
+              precision={0}
+              valueStyle={{ color: '#3f8600' }}
+              formatter={(value) => `${new Intl.NumberFormat('vi-VN').format(Number(value))} VND`}
+             
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Người dùng"
+              value={data.nguoi_dung_hoat_dong}
+              prefix={<User Outlined />}
+              valueStyle={{ color: '#3f8600' }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Tổng đơn hàng"
+              value={data.tong_don_hang}
+              prefix={<ShoppingCartOutlined />}
+              valueStyle={{ color: '#3f8600' }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Sản phẩm đã bán"
+              value={+data.san_pham_da_ban}
+              prefix={<GiftOutlined />}
+              valueStyle={{ color: '#3f8600' }}
+            />
+          </Card>
+        </Col>
+      </Row>
 
-        <Card>
-          <Statistic
-            title="Người dùng "
-            value={data.nguoi_dung_hoat_dong}
-            prefix={<UserOutlined />}
-            valueStyle={{ color: '#3f8600' }}
-            suffix={<Text className="text-green-600">{data.ty_le_tang_truong_nguoi_dung}%</Text>}
-          />
-        </Card>
+      {/* Nhóm biểu đồ 1 */}
+      <Row gutter={16} className="mb-6">
+        <Col span={12}>
+          <Card title="Doanh Thu Theo Tháng">
+            <RevenueChart 
+              data={data.doanh_thu_theo_thang.map(item => ({ date: item.month, revenue: item.revenue }))} 
+              type="bar"
+              height={400}
+            />
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card title="Doanh Thu Theo Ngày (Tháng 8)">
+            <RevenueChart 
+              data={data.doanh_thu_theo_ngay.map(item => ({ date: item.date, revenue: item.revenue }))} 
+              type="bar" // Hoặc 'bar' tùy theo sở thích
+              height={400}
+            />
+          </Card>
+        </Col>
+      </Row>
 
-        <Card>
-          <Statistic
-            title="Tổng đơn hàng"
-            value={data.tong_don_hang}
-            prefix={<ShoppingCartOutlined />}
-            valueStyle={{ color: '#3f8600' }}
-            suffix={<Text className="text-green-600">{data.ty_le_tang_truong_don_hang}%</Text>}
-          />
-        </Card>
+      {/* Biểu đồ năm */}
+      <Card title="Doanh Thu Theo Năm" className="mb-6">
+        <RevenueChart 
+          data={data.doanh_thu_theo_nam.map(item => ({ date: item.year.toString(), revenue: item.revenue }))} 
+          type="line"
+          height={400}
+        />
+      </Card>
 
-        <Card>
-          <Statistic
-            title="Sản phẩm đã bán"
-            value={+data.san_pham_da_ban}
-            prefix={<GiftOutlined />}
-            valueStyle={{ color: '#cf1322' }}
-            suffix={<Text className="text-red-600">{data.ty_le_tang_truong_san_pham}%</Text>}
-          />
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Card title="Tổng quan doanh thu">
-          <RevenueChart data={data.doanh_thu_theo_thang} />
-        </Card>
-
-        <Card title="Hoạt động gần đây">
-          <List
-            itemLayout="horizontal"
-            dataSource={data.hoat_dong_gan_day ?? []}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={<Avatar icon={<UserOutlined />} />}
-                  title={<Text strong>{item.name}</Text>}
-                  description={
-                    <>
-                      <Text>{item.action}</Text>
-                      <br />
-                      <Text type="secondary">{item.time}</Text>
-                    </>
-                  }
-                />
-                <Tag
-                  color={
-                    item.status === "success"
-                      ? "green"
-                      : item.status === "info"
-                        ? "blue"
-                        : item.status === "warning"
-                          ? "gold"
-                          : "red"
-                  }
-                >
-                  {item.status === "success"
-                    ? "thành công"
-                    : item.status === "info"
-                      ? "thông tin"
-                      : item.status === "warning"
-                        ? "cảnh báo"
-                        : "lỗi"}
-                </Tag>
-              </List.Item>
-            )}
-          />
-        </Card>
-      </div>
+      {/* Sản phẩm bán chạy */}
+      <Card title="Sản Phẩm Bán Chạy">
+        <List
+          dataSource={data.san_pham_ban_chay}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar icon={<GiftOutlined />} />}
+                title={item.ten_san_pham}
+                description={`Đã bán: ${item.so_luong_da_ban} sản phẩm`}
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
     </div>
   );
 };

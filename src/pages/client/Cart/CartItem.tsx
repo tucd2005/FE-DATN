@@ -62,6 +62,10 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
 
                 <div className="flex-1">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">{item.ten_san_pham}</h3>
+                    {/* Hiển thị lỗi nếu có */}
+                    {item.error_message && (
+                        <div className="text-xs text-red-600 mb-1">{item.error_message}</div>
+                    )}
                     <div className="flex gap-4 text-sm text-gray-600">
                         {(item.bien_the?.thuoc_tinh || []).map((attr, index) => {
                             const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(attr.gia_tri);
@@ -90,6 +94,7 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
                     <button
                         onClick={() => handleUpdateQuantity(item.id, item.so_luong - 1)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                        disabled={!!item.error_message}
                     >
                         <Minus className="w-4 h-4" />
                     </button>
@@ -97,6 +102,7 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
                     <button
                         onClick={() => handleUpdateQuantity(item.id, item.so_luong + 1)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                        disabled={!!item.error_message}
                     >
                         <Plus className="w-4 h-4" />
                     </button>
@@ -105,6 +111,7 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
                 <button
                     onClick={() => handleRemoveItem(item.id)}
                     className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                    disabled={!!item.error_message}
                 >
                     <Trash2 className="w-5 h-5" />
                 </button>
