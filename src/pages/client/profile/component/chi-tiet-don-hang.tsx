@@ -62,17 +62,27 @@ export default function OrderTracking() {
   const [isRequestingCancel, setIsRequestingCancel] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState<number | null>(null);
   const [returnImages, setReturnImages] = useState<File[]>([]);
-
-const handleReturnImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files) {
-    const files = Array.from(e.target.files);
-    setReturnImages(prev => [...prev, ...files]);
-  }
+  
+const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
+  da_thanh_toan: { color: "green", label: "Đã thanh toán" },
+  cho_xu_ly: { color: "orange", label: "Chờ xử lý" },
+  that_bai: { color: "red", label: "Thất bại" },
+  hoan_tien: { color: "blue", label: "Hoàn tiền" },
+  da_huy: { color: "red", label: "Đã huỷ" },
+  cho_hoan_tien: { color: "gold", label: "Chờ hoàn tiền" },
 };
 
-const removeReturnImage = (index: number) => {
-  setReturnImages(prev => prev.filter((_, i) => i !== index));
-};
+
+  const handleReturnImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setReturnImages(prev => [...prev, ...files]);
+    }
+  };
+
+  const removeReturnImage = (index: number) => {
+    setReturnImages(prev => prev.filter((_, i) => i !== index));
+  };
   const [reviewForm, setReviewForm] = useState({
     so_sao: 5,
     noi_dung: '',
@@ -339,14 +349,25 @@ const removeReturnImage = (index: number) => {
 
             <div className="relative">
               {/* Timeline trả hàng */}
-              {["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "tra_hang_thanh_cong"].includes(orderStatus || "") ? (
-                // --- Timeline trả hàng ---
+              {orderStatus === "tu_choi_tra_hang" ? (
+                // --- Chỉ hiển thị trạng thái từ chối trả hàng ---
+                <div className="flex flex-col items-center">
+                  <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-red-400 to-red-600 text-white border-white shadow-2xl scale-110 animate-pulse`}>
+                    <X className="w-8 h-8" />
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-sm font-semibold text-red-700">Yêu cầu trả hàng đã bị từ chối!</p>
+                    <p className="text-gray-600">Lý do: {data.order.ly_do_tu_choi_tra_hang}</p>
+                  </div>
+                </div>
+              ) : (
+                // --- Hiển thị các trạng thái khác ---
                 <div className="flex justify-center items-center relative z-10">
                   {/* Yêu cầu trả hàng */}
                   <div className="flex flex-col items-center">
                     <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-                      ${orderStatus === "yeu_cau_tra_hang" ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-                    `}>
+          ${orderStatus === "yeu_cau_tra_hang" ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+        `}>
                       {/* icon trả hàng */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -371,8 +392,8 @@ const removeReturnImage = (index: number) => {
                   {/* Chờ xác nhận trả hàng */}
                   <div className="flex flex-col items-center">
                     <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-                      ${orderStatus === "cho_xac_nhan_tra_hang" ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-                    `}>
+          ${orderStatus === "xac_nhan_tra_hang" ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+        `}>
                       {/* icon chờ xác nhận */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -382,8 +403,8 @@ const removeReturnImage = (index: number) => {
                       </svg>
                     </div>
                     <div className="mt-4 text-center">
-                      <p className={`text-sm font-semibold ${orderStatus === "cho_xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Đã xác nhận trả hàng</p>
-                      {orderStatus === "cho_xac_nhan_tra_hang" && (
+                      <p className={`text-sm font-semibold ${orderStatus === "xac_nhan_tra_hang" ? "text-blue-700 scale-110" : "text-gray-400"}`}>Đã xác nhận trả hàng</p>
+                      {orderStatus === "xac_nhan_tra_hang" && (
                         <div className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full">
                           <span className="text-xs font-medium text-blue-700">Hiện tại</span>
                         </div>
@@ -397,8 +418,8 @@ const removeReturnImage = (index: number) => {
                   {/* Trả hàng thành công */}
                   <div className="flex flex-col items-center">
                     <div className={`w-16 h-16 flex items-center justify-center rounded-full border-4
-                      ${orderStatus === "tra_hang_thanh_cong" ? "bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
-                    `}>
+          ${orderStatus === "tra_hang_thanh_cong" ? "bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse" : "bg-white text-gray-400 border-gray-300 shadow-md"}
+        `}>
                       {/* icon thành công */}
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -414,69 +435,18 @@ const removeReturnImage = (index: number) => {
                     </div>
                   </div>
                 </div>
-              ) : (
-                // --- Timeline mặc định ---
-                <>
-                  <div className="absolute top-8 left-0 right-0 h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
-                      style={{
-                        width: `${orderStatus === "tra_hang"
-                          ? 100
-                          : (
-                            getCurrentStepIndex() /
-                            (trackingSteps.filter((s) => s.id !== "da_huy" && s.id !== "tra_hang").length - 1)
-                          ) * 100
-                          }%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between relative z-10">
-                    {trackingSteps.map((step, index) => {
-                      const Icon = step.icon
-                      const completed = isStepCompleted(index)
-                      const active = isStepActive(index)
-                      const isSpecialStatus = step.id === "da_huy" || step.id === "tra_hang"
-                      if (isSpecialStatus && !active) return null
-                      return (
-                        <div key={step.id} className="flex flex-col items-center group">
-                          <div
-                            className={`w-16 h-16 flex items-center justify-center rounded-full border-4 transition-all duration-500 ${active
-                              ? `bg-gradient-to-r ${step.color} text-white border-white shadow-2xl scale-110 animate-pulse`
-                              : completed
-                                ? "bg-gradient-to-r from-teal-400 to-emerald-400 text-white border-teal-200 shadow-lg"
-                                : "bg-white text-gray-400 border-gray-300 shadow-md"
-                              } group-hover:scale-105`}
-                          >
-                            <Icon className={`w-7 h-7 transition-all duration-300 ${active ? "animate-bounce" : ""}`} />
-                          </div>
-                          <div className="mt-4 text-center">
-                            <p
-                              className={`text-sm font-semibold transition-all duration-300 ${active ? "text-teal-600 scale-110" : completed ? "text-emerald-600" : "text-gray-400"
-                                }`}
-                            >
-                              {step.title}
-                            </p>
-                            {active && (
-                              <div className="mt-2 px-3 py-1 bg-gradient-to-r from-teal-100 to-emerald-100 rounded-full">
-                                <span className="text-xs font-medium text-teal-700">Hiện tại</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
               )}
             </div>
+
           </div>
         </div>
+
 
         {/* Order Details */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Product & Address Info */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Delivery Address */}
             {/* Delivery Address */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4">
@@ -566,9 +536,29 @@ const removeReturnImage = (index: number) => {
                       </p>
                     </div>
                   </div>
+
+                  {/* Thêm trường trạng thái thanh toán */}
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Trạng thái thanh toán</p>
+                      
+                      <p className="font-medium text-gray-800">{order.trang_thai_thanh_toan || "Chưa xác định"}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
 
             {/* Product Details */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -910,7 +900,7 @@ const removeReturnImage = (index: number) => {
         </div>
       )}
 
-      {orderStatus === "cho_xac_nhan_tra_hang" && (
+      {orderStatus === "xac_nhan_tra_hang" && (
         <div className="flex flex-col items-center justify-center my-12">
           <div className="flex items-center">
             <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse">
