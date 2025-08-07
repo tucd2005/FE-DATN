@@ -271,7 +271,7 @@ export default function ChatBot() {
 
       {/* Chat Modal with Enhanced Effects */}
       {isOpen && (
-<div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
+<div className="fixed bottom-24 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
           {showSparkles && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
               {[...Array(6)].map((_, i) => (

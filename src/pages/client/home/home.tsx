@@ -12,7 +12,7 @@ import Hero from "./components/hero";
 import SanPhamNoiBat from "./components/san_pham_noi_bat";
 import ThietBiChuyenNghiep from "./components/thiet_bi_chuyen_nghiep";
 import ThuongHieuDongHanh from "./components/thuong_hieu_dong_hanh";
-import ChatBox from "./components/chat_bot_simple";
+import ChatAI from "./components/chat_bot_simple";
 
 
 
@@ -41,7 +41,8 @@ export default function HomeClient() {
       <ThietBiChuyenNghiep />
       <DangKyNhanTin />
       <CamNhanKhachHang />
-      <ChatBox />
+      
+      <ChatAI />
 
     </div>
   );
