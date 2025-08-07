@@ -4,7 +4,7 @@ import { loginApi } from '../../../api/authClientApi';
 import VerifyOtp from './VerifyOtp';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../../validations/authSchema';
 import { Link } from 'react-router-dom';
@@ -17,6 +17,7 @@ interface ILoginPayload {
 const LoginClient: React.FC = () => {
   const [showVerify, setShowVerify] = useState(false);
   const [emailToVerify, setEmailToVerify] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -31,7 +32,7 @@ const LoginClient: React.FC = () => {
     try {
       const res = await loginApi(data);
       console.log(res);
-      
+
       if (res.data?.access_token) {
         localStorage.setItem('accessToken', res.data.access_token);
         message.success('Đăng nhập thành công!');
@@ -45,7 +46,6 @@ const LoginClient: React.FC = () => {
       console.log('Login error:', err);
       if (err?.response?.status === 422 && err.response.data?.errors) {
         const errors = Object.values(err.response.data.errors).flat();
-
         message.error(errors[0] as string);
       } else if (err?.response?.data?.message) {
         message.error(err.response.data.message);
@@ -88,7 +88,7 @@ const LoginClient: React.FC = () => {
                 <input
                   id="email"
                   type="email"
-                  placeholder="example@email.com"
+                  placeholder="Nhập email của bạn"
                   className="pl-10 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 py-2 px-3"
                   {...register('email')}
                 />
@@ -103,11 +103,22 @@ const LoginClient: React.FC = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Nhập mật khẩu"
-                  className="pl-10 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 py-2 px-3"
+                  className="pl-10 pr-10 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 py-2 px-3"
                   {...register('password')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             </div>
 

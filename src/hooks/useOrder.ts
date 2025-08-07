@@ -33,16 +33,26 @@ export const useOrderDetail = (id: number) => {
 
 
 export const useUpdateOrderStatus = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: (params: { id: number; trang_thai_don_hang: string }) =>
-        orderService.updateOrderStatus(params.id, { trang_thai_don_hang: params.trang_thai_don_hang }),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["orders"] }); // reload list
-      },
-    });
-  };
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      id: number;
+      trang_thai_don_hang: string;
+      ly_do_tu_choi_tra_hang?: string;
+    }) =>
+      orderService.updateOrderStatus(params.id, {
+        trang_thai_don_hang: params.trang_thai_don_hang,
+        ...(params.ly_do_tu_choi_tra_hang && {
+          ly_do_tu_choi_tra_hang: params.ly_do_tu_choi_tra_hang,
+        }),
+      }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] }); // Làm mới danh sách
+    },
+  });
+};
 
   // Hook lấy danh sách đơn hàng client
 export const useOrders = (page = 1) => {

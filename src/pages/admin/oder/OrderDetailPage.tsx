@@ -154,41 +154,134 @@ const OrderDetailPage = () => {
         Chi tiết đơn hàng: {order?.ma_don_hang}
       </h2>
 
-      <Descriptions bordered column={1}>
-        <Descriptions.Item label="Mã Đơn Hàng">{order?.ma_don_hang}</Descriptions.Item>
-        <Descriptions.Item label="Địa chỉ">{order?.dia_chi}</Descriptions.Item>
-        <Descriptions.Item label="Trạng thái thanh toán">
-          {order?.trang_thai_thanh_toan === "da_thanh_toan" ? (
-            <Tag color="green">Đã thanh toán</Tag>
-          ) : (
-            <Tag color="orange">Chờ xử lý</Tag>
-          )}
-        </Descriptions.Item>
-        <Descriptions.Item label="Phương thức thanh toán">
-          {order?.payment_method?.ten}
-        </Descriptions.Item>
-        <Descriptions.Item label="Trạng thái đơn hàng">
-           {(() => {
-             const status = order?.trang_thai_don_hang;
-             let color: string = 'geekblue';
-             if (["da_nhan", "tra_hang_thanh_cong"].includes(status)) color = 'green';
-             else if (["da_huy"].includes(status)) color = 'red';
-             else if (["yeu_cau_tra_hang", "cho_xac_nhan_tra_hang", "da_giao", "dang_van_chuyen", "cho_xac_nhan", "dang_chuan_bi"].includes(status)) color = 'orange';
-             return <Tag color={color}>{status?.replace(/_/g, ' ')}</Tag>;
-           })()}
-        </Descriptions.Item>
-        {order?.ly_do_tra_hang && (
-          <Descriptions.Item label="Lý do trả hàng">
-            <span style={{ color: '#d48806', fontWeight: 500 }}>{order.ly_do_tra_hang}</span>
-          </Descriptions.Item>
-        )}
-        <Descriptions.Item label="Tổng tiền">
-          {order?.so_tien_thanh_toan?.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
-        </Descriptions.Item>
-      </Descriptions>
+  <Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Thông tin người đặt hàng"
+  className="mb-4"
+>
+  <Descriptions.Item label="Họ tên">{order?.ten_nguoi_dat}</Descriptions.Item>
+  <Descriptions.Item label="SĐT">{order?.sdt_nguoi_dat}</Descriptions.Item>
+  <Descriptions.Item label="Email">{order?.email_nguoi_dat}</Descriptions.Item>
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Địa chỉ giao hàng"
+  className="mb-4"
+>
+  <Descriptions.Item label="Địa chỉ">{order?.dia_chi}</Descriptions.Item>
+  <Descriptions.Item label="Địa chỉ đầy đủ">{order?.dia_chi_day_du}</Descriptions.Item>
+  <Descriptions.Item label="Tỉnh/Thành phố">{order?.thanh_pho}</Descriptions.Item>
+  <Descriptions.Item label="Xã/Phường">{order?.xa}</Descriptions.Item>
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Thông tin đơn hàng"
+  className="mb-4"
+>
+  <Descriptions.Item label="Mã đơn hàng">{order?.ma_don_hang}</Descriptions.Item>
+  <Descriptions.Item label="Tên sản phẩm">{order?.ten_san_pham}</Descriptions.Item>
+  <Descriptions.Item label="Giá trị biến thể">{order?.gia_tri_bien_the}</Descriptions.Item>
+  <Descriptions.Item label="Phí ship">
+    {Number(order?.phi_ship).toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    })}
+  </Descriptions.Item>
+  <Descriptions.Item label="Tổng thanh toán">
+    {Number(order?.so_tien_thanh_toan).toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    })}
+  </Descriptions.Item>
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Thanh toán"
+  className="mb-4"
+>
+  <Descriptions.Item label="Trạng thái thanh toán">
+    <Tag color={order?.trang_thai_thanh_toan === "da_thanh_toan" ? "green" : "orange"}>
+      {order?.trang_thai_thanh_toan?.replace(/_/g, " ")}
+    </Tag>
+  </Descriptions.Item>
+
+  <Descriptions.Item label="Phương thức thanh toán">{order?.payment_method?.ten}</Descriptions.Item>
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Giảm giá & Ghi chú"
+  className="mb-4"
+>
+  <Descriptions.Item label="Mã giảm giá">{order?.ma_giam_gia || "Không có"}</Descriptions.Item>
+  <Descriptions.Item label="Tiền giảm">
+    {Number(order?.so_tien_duoc_giam).toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    })}
+  </Descriptions.Item>
+  
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Trạng thái & Hành động"
+  className="mb-4"
+>
+  <Descriptions.Item label="Trạng thái đơn hàng">
+    <Tag color={
+      order?.trang_thai_don_hang === "da_nhan"
+        ? "green"
+        : order?.trang_thai_don_hang === "da_huy"
+        ? "red"
+        : "orange"
+    }>
+      {order?.trang_thai_don_hang?.replace(/_/g, " ")}
+    </Tag>
+  </Descriptions.Item>
+  <Descriptions.Item label="Lý do hủy">{order?.ly_do_huy || "-"}</Descriptions.Item>
+  <Descriptions.Item label="Lý do trả hàng">{order?.ly_do_tra_hang || "-"}</Descriptions.Item>
+  <Descriptions.Item label="Lý do từ chối trả">{order?.ly_do_tu_choi_tra_hang || "-"}</Descriptions.Item>
+ {order?.hinh_anh_tra_hang && (
+  <Descriptions.Item label="Ảnh trả hàng">
+    <Image
+      width={100}
+      src={`http://localhost:8000/storage/${JSON.parse(order.hinh_anh_tra_hang)[0]}`}
+      alt="Ảnh trả hàng"
+    />
+  </Descriptions.Item>
+)}
+
+</Descriptions>
+
+<Descriptions
+  bordered
+  size="small"
+  column={1}
+  title="Thông tin thời gian"
+  className="mb-4"
+>
+  <Descriptions.Item label="Ngày tạo">{order?.created_at}</Descriptions.Item>
+  <Descriptions.Item label="Ngày cập nhật">{order?.updated_at}</Descriptions.Item>
+
+</Descriptions>
+
+
 
       <h3 className="mt-6 mb-2 font-semibold">Danh sách sản phẩm</h3>
       <Table

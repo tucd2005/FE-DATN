@@ -5,3 +5,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+body {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+/* code này là để cái slider carousel, ở phần component danh_gia.tsx hoạt động nhé */
+.slick-prev:before,
+.slick-next:before {
+    color: #1f2937;
+    font-size: 24px;
+}
+
+.slick-dots li button:before {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.slick-dots li.slick-active button:before {
+    color: #1f2937;
+}

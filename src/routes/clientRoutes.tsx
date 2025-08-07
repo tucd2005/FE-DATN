@@ -18,6 +18,8 @@ import ContactPage from "../pages/client/contact/ContactPage";
 import SportsNewsPage from "../pages/client/bai_viet/postsClient";
 import ArticleDetailPage from "../pages/client/bai_viet/detailposts";
 import ProductsPage from "../pages/client/san_pham/ProductsPage";
+import PaymentSuccessPage from "../pages/client/payment-success";
+import PaymentFailedPage from "../pages/client/payment-failed";
 
 
 
@@ -43,6 +45,8 @@ export const clientRouter = {
 
     { path: "bai_viet", element: <SportsNewsPage /> },
     { path: "bai_viet/:id", element: <ArticleDetailPage /> },
+    { path: "payment-success", element: <PaymentSuccessPage /> },
+    { path: "payment-failed", element: <PaymentFailedPage /> },
 
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },

@@ -98,7 +98,7 @@ const Footer = () => {
                         <div className="space-y-3 text-gray-600">
                             <div className="flex items-center space-x-2">
                                 <Phone className="w-4 h-4" />
-                                <span>1900 2024</span>
+                                <span>1900 2025</span>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Mail className="w-4 h-4" />
@@ -106,11 +106,11 @@ const Footer = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <MapPin className="w-4 h-4" />
-                                <span>456 Lê Văn Việt, Quận 9, TP.HCM</span>
+                                <span>Số 1 Trịnh Văn Bô, Nam Từ Liêm, Hà Nội</span>
                             </div>
                         </div>
                         <div className="mt-6">
-                            <h4 className="font-semibold text-gray-900 mb-3">Đăng ký nhận tin thể thao</h4>
+                            <h4 className="font-semibold text-gray-900 mb-3">Đăng ký nhận tin tức từ Sportigo</h4>
                             <div className="flex space-x-2">
                                 <input
                                     type="email"
@@ -125,7 +125,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
-                    <p>© 2024 Sportigo. Tất cả quyền được bảo lưu.</p>
+                    <p>© 2025 Sportigo. Tất cả quyền được bảo lưu.</p>
                 </div>
             </div>
         </footer>
