@@ -2,7 +2,7 @@ import instanceAxios from "../utils/axios";
 
 // Lấy danh sách đánh giá
 export const getReviews = async () => {
-  const res = await instanceAxios.get("/admin/reviews");
+  const res = await instanceAxios.get("/admin/reviews?page=${page}");
   return res.data; // trả về data, thường backend sẽ trả dạng { data: [...] }
 };
 export const getReviewDetail = async (id: number) => {
