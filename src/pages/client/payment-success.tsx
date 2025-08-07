@@ -21,52 +21,89 @@ export default function PaymentSuccessPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Lấy thông tin từ URL params
-        const transactionCode = searchParams.get('vnp_TxnRef');
-        const amount = searchParams.get('vnp_Amount');
-        const status = searchParams.get('vnp_ResponseCode');
-        const message = searchParams.get('message') || searchParams.get('vnp_Message');
+        const run = () => {
+            try {
+                const transactionCode = searchParams.get('vnp_TxnRef');
+                const amount = searchParams.get('vnp_Amount');
+                const status = searchParams.get('vnp_ResponseCode');
+                const message = searchParams.get('message') || searchParams.get('vnp_Message');
 
-        // Kiểm tra nếu thanh toán thành công
-        if (transactionCode && amount && status === '00') {
-            const paymentInfo = {
-                transaction_code: transactionCode,
-                amount: Number(amount) / 100, // VNPay trả về số tiền nhân 100
-                status: 'success',
-                payment_method: 'VNPay',
-                created_at: new Date().toISOString(),
-                message: message || 'Nạp tiền thành công'
-            };
+                console.log("[VNPay Callback Params]", {
+                    transactionCode,
+                    amount,
+                    status,
+                    message
+                });
 
-            setPaymentData(paymentInfo);
+                if (transactionCode && amount && status === '00') {
+                    const paymentInfo = {
+                        transaction_code: transactionCode,
+                        amount: Number(amount) / 100,
+                        status: 'success',
+                        payment_method: 'VNPay',
+                        created_at: new Date().toISOString(),
+                        message: message || 'Nạp tiền thành công'
+                    };
 
-            // Lưu thông tin giao dịch vào localStorage để hiển thị
-            localStorage.setItem('lastPaymentSuccess', JSON.stringify(paymentInfo));
+                    console.log("[Payment Success Detected]", paymentInfo);
 
-            // Tự động refresh số dư ví và pending transaction
-            queryClient.invalidateQueries({ queryKey: ["wallet-balance"] });
-            queryClient.invalidateQueries({ queryKey: ["pending-transaction"] });
-            queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
-        } else {
-            // Nếu không có params hoặc không thành công, kiểm tra localStorage
-            const lastPayment = localStorage.getItem('lastPaymentSuccess');
-            if (lastPayment) {
-                try {
-                    const paymentInfo = JSON.parse(lastPayment);
-                    // Chỉ hiển thị nếu giao dịch trong vòng 1 giờ
-                    const paymentTime = new Date(paymentInfo.created_at);
-                    const now = new Date();
-                    const diffHours = (now.getTime() - paymentTime.getTime()) / (1000 * 60 * 60);
+                    setPaymentData(paymentInfo);
+                    localStorage.setItem('lastPaymentSuccess', JSON.stringify(paymentInfo));
 
-                    if (diffHours < 1) {
-                        setPaymentData(paymentInfo);
+                    queryClient.invalidateQueries({ queryKey: ["wallet-balance"] });
+                    queryClient.invalidateQueries({ queryKey: ["pending-transaction"] });
+                    queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
+                } else if (status && status !== '00') {
+                    // Xử lý giao dịch thất bại
+                    const errorMessages: { [key: string]: string } = {
+                        '24': 'Giao dịch bị hủy bởi người dùng',
+                        '10': 'Dữ liệu không hợp lệ, vui lòng kiểm tra lại',
+                        '11': 'Giao dịch đã hết hạn',
+                        // Thêm các mã lỗi khác theo tài liệu VNPay
+                    };
+                    setPaymentData({
+                        transaction_code: transactionCode || 'N/A',
+                        amount: Number(amount) / 100 || 0,
+                        status: 'failed',
+                        payment_method: 'VNPay',
+                        created_at: new Date().toISOString(),
+                        message: errorMessages[status] || 'Giao dịch thất bại, vui lòng thử lại'
+                    });
+                } else {
+                    console.warn("[Fallback to localStorage] Vì không có đủ params hợp lệ hoặc thanh toán không thành công");
+
+                    const lastPayment = localStorage.getItem('lastPaymentSuccess');
+                    if (lastPayment) {
+                        try {
+                            const paymentInfo = JSON.parse(lastPayment);
+                            const paymentTime = new Date(paymentInfo.created_at);
+                            const now = new Date();
+                            const diffHours = (now.getTime() - paymentTime.getTime()) / (1000 * 60 * 60);
+
+                            console.log("[Found from localStorage]", {
+                                paymentInfo,
+                                diffHours
+                            });
+
+                            if (diffHours < 1) {
+                                setPaymentData(paymentInfo);
+                            } else {
+                                console.warn("LocalStorage data quá hạn 1 giờ");
+                            }
+                        } catch (err) {
+                            console.error("❌ Lỗi khi parse localStorage:", err);
+                        }
                     }
-                } catch (error) {
-                    console.error('Error parsing payment data:', error);
                 }
+            } catch (error) {
+                console.error("❌ Lỗi trong PaymentSuccessPage:", error);
+            } finally {
+                console.log("✅ Đã kết thúc xử lý, loading = false");
+                setLoading(false);
             }
-        }
-        setLoading(false);
+        };
+
+        run();
     }, [searchParams, queryClient]);
 
     const handleGoToWallet = () => {
