@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { cancelOrder, getOrderDetail, getOrders, orderService } from "../services/orderService";
+import { cancelOrder, checkPendingPayment, getOrderDetail, getOrders, orderService } from "../services/orderService";
 import { toast } from "react-toastify";
 
 // Interface cho tham số lọc
@@ -119,3 +119,11 @@ export function useCancelOrderadmin() {
       cancelOrder(id, ly_do_huy),
   });
 }
+///quay lại thanh toán đơn hàng vnplay
+export const usePendingPayment = () => {
+  return useQuery({
+    queryKey: ["pendingPayment"],
+    queryFn: checkPendingPayment,
+    refetchOnWindowFocus: false,
+  });
+};

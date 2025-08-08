@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewDetail,
   getReviews,
+  getReviewss,
   hideReview,
   getProductReviews,
   submitReview,
+  getReviewsByProduct,
 } from "../services/reviewService";
 import { toast } from "react-toastify";
 
@@ -58,5 +60,15 @@ export const useSubmitReview = () => {
       const productId = variables.get("san_pham_id");
       queryClient.invalidateQueries(["productReviews", Number(productId)]);
     },
+  });
+};
+
+
+// Hook cho React Query
+export const useReviews = (productId: number) => {
+  return useQuery({
+    queryKey: ["reviews", productId],
+    queryFn: () => getReviewsByProduct(productId),
+    enabled: !!productId, // chỉ chạy khi có productId
   });
 };
