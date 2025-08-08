@@ -31,3 +31,16 @@ export const submitReview = async (formData: FormData) => {
   });
   return res.data;
 };
+
+///
+export interface ReviewParams {
+  sao?: number;           // lọc theo số sao
+  co_hinh_anh?: boolean;  // lọc theo có hình ảnh
+  page?: number;          // phân trang
+}
+
+
+export const getReviewsByProduct = async (productId: number) => {
+  const res = await instanceAxios.get(`/products/${productId}/review`);
+  return res.data.data; // BE trả về data.data
+};
