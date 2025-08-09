@@ -116,7 +116,8 @@ export const useMarkOrderAsDelivered = () => {
 export function useCancelOrderadmin() {
   return useMutation({
     mutationFn: ({ id, ly_do_huy }: { id: number; ly_do_huy: string }) =>
-      cancelOrder(id, ly_do_huy),
+  cancelOrder(id, ly_do_huy),
+
   });
 }
 ///quay lại thanh toán đơn hàng vnplay
