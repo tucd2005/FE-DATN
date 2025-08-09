@@ -7,6 +7,7 @@ import {
   getProductReviews,
   submitReview,
   getReviewsByProduct,
+  getLatestFiveStarReviews,
 } from "../services/reviewService";
 import { toast } from "react-toastify";
 
@@ -65,10 +66,9 @@ export const useSubmitReview = () => {
 
 
 // Hook cho React Query
-export const useReviews = (productId: number) => {
+export const useLatestFiveStarReviews = (limit: number = 10) => {
   return useQuery({
-    queryKey: ["reviews", productId],
-    queryFn: () => getReviewsByProduct(productId),
-    enabled: !!productId, // chỉ chạy khi có productId
+    queryKey: ["latest-five-star-reviews", limit],
+    queryFn: () => getLatestFiveStarReviews(limit)
   });
-};
+}

@@ -75,8 +75,18 @@ const ProductDetailPage: React.FC = () => {
       },
     },
     ...dynamicAttributeColumns,
-    { title: 'Giá', dataIndex: 'gia', render: (gia: number) => gia ? gia.toLocaleString() + '₫' : '-' },
-    { title: 'Giá khuyến mãi', dataIndex: 'gia_khuyen_mai', render: (gia: number) => gia ? gia.toLocaleString() + '₫' : '-' },
+    {
+  title: 'Giá',
+  dataIndex: 'gia',
+  render: (gia: number) =>
+    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+},
+{
+  title: 'Giá khuyến mãi',
+  dataIndex: 'gia_khuyen_mai',
+  render: (gia: number) =>
+    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+},
     { title: 'Số lượng', dataIndex: 'so_luong', render: (sl: number) => sl?.toLocaleString() ?? '-' },
 
     {

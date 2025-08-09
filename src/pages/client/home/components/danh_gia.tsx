@@ -2,10 +2,10 @@ import Slider from "react-slick";
 import { Star } from "lucide-react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useReviews } from "../../../../hooks/useReview";
+import { useLatestFiveStarReviews } from "../../../../hooks/useReview";
 
-export default function CamNhanKhachHang({ productId }: { productId: number }) {
-  const { data, isLoading, isError } = useReviews(productId);
+export default function CamNhanKhachHang() {
+  const { data, isLoading, isError } = useLatestFiveStarReviews(10); // lấy 10 đánh giá
 
   const settings = {
     dots: true,
@@ -36,6 +36,7 @@ export default function CamNhanKhachHang({ productId }: { productId: number }) {
           {data.map((review: any, idx: number) => (
             <div key={idx} className="px-2">
               <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition-shadow">
+                {/* Avatar + Name */}
                 <div className="flex items-center mb-4">
                   <img
                     src={review.user?.avatar || "/default-avatar.png"}
@@ -44,14 +45,18 @@ export default function CamNhanKhachHang({ productId }: { productId: number }) {
                   />
                   <div>
                     <h3 className="font-semibold text-gray-900">{review.user?.name || "Ẩn danh"}</h3>
-                    <p className="text-gray-500 text-sm">{review.role || "Khách hàng"}</p>
+                    <p className="text-gray-500 text-sm">Khách hàng</p>
                   </div>
                 </div>
+
+                {/* Stars */}
                 <div className="flex mb-3">
                   {Array.from({ length: review.so_sao || 0 }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
+
+                {/* Nội dung */}
                 <p className="text-gray-700 italic">“{review.noi_dung}”</p>
               </div>
             </div>
