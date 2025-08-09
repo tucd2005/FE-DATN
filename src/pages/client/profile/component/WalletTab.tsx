@@ -2,21 +2,25 @@ import { useState } from "react"
 import WalletHeader from "./WalletHeader"
 import WalletActions from "./WalletActions"
 import WalletInfo from "./WalletInfo"
+import WalletStats from "./WalletStats"
 import TransactionHistory from "./TransactionHistory"
 import DepositModal from "./DepositModal"
 import WithdrawModal from "./WithdrawModal"
+import PendingTransactionAlert from "./PendingTransactionAlert"
 
 export default function WalletTab() {
     const [depositModalVisible, setDepositModalVisible] = useState(false)
     const [withdrawModalVisible, setWithdrawModalVisible] = useState(false)
 
     const handleDepositSuccess = () => {
-        // Có thể thêm logic refresh data ở đây
+        setDepositModalVisible(false)
+        // Refresh data
         window.location.reload()
     }
 
     const handleWithdrawSuccess = () => {
-        // Có thể thêm logic refresh data ở đây
+        setWithdrawModalVisible(false)
+        // Refresh data
         window.location.reload()
     }
 
@@ -24,12 +28,14 @@ export default function WalletTab() {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <WalletHeader />
             <div className="p-8">
+                <PendingTransactionAlert />
                 <WalletActions
                     onDepositClick={() => setDepositModalVisible(true)}
                     onWithdrawClick={() => setWithdrawModalVisible(true)}
                 />
                 <WalletInfo />
-                <TransactionHistory />
+                <WalletStats />
+                <TransactionHistory className="mt-8" />
             </div>
 
             <DepositModal

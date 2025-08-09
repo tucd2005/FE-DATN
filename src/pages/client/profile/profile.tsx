@@ -353,9 +353,7 @@ export default function ProfilePage() {
                             <label className="text-sm font-semibold text-gray-700">Địa chỉ</label>
                           </div>
                           <p className="text-gray-900 font-medium">
-                            {profile?.address
-                              ? `${profile.address.chiTiet}, ${profile.address.phuongXa}, ${profile.address.quanHuyen}, ${profile.address.tinhThanh}`
-                              : "Chưa cập nhật"}
+                            Chưa cập nhật
                           </p>
                         </div>
 
@@ -408,7 +406,16 @@ export default function ProfilePage() {
         {/* Tab ví điện tử */}
         {activeTab === "wallet" && <WalletTab />}
 
-        {activeTab === "password" && <ChangePasswordForm />}
+        {activeTab === "password" && (
+          <ChangePasswordForm
+            onSuccess={() => {
+              // Handle success
+            }}
+            onCancel={() => {
+              // Handle cancel
+            }}
+          />
+        )}
 
       </main>
     </div>

@@ -1,5 +1,4 @@
 import { useWalletBalance, useWalletWithdraw } from "../../../../hooks/useWalletClient"
-import { formatCurrency } from "../../../../utils/formatCurrency"
 
 interface WalletActionsProps {
     onDepositClick: () => void
@@ -7,7 +6,7 @@ interface WalletActionsProps {
 }
 
 export default function WalletActions({ onDepositClick, onWithdrawClick }: WalletActionsProps) {
-    const { data: walletBalance, isLoading: walletLoading } = useWalletBalance()
+    const { data: walletBalance } = useWalletBalance()
     const { isPending: withdrawPending } = useWalletWithdraw()
 
     return (
