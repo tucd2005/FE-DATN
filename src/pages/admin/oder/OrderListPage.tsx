@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, {  useState } from "react";
 import {
   Table,
   Tag,
@@ -14,7 +14,11 @@ import {
 } from "antd";
 import { ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useCancelOrderadmin, useOrderList, useUpdateOrderStatus } from "../../../hooks/useOrder";
+import {
+  useCancelOrderadmin,
+  useOrderList,
+  useUpdateOrderStatus,
+} from "../../../hooks/useOrder";
 import { useQueryClient } from "@tanstack/react-query";
 
 const { Option } = Select;
@@ -43,9 +47,8 @@ const ORDER_STATUS_OPTIONS = [
   { value: "tra_hang_thanh_cong", label: "Trả hàng thành công" },
   { value: "tu_choi_tra_hang", label: "Từ chối trả hàng" },
   { value: "yeu_cau_huy_hang", label: "Yêu cầu huỷ đơn" },
-  { value: "huy_hang", label: "Huỷ đơn hàng" }, // nếu backend support
+  { value: "huy_hang", label: "Huỷ đơn hàng" },
 ];
-
 
 const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   cho_xac_nhan: { color: "orange", label: "Chờ xác nhận" },
@@ -59,7 +62,6 @@ const ORDER_STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   yeu_cau_huy_hang: { color: "volcano", label: "Yêu cầu huỷ hàng" },
   huy_hang: { color: "red", label: "Đã huỷ" },
 };
-
 
 const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
   da_thanh_toan: { color: "green", label: "Đã thanh toán" },
@@ -93,82 +95,169 @@ const OrderListPage: React.FC = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [pendingId, setPendingId] = useState<number | null>(null);
+
   const { data, isLoading } = useOrderList(page);
   const updateStatusMutation = useUpdateOrderStatus();
   const cancelOrderMutation = useCancelOrderadmin();
   const queryClient = useQueryClient();
-  const reasonRef = useRef("");
-const [form] = Form.useForm();
 
-const handleChangeStatus = (id: number, value: string) => {
-  const requiresReason = ["huy_hang", "tu_choi_tra_hang"].includes(value);
+  // separate forms for clarity
+  const [formCancel] = Form.useForm();
+  const [formReason] = Form.useForm();
 
-  if (requiresReason) {
+  const handleCancel = (record: Order) => {
+    formCancel.resetFields();
+
     Modal.confirm({
-      title:
-        value === "huy_hang"
-          ? "Lý do huỷ đơn hàng"
-          : "Lý do từ chối trả hàng",
+      title: "Lý do huỷ đơn hàng",
       icon: <ExclamationCircleOutlined />,
       content: (
-        <Form form={form}>
+        <Form form={formCancel}>
           <Form.Item
             name="reason"
-            rules={[{ required: true, message: "Vui lòng nhập lý do." }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập lý do huỷ" },
+              { max: 255, message: "Lý do không được vượt quá 255 ký tự" },
+            ]}
           >
-            <Input.TextArea placeholder="Nhập lý do..." />
+            <Input.TextArea rows={3} placeholder="Nhập lý do..." />
           </Form.Item>
         </Form>
       ),
       onOk: async () => {
         try {
-          const values = await form.validateFields();
-          const currentReason = values.reason?.trim();
+          const values = await formCancel.validateFields();
+          const ly_do_huy = values.reason?.trim();
+          if (!ly_do_huy) return Promise.reject();
 
-          const payload: any = {
-            id,
-            trang_thai_don_hang: value,
-          };
+          setPendingId(record.id);
+          await cancelOrderMutation.mutateAsync({ id: record.id, ly_do_huy });
 
-          if (value === "huy_hang") {
-            payload.ly_do_huy = currentReason;
-          }
-
-          if (value === "tu_choi_tra_hang") {
-            payload.ly_do_tu_choi_tra_hang = currentReason;
-          }
-
-          setPendingId(id);
-
-          await updateStatusMutation.mutateAsync(payload);
-          message.success("Cập nhật trạng thái thành công");
+          message.success("Huỷ đơn hàng thành công");
           queryClient.invalidateQueries({ queryKey: ["orders", page] });
         } catch (err) {
+          // nếu validate lỗi, AntD tự show; nếu lỗi từ API thì show message
+          if ((err as any)?.response?.data?.message) {
+            message.error((err as any).response.data.message);
+          }
           return Promise.reject();
         } finally {
           setPendingId(null);
+          formCancel.resetFields();
         }
       },
     });
-  } else {
-    // Không cần nhập lý do
-    setPendingId(id);
-    updateStatusMutation.mutate(
-      { id, trang_thai_don_hang: value },
-      {
-        onSuccess: () => {
-          message.success("Cập nhật trạng thái thành công");
-          queryClient.invalidateQueries({ queryKey: ["orders", page] });
-        },
-        onError: (error: any) =>
-          message.error(error?.response?.data?.message || "Cập nhật thất bại"),
-        onSettled: () => setPendingId(null),
+  };
+
+  const handleChangeStatus = (id: number, value: string) => {
+    const requiresReason = ["huy_hang", "tu_choi_tra_hang"].includes(value);
+
+    if (requiresReason) {
+      // nếu là "huy_hang" -> call cancel endpoint (vì backend có logic refund ...)
+      if (value === "huy_hang") {
+        formCancel.resetFields();
+
+        Modal.confirm({
+          title: "Lý do huỷ đơn hàng",
+          icon: <ExclamationCircleOutlined />,
+          content: (
+            <Form form={formCancel}>
+              <Form.Item
+                name="reason"
+                rules={[
+                  { required: true, message: "Vui lòng nhập lý do huỷ" },
+                  { max: 255, message: "Lý do không được vượt quá 255 ký tự" },
+                ]}
+              >
+                <Input.TextArea rows={3} placeholder="Nhập lý do..." />
+              </Form.Item>
+            </Form>
+          ),
+          onOk: async () => {
+            try {
+              const values = await formCancel.validateFields();
+              const ly_do_huy = values.reason?.trim();
+              if (!ly_do_huy) return Promise.reject();
+
+              setPendingId(id);
+              await cancelOrderMutation.mutateAsync({ id, ly_do_huy });
+
+              message.success("Huỷ đơn hàng thành công");
+              queryClient.invalidateQueries({ queryKey: ["orders", page] });
+            } catch (err) {
+              if ((err as any)?.response?.data?.message) {
+                message.error((err as any).response.data.message);
+              }
+              return Promise.reject();
+            } finally {
+              setPendingId(null);
+              formCancel.resetFields();
+            }
+          },
+        });
+
+        return;
       }
-    );
-  }
-};
 
+      // trường hợp "tu_choi_tra_hang": dùng updateStatus (PUT) với lý do tu choi tra hang
+      formReason.resetFields();
+      Modal.confirm({
+        title: "Lý do từ chối trả hàng",
+        icon: <ExclamationCircleOutlined />,
+        content: (
+          <Form form={formReason}>
+            <Form.Item
+              name="reason"
+              rules={[{ required: true, message: "Vui lòng nhập lý do." }]}
+            >
+              <Input.TextArea placeholder="Nhập lý do..." />
+            </Form.Item>
+          </Form>
+        ),
+        onOk: async () => {
+          try {
+            const values = await formReason.validateFields();
+            const currentReason = values.reason?.trim();
 
+            const payload: any = {
+              id,
+              trang_thai_don_hang: value,
+              ly_do_tu_choi_tra_hang: currentReason,
+            };
+
+            setPendingId(id);
+            await updateStatusMutation.mutateAsync(payload);
+
+            message.success("Cập nhật trạng thái thành công");
+            queryClient.invalidateQueries({ queryKey: ["orders", page] });
+          } catch (err) {
+            if ((err as any)?.response?.data?.message) {
+              message.error((err as any).response.data.message);
+            }
+            return Promise.reject();
+          } finally {
+            setPendingId(null);
+            formReason.resetFields();
+          }
+        },
+      });
+    } else {
+      // Không cần nhập lý do -> gọi update status (PUT)
+      setPendingId(id);
+      updateStatusMutation.mutate(
+        { id, trang_thai_don_hang: value },
+        {
+          onSuccess: () => {
+            message.success("Cập nhật trạng thái thành công");
+            queryClient.invalidateQueries({ queryKey: ["orders", page] });
+          },
+          onError: (error: any) =>
+            message.error(error?.response?.data?.message || "Cập nhật thất bại"),
+          onSettled: () => setPendingId(null),
+        }
+      );
+    }
+  };
 
   const columns = [
     {
@@ -229,7 +318,7 @@ const handleChangeStatus = (id: number, value: string) => {
             size="small"
             value={currentStatus}
             loading={pendingId === record.id}
-            style={{ width: 180 }}
+            style={{ width: 220 }}
             onChange={(value) => handleChangeStatus(record.id, value)}
             disabled={pendingId !== null}
           >
@@ -251,7 +340,6 @@ const handleChangeStatus = (id: number, value: string) => {
                 </Option>
               ))}
           </Select>
-
         );
       },
     },
@@ -261,60 +349,6 @@ const handleChangeStatus = (id: number, value: string) => {
         const canCancel =
           record.trang_thai_don_hang === "cho_xac_nhan" ||
           record.trang_thai_don_hang === "dang_chuan_bi";
-
-        const handleCancel = () => {
-          reasonRef.current = "";
-
-          Modal.confirm({
-            title:
-              value === "huy_hang"
-                ? "Lý do huỷ đơn hàng"
-                : "Lý do từ chối trả hàng",
-            icon: <ExclamationCircleOutlined />,
-            content: (
-              <Form form={form}>
-                <Form.Item
-                  name="reason"
-                  rules={[{ required: true, message: "Vui lòng nhập lý do." }]}
-                >
-                  <Input.TextArea placeholder="Nhập lý do..." />
-                </Form.Item>
-              </Form>
-            ),
-            onOk: async () => {
-              try {
-                const values = await form.validateFields();
-                const currentReason = values.reason?.trim();
-
-                const payload: any = {
-                  id,
-                  trang_thai_don_hang: value,
-                };
-
-                if (value === "huy_hang") {
-                  payload.ly_do_huy = currentReason;
-                }
-
-                if (value === "tu_choi_tra_hang") {
-                  payload.ly_do_tu_choi_tra_hang = currentReason;
-                }
-
-                setPendingId(id);
-
-                await updateStatusMutation.mutateAsync(payload);
-
-                message.success("Cập nhật trạng thái thành công");
-                queryClient.invalidateQueries({ queryKey: ["orders", page] });
-              } catch (err) {
-                // Không cần xử lý vì AntD tự báo lỗi
-                return Promise.reject();
-              } finally {
-                setPendingId(null);
-              }
-            },
-          });
-
-        };
 
         return (
           <Space>
@@ -328,7 +362,12 @@ const handleChangeStatus = (id: number, value: string) => {
 
             {canCancel && (
               <Tooltip title="Huỷ đơn">
-                <Button danger onClick={handleCancel} loading={cancelOrderMutation.isPending}>
+                <Button
+                  danger
+                  onClick={() => handleCancel(record)}
+                  loading={pendingId === record.id}
+                  disabled={pendingId !== null}
+                >
                   Huỷ đơn
                 </Button>
               </Tooltip>

@@ -94,7 +94,6 @@ export const getOrderDetail = async (orderId: number | string) => {
 export function cancelOrder(id: number, ly_do_huy: string) {
   return instanceAxios.post(`/admin/orders/cancel/${id}`, { ly_do_huy });
 }
-
 export type PendingPaymentResponse = {
   status: "need_payment" | "ok";
   message: string;
