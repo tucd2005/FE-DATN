@@ -94,3 +94,20 @@ export const getOrderDetail = async (orderId: number | string) => {
 export function cancelOrder(id: number, ly_do_huy: string) {
   return instanceAxios.post(`/admin/orders/cancel/${id}`, { ly_do_huy });
 }
+
+export type PendingPaymentResponse = {
+  status: "need_payment" | "ok";
+  message: string;
+  ma_don_hang?: string;
+  payment_link?: string;
+  expires_at?: string;
+  amount?: number;
+};
+
+// API call để kiểm tra đơn hàng chờ thanh toán
+export const checkPendingPayment = async (): Promise<PendingPaymentResponse> => {
+  const res = await instanceAxios.get<PendingPaymentResponse>("/orders/check-pending-payment", {
+    withCredentials: true, // nếu API yêu cầu cookie session
+  });
+  return res.data;
+};

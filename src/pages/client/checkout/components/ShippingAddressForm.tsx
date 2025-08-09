@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useProfile } from "../../../../hooks/useProfile";
 
 interface Province {
   code: string;
@@ -39,8 +40,8 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   email,
   setEmail,
   address,
-  setAddress,
-  note,
+  setAddress,  
+note,
   setNote,
   provinces,
   wards,
@@ -50,9 +51,19 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
   setSelectedWard,
   formError,
 }) => {
-
+  const { data: profile, isLoading, isError } = useProfile();
+  useEffect(() => {
+    if (profile) {
+      setTenNguoiDat(profile.name || "");
+      setPhone(profile.phone || "");
+      setEmail(profile.email || "");
+    }
+  }, [profile, setTenNguoiDat, setPhone, setEmail]);
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error loading profile data.</p>;
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2 mb-2">
           <span className="w-5 h-5 text-blue-600">
@@ -106,7 +117,7 @@ const ShippingAddressForm: React.FC<ShippingAddressFormProps> = ({
           </label>
           <input
             id="email"
-            type="email"
+            type="email"  
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Nhập địa chỉ email"

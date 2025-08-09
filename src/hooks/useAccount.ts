@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {  useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { accountService, staffService } from '../services/account'
 import { toast } from 'react-toastify'
 
@@ -8,13 +8,13 @@ export const useAccountList = () => {
     queryFn: accountService.getAll,
   })
 }
-export const useAccountListuser = () => {
+export const useAccountListuser = (page: number, perPage: number) => {
   return useQuery({
-    queryKey: ['accounts'],
-    queryFn: accountService.getAlluser,
-  })
-
-}
+    queryKey: ['accounts', page, perPage],
+    queryFn: () => accountService.getAlluser(page, perPage),
+    placeholderData: (prev) => prev // để giữ data khi chuyển trang
+  });
+};
 
 export const useBlockUser = () => {
   const queryClient = useQueryClient();

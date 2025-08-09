@@ -2,7 +2,7 @@ import instanceAxios from "../utils/axios";
 
 // Lấy danh sách đánh giá
 export const getReviews = async () => {
-  const res = await instanceAxios.get("/admin/reviews");
+  const res = await instanceAxios.get("/admin/reviews?page=${page}");
   return res.data; // trả về data, thường backend sẽ trả dạng { data: [...] }
 };
 export const getReviewDetail = async (id: number) => {
@@ -30,4 +30,17 @@ export const submitReview = async (formData: FormData) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
+};
+
+///
+export interface ReviewParams {
+  sao?: number;           // lọc theo số sao
+  co_hinh_anh?: boolean;  // lọc theo có hình ảnh
+  page?: number;          // phân trang
+}
+
+
+export const getReviewsByProduct = async (productId: number) => {
+  const res = await instanceAxios.get(`/products/${productId}/review`);
+  return res.data.data; // BE trả về data.data
 };

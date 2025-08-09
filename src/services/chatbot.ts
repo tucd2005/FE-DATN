@@ -53,4 +53,20 @@ export const messageService = {
     }
   },
 };
+///cha aii
+export interface ChatRequest {
+  message: string;
+}
 
+export interface ChatResponse {
+  choices: {
+    message: {
+      content: string;
+    };
+  }[];
+}
+
+export const sendChatMessage = async (payload: ChatRequest): Promise<ChatResponse> => {
+  const response = await instanceAxios.post("/chat", payload);
+  return response.data;
+};

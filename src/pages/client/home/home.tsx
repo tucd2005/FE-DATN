@@ -12,6 +12,8 @@ import Hero from "./components/hero";
 import SanPhamNoiBat from "./components/san_pham_noi_bat";
 import ThietBiChuyenNghiep from "./components/thiet_bi_chuyen_nghiep";
 import ThuongHieuDongHanh from "./components/thuong_hieu_dong_hanh";
+import ChatAI from "./components/chat_bot_simple";
+import PendingPaymentNotice from "./components/PendingPaymentNotice";
 
 
 
@@ -40,6 +42,9 @@ export default function HomeClient() {
       <ThietBiChuyenNghiep />
       <DangKyNhanTin />
       <CamNhanKhachHang />
+      <PendingPaymentNotice />
+      
+      <ChatAI />
 
     </div>
   );

@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "../../../stores/cart.store";
 import { useNavigate } from 'react-router-dom';
 import CartItem from './CartItem';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
+import { toast } from 'react-toastify';
 
 const CartPage = () => {
   const {
@@ -55,6 +56,10 @@ const subtotal = selectedCartItems.reduce(
   
 
   const handleCheckout = () => {
+    if (selectedCartItems.some(item => !!item.error_message)) {
+      toast.error("Có sản phẩm trong giỏ hàng đã bị xóa hoặc hết hàng. Vui lòng kiểm tra lại!");
+      return;
+    }
     navigate('/thanh-toan', {
       state: {
         cartItems: selectedCartItems,
@@ -202,7 +207,7 @@ const subtotal = selectedCartItems.reduce(
               <button
                 onClick={handleCheckout}
                 className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors font-medium mb-4"
-                disabled={selectedItems.length === 0}
+                disabled={selectedItems.length === 0} // chỉ disable khi chưa chọn sản phẩm
               >
                 Tiến hành thanh toán
               </button>
