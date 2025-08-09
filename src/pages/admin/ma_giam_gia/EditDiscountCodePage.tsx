@@ -64,7 +64,7 @@ export default function EditDiscountCodePage() {
           <Select
             options={[
               { value: "phan_tram", label: "Phần trăm" },
-              { value: "tien_mat", label: "Tiền mặt" },
+              { value: "tien", label: "Tiền mặt" },
             ]}
           />
         </Form.Item>
@@ -106,7 +106,16 @@ export default function EditDiscountCodePage() {
 
         {/* Các field khác */}
         <Form.Item label="Giá trị" name="gia_tri" rules={[{ required: true }]}>
-          <InputNumber min={0} style={{ width: "100%" }} />
+          <InputNumber
+            min={0}
+            style={{ width: "100%" }}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+            parser={(value) =>
+              parseInt((value || "").replace(/[^\d]/g, ""), 10)
+            }
+          />
         </Form.Item>
 
         <Form.Item
@@ -114,7 +123,16 @@ export default function EditDiscountCodePage() {
           name="gia_tri_don_hang"
           rules={[{ required: true }]}
         >
-          <InputNumber min={0} style={{ width: "100%" }} />
+          <InputNumber
+            min={0}
+            style={{ width: "100%" }}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")  
+            }
+            parser={(value) =>
+              parseInt((value || "").replace(/[^\d]/g, ""), 10)
+            }
+          />
         </Form.Item>
 
         <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>

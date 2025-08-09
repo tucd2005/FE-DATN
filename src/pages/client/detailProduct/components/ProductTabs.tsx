@@ -176,21 +176,7 @@ const ProductTabs = ({
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xl font-bold text-gray-900">Đánh giá khách hàng</h3>
-                            {profile ? (
-                                <button
-                                    className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                                    onClick={() => setShowReviewForm(true)}
-                                >
-                                    Viết đánh giá
-                                </button>
-                            ) : (
-                                <button
-                                    className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                                    onClick={() => navigate("/login")}
-                                >
-                                    Đăng nhập để đánh giá
-                                </button>
-                            )}
+                          
                         </div>
                         {showReviewForm && (
                             <form className="space-y-4 border p-4 rounded-lg" onSubmit={handleSubmitReview}>
