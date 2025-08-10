@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -125,22 +125,37 @@ export default function LayoutAdmin() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="h-16 bg-white shadow flex items-center px-4">
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className="mr-4 text-xl"
-          />
-          <h1 className="text-lg md:text-xl font-semibold">Trang quản trị</h1>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            onClick={handleLogout}
-            className="ml-auto text-red-500 hover:text-red-700 text-base"
-          >
-            Đăng xuất
-          </Button>
-        </header>
+  <Button
+    type="text"
+    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+    onClick={() => setCollapsed(!collapsed)}
+    className="mr-4 text-xl"
+  />
+  <h1 className="text-lg md:text-xl font-semibold">Trang quản trị</h1>
+
+  {/* Đẩy 2 nút sang bên phải */}
+  <div className="ml-auto flex items-center gap-2">
+    <Link to="/admin/thong_tin">
+      <Button
+        type="link"
+        icon={<UserOutlined />}
+        className="text-blue-500 hover:text-blue-700 text-base"
+      >
+        Hồ sơ cá nhân
+      </Button>
+    </Link>
+
+    <Button
+      type="text"
+      icon={<LogoutOutlined />}
+      onClick={handleLogout}
+      className="text-red-500 hover:text-red-700 text-base"
+    >
+      Đăng xuất
+    </Button>
+  </div>
+</header>
+
 
         {/* Content */}
         <main className="p-4">
