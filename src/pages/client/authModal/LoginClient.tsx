@@ -141,7 +141,7 @@ const LoginClient: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-500 flex justify-between">
             Chưa có tài khoản?{' '}
             <Link to="/register" className="text-blue-500 hover:text-blue-600 font-semibold transition-colors duration-200">
               Đăng ký ngay
