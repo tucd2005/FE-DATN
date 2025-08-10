@@ -220,10 +220,7 @@ updateQuantity(id, newQuantity)
                   <span className="text-gray-600">Tạm tính:</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phí vận chuyển:</span>
-                  <span className="font-medium">Miễn phí</span>
-                </div>
+               
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Tổng cộng:</span>

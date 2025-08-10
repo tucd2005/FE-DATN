@@ -35,10 +35,10 @@ const Header = () => {
             <Link to="/san-pham" className="text-gray-700 hover:text-blue-600 transition-colors">
               Sản phẩm
             </Link>
-            <a href="bai_viet" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <a href="/bai_viet" className="text-gray-700 hover:text-blue-600 transition-colors">
               Tin tức
             </a>
-            <a href="lien-he" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <a href="/lien-he" className="text-gray-700 hover:text-blue-600 transition-colors">
               Liên hệ
             </a>
 
@@ -82,12 +82,7 @@ const Header = () => {
                     >
                       Thông tin cá nhân
                     </Link>
-                    <Link
-                      to="/chi-tiet-don-hang"
-                      className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
-                    >
-                      Đơn hàng của tôi
-                    </Link>
+                   
                     <button
                       onClick={() => {
                         localStorage.removeItem("accessToken");
