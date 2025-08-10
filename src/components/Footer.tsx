@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Twitter, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import React from 'react';
+
 
 const Footer = () => {
     return (
@@ -87,7 +87,7 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-blue-600 transition-colors">
+                                <a href="/privacy-policy" className="hover:text-blue-600 transition-colors">
                                     Chính sách bảo mật
                                 </a>
                             </li>
