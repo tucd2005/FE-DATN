@@ -59,7 +59,7 @@ const Header = () => {
                 {isLoggedIn ? (
                   <div className="flex items-center space-x-2 cursor-pointer group">
                     <img
-                      src={profile?.anh_dai_dien || "/default-avatar.png"}
+                      src={profile?.anh_dai_dien || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-KTBlqHftCBwjj38pFMWEiMgX_vBq2KUvWQ&s"}
                       alt="avatar"
                       className="w-8 h-8 rounded-full object-cover"
                     />
