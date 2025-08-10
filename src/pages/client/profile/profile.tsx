@@ -353,7 +353,9 @@ export default function ProfilePage() {
                             <label className="text-sm font-semibold text-gray-700">Địa chỉ</label>
                           </div>
                           <p className="text-gray-900 font-medium">
-                            Chưa cập nhật
+                            {profile?.address
+                              ? `${profile.address.chiTiet}, ${profile.address.phuongXa}, ${profile.address.quanHuyen}, ${profile.address.tinhThanh}`
+                              : "Chưa cập nhật"}
                           </p>
                         </div>
 
