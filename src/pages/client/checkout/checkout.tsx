@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { CreditCard, Banknote } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCheckout, useVnpayPayment } from "../../../hooks/useCheckout";
+import { usePayWithWallet } from "../../../hooks/useWalletPayment";
 
 import type { CreateOrderPayload } from "../../../services/checkoutService";
 import { useCartStore } from "../../../stores";
@@ -73,11 +74,12 @@ const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const clearCart = useCartStore((state) => state.clearCart);
-  
+
   // Hooks must be called at the top level
   const checkoutMutation = useCheckout();
   const vnpayMutation = useVnpayPayment();
   const zaloPayMutation = useZaloPay();
+  const walletMutation = usePayWithWallet();
 
   const [selectedPayment, setSelectedPayment] = useState("vnpay");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -212,6 +214,15 @@ const CheckoutPage = () => {
       recommended: true,
     },
     {
+      id: "wallet",
+      name: "Ví",
+      description: "Thanh toán bằng số dư ví",
+      detail: "Sử dụng số dư ví để thanh toán nhanh",
+      icon: <Banknote className="w-5 h-5" />,
+      color: "bg-purple-50 border-purple-200 text-purple-700",
+      recommended: false,
+    },
+    {
       id: "cod",
       name: "Thanh toán khi nhận hàng (COD)",
       description: "Trả tiền mặt khi nhận hàng",
@@ -251,17 +262,18 @@ const CheckoutPage = () => {
       toast.error(errorMsg);
       return;
     }
-  
+
     const selectedProvinceObj = provinces.find((p) => String(p.code) === String(selectedProvince));
     const selectedWardObj = wards.find((w) => String(w.code) === String(selectedWard));
-  
+
     if (!selectedProvinceObj || !selectedWardObj) {
       toast.error("Không tìm thấy thông tin địa chỉ, vui lòng chọn lại!");
       return;
     }
-  
+
     const paymentMethodMap: Record<string, { id: number; name: string }> = {
       vnpay: { id: 2, name: "VNPay" },
+      wallet: { id: 4, name: "Ví" },
       cod: { id: 1, name: "Thanh toán khi nhận hàng (COD)" },
       zalopay: { id: 3, name: "ZaloPay" },
     };
@@ -270,7 +282,7 @@ const CheckoutPage = () => {
       toast.error("Vui lòng chọn phương thức thanh toán hợp lệ!");
       return;
     }
-  
+
     const payload: CreateOrderPayload = {
       ten_nguoi_dat: tenNguoiDat,
       dia_chi: address,
@@ -297,12 +309,12 @@ const CheckoutPage = () => {
         ].filter(attr => attr.gia_tri !== ""),
       })),
     };
-  
+
     setIsLoading(true);
-  
+
     checkoutMutation.mutate(payload, {
       onSuccess: async (data) => {
-        await clearCart(); 
+        await clearCart();
         console.log("selectedPayment:", selectedPayment, data);
         if (selectedPayment === "zalopay") {
           try {
@@ -327,7 +339,7 @@ const CheckoutPage = () => {
               const response = (zaloPayError as { response?: { data?: { error?: string; message?: string } } }).response;
               const errorMessage = response?.data?.error || response?.data?.message || '';
               let friendlyMessage = "Thanh toán ZaloPay thất bại. Vui lòng thử lại!";
-              
+
               if (errorMessage.includes("No query results for model")) {
                 friendlyMessage = "Sản phẩm không còn tồn tại. Vui lòng kiểm tra lại giỏ hàng!";
               } else if (errorMessage.includes("không đủ tồn kho")) {
@@ -335,7 +347,7 @@ const CheckoutPage = () => {
               } else if (errorMessage) {
                 friendlyMessage = errorMessage;
               }
-              
+
               toast.error(friendlyMessage);
             } else {
               toast.error("Thanh toán ZaloPay thất bại!");
@@ -349,16 +361,16 @@ const CheckoutPage = () => {
               toast.error("Không lấy được ID đơn hàng từ server!");
               return;
             }
-      
+
             const vnpayPayload = {
               don_hang_id: data.order.id,
               phuong_thuc_thanh_toan_id: 2,
               ngon_ngu: "vn"
             };
             console.log("Payload gửi đến VNPAY:", vnpayPayload);
-      
+
             const vnpayData = await vnpayMutation.mutateAsync(vnpayPayload);
-      
+
             console.log("VNPAY trả về:", vnpayData);
             if (vnpayData?.pay_url) {
               window.location.href = vnpayData.pay_url;
@@ -370,13 +382,13 @@ const CheckoutPage = () => {
             if (error && typeof error === 'object' && 'response' in error) {
               const response = (error as { response?: { data?: { error?: string; message?: string; errors?: Record<string, unknown> } } }).response;
               console.error("VNPAY error response:", response?.data);
-      
+
               if (response?.data?.errors) {
                 toast.error("Thanh toán VNPAY thất bại. Vui lòng thử lại!");
               } else {
                 const errorMessage = response?.data?.error || response?.data?.message || '';
                 let friendlyMessage = "Thanh toán VNPAY thất bại. Vui lòng thử lại!";
-                
+
                 if (errorMessage.includes("No query results for model")) {
                   friendlyMessage = "Sản phẩm không còn tồn tại. Vui lòng kiểm tra lại giỏ hàng!";
                 } else if (errorMessage.includes("không đủ tồn kho")) {
@@ -384,11 +396,30 @@ const CheckoutPage = () => {
                 } else if (errorMessage) {
                   friendlyMessage = errorMessage;
                 }
-                
+
                 toast.error(friendlyMessage);
               }
             } else {
               toast.error("Thanh toán VNPAY thất bại!");
+            }
+          }
+        } else if (selectedPayment === "wallet") {
+          try {
+            if (!data.order || !data.order.id) {
+              toast.error("Không lấy được ID đơn hàng từ server!");
+              return;
+            }
+            const payRes = await walletMutation.mutateAsync(data.order.id);
+            toast.success(payRes?.message || "Thanh toán bằng ví thành công!");
+            navigate("/cam-on", {
+              state: { orderCode: data.order.ma_don_hang }
+            });
+          } catch (walletErr) {
+            if (walletErr && typeof walletErr === 'object' && 'response' in walletErr) {
+              const response = (walletErr as { response?: { data?: { message?: string } } }).response;
+              toast.error(response?.data?.message || "Thanh toán ví thất bại!");
+            } else {
+              toast.error("Thanh toán ví thất bại!");
             }
           }
         } else {
@@ -399,19 +430,19 @@ const CheckoutPage = () => {
           });
         }
       },
-      
+
       onError: (err: unknown) => {
         console.error("Lỗi khi đặt hàng:", err);
         if (err && typeof err === 'object' && 'response' in err) {
           const response = (err as { response?: { data?: { error?: string; message?: string } } }).response;
           console.error("Server response:", response?.data);
-          
+
           // Xử lý thông báo lỗi thân thiện
           const errorMessage = response?.data?.error || response?.data?.message || '';
-          
+
           // Chuyển đổi lỗi kỹ thuật thành thông báo thân thiện
           let friendlyMessage = "Đặt hàng thất bại. Vui lòng thử lại!";
-          
+
           if (errorMessage.includes("No query results for model [App\\Models\\Variant]")) {
             friendlyMessage = "Sản phẩm đã hết hàng hoặc đã bị xóa";
           } else if (errorMessage.includes("không đủ tồn kho")) {
@@ -426,7 +457,7 @@ const CheckoutPage = () => {
             // Nếu có thông báo lỗi cụ thể từ backend, sử dụng nó
             friendlyMessage = errorMessage;
           }
-          
+
           toast.error(friendlyMessage);
         } else {
           toast.error("Đặt hàng thất bại. Vui lòng thử lại!");
@@ -448,7 +479,7 @@ const CheckoutPage = () => {
         console.log("API Response data:", result);
         const data = result.data || [];
         console.log("Số lượng tỉnh nhận được:", data.length);
-        
+
         const mappedProvinces = data.map((province) => ({
           code: String(province.id),
           name: province.province,
@@ -457,7 +488,7 @@ const CheckoutPage = () => {
             name: w.name
           }))
         }));
-        
+
         console.log("Provinces đã map:", mappedProvinces);
         setProvinces(mappedProvinces);
       })
