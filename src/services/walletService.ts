@@ -24,8 +24,8 @@ export const walletService = {
   getTransactionById: (id: number) =>
     instanceAxios.get(`/admin/wallet-transactions/${id}`),
 
-  updateStatus: (
-    id: number,
-    data: { status: string; rejection_reason?: string }
-  ) => instanceAxios.patch(`/admin/wallet-transactions/${id}`, data), 
+  updateStatus: (id: number, data: any) =>
+    instanceAxios.post(`/admin/wallet-transactions/${id}`, data)
+  
 };
+

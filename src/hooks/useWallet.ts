@@ -22,15 +22,14 @@ export const useUpdateWalletStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
+    mutationFn: (params: {
       id: number;
-      data: { status: string; rejection_reason?: string };
-    }) => walletService.updateStatus(id, data),
+      data: FormData | { status: string; rejection_reason?: string };
+    }) => {
+      return walletService.updateStatus(params.id, params.data);
+    },
     onSuccess: () => {
-      message.success("Cập nhật trạng thái thành công");
+   
       queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
     },
     onError: (error: any) => {
