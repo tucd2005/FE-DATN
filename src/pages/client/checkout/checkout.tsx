@@ -115,9 +115,7 @@ const CheckoutPage = () => {
   const provinceNameForApi = selectedProvinceObj?.name || "";
   const { shippingFee = 0 } = useShippingFee(provinceNameForApi);
 
-  console.log("Selected province code:", selectedProvince);
-  console.log("Selected province object:", selectedProvinceObj);
-  console.log("Province name for API:", provinceNameForApi);
+
 
   const validateForm = () => {
     if (!tenNguoiDat || tenNguoiDat.trim().length < 2) {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { CartItemAPI } from '../../../services/cartService'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 
@@ -9,10 +9,12 @@ type Props = {
     handleRemoveItem: (product_id: number) => void,
     isSelected?: boolean;
     onToggleSelect?: (checked: boolean) => void;
+    max_quantity?: number;
 }
 
 const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, isSelected, onToggleSelect }: Props) => {
-    console.log("bien_the:", item.bien_the);
+    const [isUpdating, setIsUpdating] = useState(false)
+
     const getBienTheImg = (bien_theImg: string | string[] | undefined) => {
         if (!bien_theImg) return null;
         if (Array.isArray(bien_theImg)) return bien_theImg[0];
@@ -38,6 +40,15 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
                     : `http://localhost:8000/storage/${item.hinh_anh}`
                 : "/placeholder.svg";
 
+    const handleQuantityChange = (newQuantity: number) => {
+        if (isUpdating) return; // chặn spam click
+        setIsUpdating(true);
+        handleUpdateQuantity(item.id, newQuantity);
+        setTimeout(() => {
+            setIsUpdating(false);
+        }, 1500); // khóa trong 1 giây
+    };
+
     return (
         <div>
             <div
@@ -62,10 +73,6 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
 
                 <div className="flex-1">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">{item.ten_san_pham}</h3>
-                    {/* Hiển thị lỗi nếu có */}
-                    {item.error_message && (
-                        <div className="text-xs text-red-600 mb-1">{item.error_message}</div>
-                    )}
                     <div className="flex gap-4 text-sm text-gray-600">
                         {(item.bien_the?.thuoc_tinh || []).map((attr, index) => {
                             const isColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(attr.gia_tri);
@@ -92,17 +99,17 @@ const CartItem = ({ item, formatPrice, handleUpdateQuantity, handleRemoveItem, i
 
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => handleUpdateQuantity(item.id, item.so_luong - 1)}
+                        onClick={() => handleQuantityChange(item.so_luong - 1)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                        disabled={!!item.error_message}
+                        disabled={isUpdating || item.so_luong <= 1}
                     >
                         <Minus className="w-4 h-4" />
                     </button>
                     <span className="w-8 text-center">{item.so_luong}</span>
                     <button
-                        onClick={() => handleUpdateQuantity(item.id, item.so_luong + 1)}
+                        onClick={() => handleQuantityChange(item.so_luong + 1)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                        disabled={!!item.error_message}
+                        disabled={isUpdating || item.so_luong >= (item.max_quantity ?? Infinity)}
                     >
                         <Plus className="w-4 h-4" />
                     </button>

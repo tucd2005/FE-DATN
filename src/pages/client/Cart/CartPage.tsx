@@ -69,10 +69,42 @@ const subtotal = selectedCartItems.reduce(
     });
   };
 
-  const handleUpdateQuantity = async (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    await updateQuantity(id, newQuantity);
-  };
+const handleUpdateQuantity = (id: number, newQuantity: number, maxQuantity?: number) => {
+  if (newQuantity < 1) return;
+
+  // Giới hạn tối đa
+  if (maxQuantity && newQuantity > maxQuantity) {
+    toast.warning(`Số lượng tối đa cho sản phẩm này là ${maxQuantity}`);
+    return;
+  }
+
+  // 1. Cập nhật UI ngay lập tức
+  useCartStore.setState((state) => ({
+    items: state.items.map(item =>
+      item.id === id ? { ...item, so_luong: newQuantity } : item
+    )
+  }));
+
+  // 2. Gọi API nền, nếu lỗi thì revert
+updateQuantity(id, newQuantity)
+  .catch((err) => {
+    const finalMessage =
+      err?.response?.data?.error || "Cập nhật số lượng thất bại!";
+      
+    toast.error(finalMessage);
+
+    // Gán lỗi vào item để CartItem hiển thị
+    useCartStore.setState((state) => ({
+      items: state.items.map(item =>
+        item.id === id ? { ...item, error_message: finalMessage } : item
+      )
+    }));
+
+    fetchCart();
+  });
+
+};
+
 
   const handleRemoveItem = (id: number) => {
     Modal.confirm({
@@ -132,11 +164,7 @@ const subtotal = selectedCartItems.reduce(
               </p>
             )}
 
-            {error && (
-              <div className="text-center py-8 text-red-600">
-                Lỗi: {error}
-              </div>
-            )}
+          
 
             {cartItems.length === 0 && (
               <div className="text-center py-8 text-gray-600">
@@ -167,7 +195,7 @@ const subtotal = selectedCartItems.reduce(
                       item={item}
                       formatPrice={formatPrice}
                       handleRemoveItem={handleRemoveItem}
-                      handleUpdateQuantity={handleUpdateQuantity}
+                      handleUpdateQuantity={(id, quantity) => handleUpdateQuantity(id, quantity, item.max_quantity)}
                       isSelected={selectedItems.includes(item.id)}
                       onToggleSelect={(checked) => {
                         setSelectedItems((prev) =>
@@ -192,10 +220,7 @@ const subtotal = selectedCartItems.reduce(
                   <span className="text-gray-600">Tạm tính:</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phí vận chuyển:</span>
-                  <span className="font-medium">Miễn phí</span>
-                </div>
+               
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Tổng cộng:</span>
