@@ -116,7 +116,7 @@ export default function LayoutAdmin() {
           >
             <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
             <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
-            <Menu.Item key="/admin/account_staff">Nhân viên</Menu.Item>
+          
           </SubMenu>
         </Menu>
       </aside>

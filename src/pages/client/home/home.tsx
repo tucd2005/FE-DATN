@@ -39,8 +39,6 @@ export default function HomeClient() {
       <SanPhamNoiBat products={products} />
  <ThuongHieuDongHanh />
       <XuHuongTheThao />
-  
- 
       <DangKyNhanTin />
       <CamNhanKhachHang />
       <PendingPaymentNotice />
