@@ -131,7 +131,7 @@ const WalletListPage: React.FC = () => {
       dataIndex: "user",
       render: (user: any, record: any) => {
         const name = user?.name ?? "Không rõ";
-        const walletId = record?.id;
+        const walletId = record?.wallet_id;
         return `${name} (ID ví: ${walletId})`;
       },
     },
