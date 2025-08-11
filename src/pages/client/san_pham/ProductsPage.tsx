@@ -9,6 +9,7 @@ import Pagination from "./components/Pagination";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import instanceAxios from "../../../utils/axios";
 import { message } from "antd";
+import type { IFavoriteProduct } from "../../../types/product.type";
 
 const ProductsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -73,7 +74,7 @@ const ProductsPage = () => {
   const rawProducts = data?.data || [];
   const meta = data?.meta;
   const products = rawProducts;
-  const favoriteProducts = fav?.data?.map((e) => e.product.id);
+  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id);
 
   const toggleFavorite = async (productId: number) => {
     const check = favoriteProducts.includes(productId);
