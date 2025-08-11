@@ -114,9 +114,7 @@ const WalletListPage: React.FC = () => {
         await updateStatus({ id: selectedTransactionId!, data });
       }
   
-      message.success(currentAction === "approve" 
-        ? "Đã duyệt giao dịch thành công" 
-        : "Đã từ chối giao dịch");
+      
       setIsModalOpen(false);
       setFileList([]);
     } catch (error) {

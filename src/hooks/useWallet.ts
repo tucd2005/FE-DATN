@@ -18,23 +18,21 @@ export const useWalletTransactionDetail = (id: number) => {
   });
 };
 
+// hooks/useWallet.ts
 export const useUpdateWalletStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: {
-      id: number;
-      data: FormData | { status: string; rejection_reason?: string };
-    }) => {
-      return walletService.updateStatus(params.id, params.data);
-    },
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      walletService.updateStatus(id, data), // updateStatus dùng PATCH
     onSuccess: () => {
-   
       queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
+      message.success("Cập nhật trạng thái thành công");
     },
     onError: (error: any) => {
       message.error(error?.response?.data?.message || "Có lỗi xảy ra");
     },
   });
 };
+
 

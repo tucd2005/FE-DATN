@@ -25,7 +25,8 @@ export const walletService = {
     instanceAxios.get(`/admin/wallet-transactions/${id}`),
 
   updateStatus: (id: number, data: any) =>
-    instanceAxios.post(`/admin/wallet-transactions/${id}`, data)
-  
+    instanceAxios.post(`/admin/wallet-transactions/${id}?_method=PATCH`, data, {
+      headers: data instanceof FormData ? { "Content-Type": "multipart/form-data" } : { "Content-Type": "application/json" },
+    }),
 };
 
