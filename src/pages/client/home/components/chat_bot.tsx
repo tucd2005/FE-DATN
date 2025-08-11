@@ -6,6 +6,7 @@ import { MessageCircle, X, Send, Bot, User, Sparkles, Zap, FileText, Paperclip, 
 import { useClientMessages, useSendClientMessage } from "../../../../hooks/useClientChat"
 import { useAuth } from "../../../../hooks/useAuth"
 import type { ClientMessage } from "../../../../types/clientMessage.type"
+import { Image } from "antd"
 
 
 
@@ -245,23 +246,29 @@ export default function ChatBot() {
   return (
     <>
       {/* Floating Chat Button with Pulse Effect */}
-      <div className="fixed bottom-6 right-6 z-50 ">
+      <div className="fixed bottom-32 right-6 z-50 flex items-center space-x-3"> {/* Adjusted bottom-6 to bottom-8 */}
+        {/* Suggestion Line */}
+        <div
+          className={`bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-500 ease-out ${isOpen ? "opacity-0 translate-x-10" : "opacity-100 translate-x-0"
+            }`}
+        >
+          Cần trợ giúp? Chat ngay! ✨
+        </div>
         <div className="relative">
           {/* Pulse rings */}
           <div
-            className={`absolute inset-0 rounded-full bg-teal-400 animate-ping ${isOpen ? "opacity-0" : "opacity-75"}`}
+            className={`absolute inset-0 rounded-full bg-teal-500 animate-ping ${isOpen ? "opacity-0" : "opacity-75"}`}
           ></div>
           <div
             className={`absolute inset-0 rounded-full bg-teal-400 animate-pulse ${isOpen ? "opacity-0" : "opacity-50"}`}
           ></div>
-
           <button
             onClick={() => setIsOpen(true)}
-            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110 ${isOpen ? "scale-0 rotate-180" : "scale-100 rotate-0"
-              }`}
+            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110
+    ${isOpen ? "scale-0 rotate-180 opacity-0 pointer-events-none" : "scale-100 rotate-0"}
+  `}
           >
-            <MessageCircle size={28} className="drop-shadow-lg" />
-            {/* Notification dot */}
+            <Bot size={28} className="drop-shadow-lg" />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
             </div>
@@ -271,7 +278,7 @@ export default function ChatBot() {
 
       {/* Chat Modal with Enhanced Effects */}
       {isOpen && (
-<div className="fixed bottom-24 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
+        <div className="fixed bottom-8 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
           {showSparkles && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
               {[...Array(6)].map((_, i) => (
@@ -402,8 +409,8 @@ export default function ChatBot() {
                       )}
                       {message.attachment && (
                         isImageFile(message.attachment) ? (
-                          <img
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
+                          <Image
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
                             src={message.attachment.startsWith('http') ? message.attachment : `http://localhost:8000/storage/${message.attachment}`}
                             alt="Ảnh đính kèm"
                             className="rounded mt-2 max-w-xs max-h-40 object-cover border"
