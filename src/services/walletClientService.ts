@@ -66,10 +66,10 @@ export const walletClientService = {
       data: WalletBalance & { transactions: WalletTransactionClient[] };
     }>("/wallet"),
 
-  // Lấy lịch sử giao dịch (sử dụng API wallet để lấy transactions)
+  // Lấy lịch sử giao dịch
   getTransactions: () =>
     instanceAxios.get<{ data: { transactions: WalletTransactionClient[] } }>(
-      "/wallet"
+      "/wallet/transactions"
     ),
 
   // Nạp tiền vào ví

@@ -20,8 +20,8 @@ import ArticleDetailPage from "../pages/client/bai_viet/detailposts";
 import ProductsPage from "../pages/client/san_pham/ProductsPage";
 import PaymentSuccessPage from "../pages/client/payment-success";
 import PaymentFailedPage from "../pages/client/payment-failed";
-
-
+import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
+import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
 
 export const clientRouter = {
   path: "/",
@@ -51,7 +51,12 @@ export const clientRouter = {
     { path: "cam-on", element: <Component /> },
     { path: "login", element: <LoginClient /> },
     { path: "register", element: <RegisterClient /> },
-    { path: "/auth/forgot-password", element: <ForgotPasswordPage /> }
+    { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
+
+    // phần nhỏ ở footer
+    { path: "/privacy-policy", element: <PrivacyPolicy /> },
+    { path: "/warranty-policy", element: <WarrantyPolicy /> }
+
 
   ],
 };

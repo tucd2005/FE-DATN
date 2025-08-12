@@ -2,9 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewDetail,
   getReviews,
+  getReviewss,
   hideReview,
   getProductReviews,
   submitReview,
+  getReviewsByProduct,
+  getLatestFiveStarReviews,
 } from "../services/reviewService";
 import { toast } from "react-toastify";
 
@@ -60,3 +63,12 @@ export const useSubmitReview = () => {
     },
   });
 };
+
+
+// Hook cho React Query
+export const useLatestFiveStarReviews = (limit: number = 10) => {
+  return useQuery({
+    queryKey: ["latest-five-star-reviews", limit],
+    queryFn: () => getLatestFiveStarReviews(limit)
+  });
+}

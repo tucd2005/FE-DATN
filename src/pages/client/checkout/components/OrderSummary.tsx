@@ -87,7 +87,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       try {
         const arr = JSON.parse(img);
         if (Array.isArray(arr) && arr.length > 0) return arr[0];
-      } catch {}
+      } catch { }
     }
     return img;
   };
@@ -199,10 +199,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                       if (err && typeof err === 'object' && 'response' in err) {
                         const response = (err as { response?: { data?: { error?: string; message?: string } } }).response;
                         const errorMessage = response?.data?.error || response?.data?.message || '';
-                        
+
                         // Chuyển đổi lỗi kỹ thuật thành thông báo thân thiện
                         let friendlyMessage = 'Mã giảm giá không hợp lệ';
-                        
+
                         if (errorMessage.includes("Mã giảm giá không hợp lệ")) {
                           friendlyMessage = errorMessage;
                         } else if (errorMessage.includes("đã hết hạn")) {
@@ -216,7 +216,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                         } else if (errorMessage) {
                           friendlyMessage = errorMessage;
                         }
-                        
+
                         toast.error(friendlyMessage);
                       } else {
                         toast.error('Mã giảm giá không hợp lệ');
@@ -242,63 +242,78 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             )}
           </div>
           {/* Danh sách mã giảm giá của bạn */}
-          {userDiscountCodes && userDiscountCodes.length > 0 && (
-            <div className="mt-2">
-              <div className="font-semibold text-sm mb-1">Mã giảm giá của bạn:</div>
-              <div className="flex flex-wrap gap-2">
-                {userDiscountCodes
-                  // Lọc mã giảm giá chỉ áp dụng được cho sản phẩm hiện tại
-                  .filter((code: any) => {
-                    if (!code.san_pham_id) return true;
-                    if (Array.isArray(code.san_pham_id)) {
-                      return orderItems.some(item => code.san_pham_id.includes(item.san_pham_id));
-                    }
-                    return orderItems.some(item => item.san_pham_id === code.san_pham_id);
-                  })
-                  .map((code: any) => {
-                    const notEnoughTotal = code.gia_tri_don_hang && subtotal < code.gia_tri_don_hang;
-                    const outOfUses = code.so_luong !== undefined && code.so_luong <= 0;
-                    const now = new Date();
-                    const expired = code.ngay_ket_thuc && new Date(code.ngay_ket_thuc) < now;
-                    const notStarted = code.ngay_bat_dau && new Date(code.ngay_bat_dau) > now;
-                    const disabled = notEnoughTotal || outOfUses || expired || notStarted;
-                    let reason = "";
-                    if (notEnoughTotal) reason = `Đơn tối thiểu ${formatPrice(code.gia_tri_don_hang)}`;
-                    else if (outOfUses) reason = "Hết lượt sử dụng";
-                    else if (expired) reason = "Đã hết hạn";
-                    else if (notStarted) reason = "Chưa đến ngày áp dụng";
-                    return (
-                      <div
-                        key={code.id}
-                        className="border border-blue-200 bg-blue-50 rounded p-2 mb-2 w-full max-w-[180px] flex flex-col items-start"
-                      >
-                        <button
-                          className={`px-3 py-1 rounded text-xs font-semibold transition mb-1 ${
-                            disabled
-                              ? "bg-gray-200 text-gray-400 cursor-not-allowed opacity-60"
-                              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                          }`}
-                          onClick={() => !disabled && setDiscountCode(code.ma)}
-                          type="button"
-                          disabled={disabled}
-                          title={disabled ? reason : `Áp dụng mã này`}
-                        >
-                          {code.ma} ({code.loai === 'phan_tram' ? `${code.gia_tri}%` : `${formatPrice(code.gia_tri)}`})
-                        </button>
-                        {code.mo_ta && (
-                          <div
-                            className="text-xs text-gray-600 max-w-full overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer"
-                            title={code.mo_ta}
-                          >
-                            <b>Điều kiện:</b> {code.mo_ta}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
+         {userDiscountCodes && userDiscountCodes.length > 0 && (
+  <div className="mt-2">
+    <div className="font-semibold text-sm mb-1">Mã giảm giá của bạn:</div>
+
+    {/* Container scroll ngang */}
+    <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar snap-x snap-mandatory cursor-grab active:cursor-grabbing select-none">
+      {userDiscountCodes.map((code: any) => {
+        const notProductMatch = (() => {
+          if (!code.san_pham_id) return false;
+          if (Array.isArray(code.san_pham_id)) {
+            return !orderItems.some(item => code.san_pham_id.includes(item.san_pham_id));
+          }
+          return !orderItems.some(item => item.san_pham_id === code.san_pham_id);
+        })();
+
+        const notEnoughTotal = code.gia_tri_don_hang && subtotal < code.gia_tri_don_hang;
+        const outOfUses = code.so_luong !== undefined && code.so_luong <= 0;
+        const now = new Date();
+        const expired = code.ngay_ket_thuc && new Date(code.ngay_ket_thuc) < now;
+        const notStarted = code.ngay_bat_dau && new Date(code.ngay_bat_dau) > now;
+
+        const disabled = notProductMatch || notEnoughTotal || outOfUses || expired || notStarted;
+
+        let reason = "";
+        if (notProductMatch) reason = "Không áp dụng cho sản phẩm này";
+        else if (notEnoughTotal) reason = `Đơn tối thiểu ${formatPrice(code.gia_tri_don_hang)}`;
+        else if (outOfUses) reason = "Hết lượt sử dụng";
+        else if (expired) reason = "Đã hết hạn";
+        else if (notStarted) reason = "Chưa đến ngày áp dụng";
+
+        return (
+          <div
+            key={code.id}
+            className="border border-blue-200 bg-blue-50 rounded p-2 flex-shrink-0 w-[180px] flex flex-col items-start snap-start"
+          >
+            <button
+              className={`px-3 py-1 rounded text-xs font-semibold transition mb-1 ${
+                disabled
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                  : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+              }`}
+              onClick={() => !disabled && setDiscountCode(code.ma)}
+              type="button"
+              disabled={disabled}
+              title={disabled ? reason : `Áp dụng mã này`}
+            >
+              {code.ma} ({code.loai === 'phan_tram' ? `${code.gia_tri}%` : `${formatPrice(code.gia_tri)}`})
+            </button>
+            {code.mo_ta && (
+              <div
+              className="text-xs text-gray-600 max-w-full cursor-pointer"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,      // Giới hạn 2 dòng
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+              title={code.mo_ta}
+            >
+              <b>Điều kiện:</b> {code.mo_ta}
             </div>
-          )}
+            
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+
+
+
           {discountInfo && (
             <div className="text-green-600 text-sm mt-1">
               Đã áp dụng mã <b>{discountInfo.ma}</b> - Giảm {formatPrice(discountInfo.giam_gia)}
@@ -360,14 +375,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             </>
           ) : (
             <>
-              <span className="w-5 h-5"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              <span className="w-5 h-5"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
               Đặt hàng ngay
             </>
           )}
         </button>
         {/* Thông tin bảo mật */}
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
-          <span className="w-4 h-4"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+          <span className="w-4 h-4"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
           <span>Thanh toán được bảo mật bởi SSL</span>
         </div>
       </div>

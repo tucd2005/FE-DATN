@@ -36,13 +36,18 @@ export default function DeletedDiscountCodeList() {
     { title: "Mã", dataIndex: "ma", key: "ma" },
     { title: "Tên", dataIndex: "ten", key: "ten" },
     { title: "Loại", dataIndex: "loai", key: "loai" },
-    {
-      title: "Giá trị",
-      dataIndex: "gia_tri",
-      key: "gia_tri",
-      render: (value, record) =>
-        record.loai === "phan_tram" ? `${value}%` : `${value}đ`,
-    },
+   {
+  title: "Giá trị",
+  dataIndex: "gia_tri",
+  key: "gia_tri",
+  render: (value, record) => {
+    if (record.loai === "phan_tram") {
+      return `${parseFloat(value)}%`;
+    }
+    const num = parseFloat(String(value).replace(/[^\d.-]/g, ""));
+    return `${num.toLocaleString("vi-VN")}đ`;
+  },
+},
     { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
     {
       title: "Ngày bắt đầu",

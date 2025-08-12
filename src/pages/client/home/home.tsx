@@ -12,7 +12,8 @@ import Hero from "./components/hero";
 import SanPhamNoiBat from "./components/san_pham_noi_bat";
 import ThietBiChuyenNghiep from "./components/thiet_bi_chuyen_nghiep";
 import ThuongHieuDongHanh from "./components/thuong_hieu_dong_hanh";
-import ChatBot from "./components/chat_bot";
+import PendingPaymentNotice from "./components/PendingPaymentNotice";
+
 
 
 export default function HomeClient() {
@@ -33,14 +34,17 @@ export default function HomeClient() {
   return (
     <div className="min-h-screen bg-white">
       <Hero />
-      <DanhMuc />
+      <DanhMuc /> 
+        
       <SanPhamNoiBat products={products} />
+ <ThuongHieuDongHanh />
       <XuHuongTheThao />
-      <ThuongHieuDongHanh />
-      <ThietBiChuyenNghiep />
       <DangKyNhanTin />
       <CamNhanKhachHang />
-      <ChatBot />
+      <PendingPaymentNotice />
+      
+
+
     </div>
   );
 }

@@ -6,13 +6,9 @@ import { MessageCircle, X, Send, Bot, User, Sparkles, Zap, FileText, Paperclip, 
 import { useClientMessages, useSendClientMessage } from "../../../../hooks/useClientChat"
 import { useAuth } from "../../../../hooks/useAuth"
 import type { ClientMessage } from "../../../../types/clientMessage.type"
+import { Image } from "antd"
 
-interface ApiError {
-  response?: {
-    status?: number;
-    data?: any;
-  };
-}
+
 
 interface Message {
   id: string
@@ -250,23 +246,29 @@ export default function ChatBot() {
   return (
     <>
       {/* Floating Chat Button with Pulse Effect */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-32 right-6 z-50 flex items-center space-x-3"> {/* Adjusted bottom-6 to bottom-8 */}
+        {/* Suggestion Line */}
+        <div
+          className={`bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-500 ease-out ${isOpen ? "opacity-0 translate-x-10" : "opacity-100 translate-x-0"
+            }`}
+        >
+          Cần trợ giúp? Chat ngay! ✨
+        </div>
         <div className="relative">
           {/* Pulse rings */}
           <div
-            className={`absolute inset-0 rounded-full bg-teal-400 animate-ping ${isOpen ? "opacity-0" : "opacity-75"}`}
+            className={`absolute inset-0 rounded-full bg-teal-500 animate-ping ${isOpen ? "opacity-0" : "opacity-75"}`}
           ></div>
           <div
             className={`absolute inset-0 rounded-full bg-teal-400 animate-pulse ${isOpen ? "opacity-0" : "opacity-50"}`}
           ></div>
-
           <button
             onClick={() => setIsOpen(true)}
-            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110 ${isOpen ? "scale-0 rotate-180" : "scale-100 rotate-0"
-              }`}
+            className={`relative bg-teal-500 hover:bg-teal-600 text-white rounded-full p-4 shadow-2xl transition-all duration-500 transform hover:scale-110
+    ${isOpen ? "scale-0 rotate-180 opacity-0 pointer-events-none" : "scale-100 rotate-0"}
+  `}
           >
-            <MessageCircle size={28} className="drop-shadow-lg" />
-            {/* Notification dot */}
+            <Bot size={28} className="drop-shadow-lg" />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
             </div>
@@ -276,8 +278,7 @@ export default function ChatBot() {
 
       {/* Chat Modal with Enhanced Effects */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-[450px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">
-          {/* Sparkles Effect */}
+        <div className="fixed bottom-8 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transform animate-in slide-in-from-bottom-4 duration-500">          {/* Sparkles Effect */}
           {showSparkles && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
               {[...Array(6)].map((_, i) => (
@@ -408,7 +409,8 @@ export default function ChatBot() {
                       )}
                       {message.attachment && (
                         isImageFile(message.attachment) ? (
-                          <img
+                          <Image
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
                             src={message.attachment.startsWith('http') ? message.attachment : `http://localhost:8000/storage/${message.attachment}`}
                             alt="Ảnh đính kèm"
                             className="rounded mt-2 max-w-xs max-h-40 object-cover border"
@@ -488,21 +490,34 @@ export default function ChatBot() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col space-y-2">
-                <label className={`relative cursor-pointer ${(!isAuthenticated && !isDemoMode) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <div className="flex flex-row space-x-2">
+                {/* Nút đính kèm file */}
+                <label
+                  className={`relative cursor-pointer ${!isAuthenticated && !isDemoMode ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                >
                   <input
                     type="file"
                     onChange={handleFileChange}
                     className="hidden"
                     disabled={!isAuthenticated && !isDemoMode}
                   />
-                  <div className={`w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors ${(!isAuthenticated && !isDemoMode) ? 'cursor-not-allowed' : ''}`}>
+                  <div
+                    className={`w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors ${!isAuthenticated && !isDemoMode ? 'cursor-not-allowed' : ''
+                      }`}
+                  >
                     <Paperclip className="w-5 h-5 text-gray-600" />
                   </div>
                 </label>
+
+                {/* Nút gửi tin nhắn */}
                 <button
                   onClick={handleSendMessage}
-                  disabled={isSending || (!inputMessage.trim() && !selectedFile) || (!isAuthenticated && !isDemoMode)}
+                  disabled={
+                    isSending ||
+                    (!inputMessage.trim() && !selectedFile) ||
+                    (!isAuthenticated && !isDemoMode)
+                  }
                   className="w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg"
                 >
                   {isSending ? (
@@ -512,6 +527,7 @@ export default function ChatBot() {
                   )}
                 </button>
               </div>
+
             </div>
 
             {/* File preview */}
@@ -531,16 +547,7 @@ export default function ChatBot() {
 
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 mt-3">
-              {["💰 Giá cả", "🚚 Giao hàng", "🛡️ Bảo hành"].map((action) => (
-                <button
-                  key={action}
-                  onClick={() => setInputMessage(action.split(" ")[1])}
-                  disabled={!isAuthenticated && !isDemoMode}
-                  className="text-xs bg-gradient-to-r from-teal-100 to-teal-200 text-teal-700 px-3 py-1 rounded-full hover:from-teal-200 hover:to-teal-300 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {action}
-                </button>
-              ))}
+
             </div>
           </div>
         </div>
