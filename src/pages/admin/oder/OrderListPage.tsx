@@ -89,6 +89,7 @@ const PAYMENT_METHOD_MAP: Record<number, string> = {
   1: "Thanh toán khi nhận hàng (COD)",
   2: "Thanh toán qua VNPAY",
   3: "Thanh toán qua ZaloPay",
+  4: "Thanh toán qua Ví",
 };
 
 const OrderListPage: React.FC = () => {
