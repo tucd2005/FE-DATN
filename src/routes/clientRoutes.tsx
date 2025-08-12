@@ -23,8 +23,6 @@ import PaymentFailedPage from "../pages/client/payment-failed";
 import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
 import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
 
-
-
 export const clientRouter = {
   path: "/",
   element: <ClientLayout />, // Có thể thay bằng <ClientLayout /> nếu có

@@ -2,22 +2,27 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { toast } from "react-toastify";
-import { checkoutService, createVnpayPayment, getOrderDetail, type CreateOrderPayload } from "../services/checkoutService";
+import {
+  checkoutService,
+  createVnpayPayment,
+  getOrderDetail,
+  type CreateOrderPayload,
+} from "../services/checkoutService";
+import { orderService } from "../services/orderService";
 import instanceAxios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 
 export const useCheckout = () => {
-  const nav= useNavigate();
+  const nav = useNavigate();
   return useMutation({
-    mutationFn: (payload: CreateOrderPayload) => checkoutService.create(payload),
-    onSuccess: () => {
-      
-    
-    },
+    mutationFn: (payload: CreateOrderPayload) =>
+      checkoutService.create(payload),
+    onSuccess: () => {},
     onError: (error: unknown) => {
-      if (error && typeof error === 'object' && 'response' in error) {
-       
-        toast.error(error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng!");
+      if (error && typeof error === "object" && "response" in error) {
+        toast.error(
+          error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng!"
+        );
       } else {
         toast.error("Có lỗi xảy ra khi đặt hàng!");
       }
@@ -36,5 +41,12 @@ export const useOrderDetail = (orderCode: string) => {
     queryKey: ["order-detail", orderCode],
     queryFn: () => getOrderDetail(orderCode),
     enabled: !!orderCode,
+  });
+};
+
+export const usePayWithWallet = () => {
+  return useMutation({
+    mutationFn: (orderId: number | string) =>
+      orderService.payWithWallet(orderId),
   });
 };

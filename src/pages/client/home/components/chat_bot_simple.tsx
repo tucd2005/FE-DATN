@@ -101,7 +101,7 @@ return (
         className={`bg-white text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-500 ease-out ${
           isOpen ? "opacity-0 translate-x-10" : "opacity-100 translate-x-0"
         }`}
-      >
+      > 
         Cần trợ giúp? Chat ngay! ✨
       </div>
       <div className="relative">

@@ -6,15 +6,42 @@ import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
 import ProductGrid from "./components/ProductGrid";
 import Pagination from "./components/Pagination";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import instanceAxios from "../../../utils/axios";
+import { message } from "antd";
+import type { IFavoriteProduct } from "../../../types/product.type";
 
 const ProductsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
   const [priceRange, setPriceRange] = useState([0, 4000000]);
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchInput, setSearchInput] = useState(""); // Separate state for input value
+
+  const queryClient = useQueryClient();
+
+  const { data: fav } = useQuery({
+    queryKey: ["favorites"],
+    queryFn: () => instanceAxios.get("/wishlists").then(res => res.data),
+  })
+
+  const { mutate: addFavorite } = useMutation({
+    mutationFn: (productId: number) => instanceAxios.post("/wishlists", { san_pham_id: productId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      message.success('Đã thêm vào yêu thích!');
+    }
+  });
+
+  const { mutate: removeFavorite } = useMutation({
+    mutationFn: (productId: number) => instanceAxios.delete("/wishlists/" + productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      message.success('Đã xóa khỏi yêu thích!');
+    }
+  });
+
 
   // Debounce search keyword
   useEffect(() => {
@@ -47,11 +74,15 @@ const ProductsPage = () => {
   const rawProducts = data?.data || [];
   const meta = data?.meta;
   const products = rawProducts;
+  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id);
 
-  const toggleFavorite = (productId: number) => {
-    setFavorites((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
-    );
+  const toggleFavorite = async (productId: number) => {
+    const check = favoriteProducts.includes(productId);
+    if (check) {
+      removeFavorite(productId);
+      return;
+    }
+    addFavorite(productId);
   };
 
   const handleCategoryChange = (category: string) => {
@@ -144,7 +175,7 @@ const ProductsPage = () => {
             <ProductGrid
               products={products}
               viewMode={viewMode}
-              favorites={favorites}
+              favorites={favoriteProducts}
               onToggleFavorite={toggleFavorite}
             />
 
