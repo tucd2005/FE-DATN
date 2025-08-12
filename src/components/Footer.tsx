@@ -77,17 +77,17 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="/warranty-policy" className="hover:text-blue-600 transition-colors">
+                                <a href="/doi-tra-hang" className="hover:text-blue-600 transition-colors">
                                     Đổi trả hàng
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-blue-600 transition-colors">
+                                <a href="/bao-hanh-san-pham" className="hover:text-blue-600 transition-colors">
                                     Bảo hành sản phẩm
                                 </a>
                             </li>
                             <li>
-                                <a href="/privacy-policy" className="hover:text-blue-600 transition-colors">
+                                <a href="/chinh-sach-bao-mat" className="hover:text-blue-600 transition-colors">
                                     Chính sách bảo mật
                                 </a>
                             </li>
