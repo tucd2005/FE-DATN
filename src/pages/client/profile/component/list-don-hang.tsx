@@ -19,7 +19,10 @@ export default function OrderHistory() {
     { value: "dang_chuan_bi", label: "Đang chuẩn bị", count: orders.filter((o) => o.trang_thai_don_hang === "dang_chuan_bi").length },
     { value: "dang_van_chuyen", label: "Đang vận chuyển", count: orders.filter((o) => o.trang_thai_don_hang === "dang_van_chuyen").length },
     { value: "da_giao", label: "Đã giao", count: orders.filter((o) => o.trang_thai_don_hang === "da_giao").length },
+    { value: "da_nhan", label: "Đã Nhận", count: orders.filter((o) => o.trang_thai_don_hang === "da_nhan").length },
+    { value: "tra_hang_thanh_cong", label: "Trả hàng thành công", count: orders.filter((o) => o.trang_thai_don_hang === "tra_hang_thanh_cong").length },
     { value: "da_huy", label: "Đã huỷ", count: orders.filter((o) => o.trang_thai_don_hang === "da_huy").length },
+    { value: "tu_choi_tra_hang", label: "Từ chối trả hàng", count: orders.filter((o) => o.trang_thai_don_hang === "tu_choi_tra_hang").length },
     { value: "tra_hang", label: "Trả hàng", count: orders.filter((o) => o.trang_thai_don_hang === "tra_hang").length },
   ]
 
@@ -29,12 +32,29 @@ export default function OrderHistory() {
       case "dang_chuan_bi": return "bg-blue-100 text-blue-800"
       case "dang_van_chuyen": return "bg-cyan-100 text-cyan-800"
       case "da_giao": return "bg-green-100 text-green-800"
+      case "tra_hang_thanh_cong": return "bg-green-100 text-green-800"
+      case "da_nhan": return "bg-green-100 text-green-800"
       case "da_huy": return "bg-red-100 text-red-800"
+      case "tu_choi_tra_hang": return "bg-red-100 text-red-800"
       case "tra_hang": return "bg-pink-100 text-pink-800"
       default: return "bg-gray-100 text-gray-800"
     }
   }
 
+  const getFriendlyStatusLabel = (status: string) => {
+    switch (status) {
+      case "cho_xac_nhan": return "Chờ xác nhận"
+      case "dang_chuan_bi": return "Đang chuẩn bị"
+      case "dang_van_chuyen": return "Đang vận chuyển"
+      case "da_giao": return "Đã giao"
+      case "da_nhan": return "Đã Nhận"
+      case "tra_hang_thanh_cong": return "Trả hàng thành công"
+      case "da_huy": return "Đã huỷ"
+      case "tu_choi_tra_hang": return "Từ chối trả hàng"
+      case "tra_hang": return "Trả hàng"
+      default: return status
+    }
+  }
   const filteredOrders = orders
     .filter((order) => {
       const matchesStatus = selectedStatus === "all" || order.trang_thai_don_hang === selectedStatus
@@ -46,7 +66,7 @@ export default function OrderHistory() {
     .sort((a, b) => new Date(b.ngay_dat).getTime() - new Date(a.ngay_dat).getTime())
 
   const paginatedOrders = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-console.log("data",filteredOrders);
+  console.log("data", filteredOrders);
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
@@ -85,11 +105,10 @@ console.log("data",filteredOrders);
                         setSelectedStatus(option.value)
                         setPage(1)
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
-                        selectedStatus === option.value
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${selectedStatus === option.value
                           ? "bg-teal-50 text-teal-700 border border-teal-200"
                           : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <span>{option.label}</span>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{option.count}</span>
@@ -123,7 +142,7 @@ console.log("data",filteredOrders);
                               order.trang_thai_don_hang
                             )}`}
                           >
-                            {order.trang_thai_don_hang}
+                            {getFriendlyStatusLabel(order.trang_thai_don_hang)}
                           </span>
                         </div>
                         <div className="text-right">
@@ -171,13 +190,9 @@ console.log("data",filteredOrders);
                           >
                             Xem chi tiết
                           </button>
-                          {order.trang_thai_don_hang === "da_giao" && (
-                            <button className="text-sm text-green-600 hover:text-green-700 font-medium">Đánh giá sản phẩm</button>
-                          )}
+
                         </div>
-                        {(order.trang_thai_don_hang === "da_giao" || order.trang_thai_don_hang === "da_huy") && (
-                          <button className="text-sm bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md font-medium">Mua lại</button>
-                        )}
+
                       </div>
                     </div>
                   </div>

@@ -39,7 +39,7 @@ export default function CamNhanKhachHang() {
                 {/* Avatar + Name */}
                 <div className="flex items-center mb-4">
                   <img
-                    src={review.user?.avatar || "/default-avatar.png"}
+                    src={review.user?.avatar || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-KTBlqHftCBwjj38pFMWEiMgX_vBq2KUvWQ&s"}
                     alt={review.user?.name || "Khách hàng"}
                     className="w-14 h-14 rounded-full object-cover mr-4"
                   />

@@ -76,11 +76,7 @@ export default function SanPhamNoiBat({ products }: Props) {
                       )}
 
                     </div>
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
+                    
                   </div>
                 </div>
               </div>
