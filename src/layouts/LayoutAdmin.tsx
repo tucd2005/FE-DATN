@@ -34,13 +34,14 @@ export default function LayoutAdmin() {
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken'); // Nếu có
-    sessionStorage.removeItem('accessToken'); // Nếu có dùng session
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('accessToken');
     navigate('/admin/login');
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    // ✅ ĐÃ SỬA: thay min-h-screen bằng h-screen để giới hạn chiều cao
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside
         className={`bg-slate-900 text-white transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'
@@ -122,48 +123,50 @@ export default function LayoutAdmin() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      {/* ✅ ĐÃ SỬA: thêm overflow-hidden để chặn scroll ngoài */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white shadow flex items-center px-4">
-  <Button
-    type="text"
-    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-    onClick={() => setCollapsed(!collapsed)}
-    className="mr-4 text-xl"
-  />
-  <h1 className="text-lg md:text-xl font-semibold">Trang quản trị</h1>
+        <header className="h-16 bg-white shadow flex items-center px-4 flex-shrink-0">
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className="mr-4 text-xl"
+          />
+          <h1 className="text-lg md:text-xl font-semibold">Trang quản trị</h1>
 
-  {/* Đẩy 2 nút sang bên phải */}
-  <div className="ml-auto flex items-center gap-2">
-    <Link to="/admin/thong_tin">
-      <Button
-        type="link"
-        icon={<UserOutlined />}
-        className="text-blue-500 hover:text-blue-700 text-base"
-      >
-        Hồ sơ cá nhân
-      </Button>
-    </Link>
+          <div className="ml-auto flex items-center gap-2">
+            <Link to="/admin/thong_tin">
+              <Button
+                type="link"
+                icon={<UserOutlined />}
+                className="text-blue-500 hover:text-blue-700 text-base"
+              >
+                Hồ sơ cá nhân
+              </Button>
+            </Link>
 
-    <Button
-      type="text"
-      icon={<LogoutOutlined />}
-      onClick={handleLogout}
-      className="text-red-500 hover:text-red-700 text-base"
-    >
-      Đăng xuất
-    </Button>
-  </div>
-</header>
-
+            <Button
+              type="text"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              className="text-red-500 hover:text-red-700 text-base"
+            >
+              Đăng xuất
+            </Button>
+          </div>
+        </header>
 
         {/* Content */}
-        <main className="p-4">
-          <div className="bg-white rounded-xl shadow p-6 min-h-[calc(100vh-4rem-2rem)]">
+        {/* ✅ ĐÃ SỬA: thêm overflow-auto và flex-1 để Outlet cuộn */}
+        <main className="p-4 overflow-auto flex-1">
+          {/* ✅ ĐÃ SỬA: bỏ chiều cao tính toán không cần thiết, dùng min-h-full */}
+          <div className="bg-white rounded-xl shadow p-6 min-h-full">
             <Outlet />
           </div>
         </main>
       </div>
+      {/* ✅ END */}
     </div>
   );
 }

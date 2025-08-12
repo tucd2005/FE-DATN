@@ -55,6 +55,10 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
                 return "Nạp tiền"
             case "withdraw":
                 return "Rút tiền"
+            case "payment":
+                return "Thanh toán"
+            case "refund":
+                return "Hoàn tiền"
             default:
                 return type
         }
@@ -66,10 +70,15 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
                 return "green"
             case "withdraw":
                 return "blue"
+            case "payment":
+                return "orange"
+            case "refund":
+                return "purple"
             default:
                 return "default"
         }
     }
+
 
     const columns = [
         {
@@ -100,9 +109,10 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
             key: "amount",
             width: 150,
             render: (amount: number, record: any) => (
-                <span className={`font-bold ${record.type === "deposit" ? "text-green-600" : "text-blue-600"}`}>
-                    {record.type === "deposit" ? "+" : "-"}{formatCurrency(amount)}
+                <span className={`font-bold ${(record.type === "deposit" || record.type === "refund") ? "text-green-600" : "text-blue-600"}`}>
+                    {(record.type === "deposit" || record.type === "refund") ? "+" : "-"}{formatCurrency(amount)}
                 </span>
+
             )
         },
         {
