@@ -22,8 +22,6 @@ import PaymentSuccessPage from "../pages/client/payment-success";
 import PaymentFailedPage from "../pages/client/payment-failed";
 import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
 
-
-
 export const clientRouter = {
   path: "/",
   element: <ClientLayout />, // Có thể thay bằng <ClientLayout /> nếu có

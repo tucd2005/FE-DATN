@@ -1,4 +1,4 @@
-import { Star, Heart, Eye, ShoppingCart } from "lucide-react";
+import { Heart, Eye, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Product } from "../../../../types/product.type";
 
@@ -85,7 +85,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
                 <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product.mo_ta}</p>
 
                 {/* Rating */}
-               
+
 
                 <div className="flex items-center gap-3 mb-6">
                     {salePrice && Number(salePrice) > 0 ? (

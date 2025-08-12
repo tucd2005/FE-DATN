@@ -39,15 +39,7 @@ const AddAttributeValuePage: React.FC = () => {
         />
 
         {/* 🎨 Bảng màu – khi click sẽ đổ vào value */}
-        <div>
-          <label className="block mb-1 text-sm">🎨 Chọn màu (giá trị sẽ tự điền vào ô trên):</label>
-          <input
-            type="color"
-            value={value || "#000000"} // nếu value trống thì bảng màu vẫn hiển thị mặc định
-            onChange={(e) => setValue(e.target.value)}
-            style={{ width: "60px", height: "34px", border: "none", cursor: "pointer" }}
-          />
-        </div>
+        
 
         <div className="flex space-x-2">
           <Button type="primary" onClick={handleAdd} loading={isLoading}>
