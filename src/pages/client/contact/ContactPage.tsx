@@ -105,10 +105,14 @@ export default function ContactPage() {
               <Form.Item
                 label={<span className="text-base font-medium text-gray-700">Số điện thoại</span>}
                 name="phone"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập số điện thoại' },
+                  { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải gồm 10 chữ số' }
+                ]}
               >
                 <Input
                   className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:border-indigo-500 transition-colors"
-                  placeholder="0123456789"
+                  placeholder="+84"
                 />
               </Form.Item>
 
@@ -160,10 +164,12 @@ export default function ContactPage() {
                   block
                   htmlType="submit"
                   loading={loading || sendContact.isPending}
-                  className="h-12 text-lg font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 transition-all"
+                  className="h-12 text-lg font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-green-600 text-white hover:scale-105 transition-all"
                 >
                   Gửi Tin Nhắn
                 </Button>
+
+
               </Form.Item>
             </Form>
           </Card>
@@ -197,8 +203,8 @@ export default function ContactPage() {
                 title: "Email",
                 content: (
                   <>
-                    Hỗ trợ: support@fashionstore.vn<br />
-                    Kinh doanh: sales@fashionstore.vn
+                    Hỗ trợ: support@sportigo.vn<br />
+                    Kinh doanh: sales@sportigo.vn
                   </>
                 ),
               },
