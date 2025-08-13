@@ -26,7 +26,7 @@ export default function HomeClient() {
   }
 
   if (isError) {
-    return <div className="text-center py-12 text-red-500">Không thể tải sản phẩm. Vui lòng thử lại.</div>;
+    return <div className="text-2xl text-center py-12 text-red-500 flex justify-center">Hệ thống đang bảo trì, vui lòng thử lại sau!</div>;
   }
 
   return (
