@@ -22,6 +22,8 @@ import PaymentSuccessPage from "../pages/client/payment-success";
 import PaymentFailedPage from "../pages/client/payment-failed";
 import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
 import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
+import WarrantyProduct from "../components/footer_Components/warrantyProducts";
+import HelpCenter from "../components/footer_Components/helpCenter";
 
 export const clientRouter = {
   path: "/",
@@ -54,8 +56,9 @@ export const clientRouter = {
     { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
 
     // phần nhỏ ở footer
-    { path: "/privacy-policy", element: <PrivacyPolicy /> },
-    { path: "/warranty-policy", element: <WarrantyPolicy /> }
+    { path: "/trung-tam-tro-giup", element: <HelpCenter /> },
+    { path: "/chinh-sach-bao-mat", element: <PrivacyPolicy /> },
+    { path: "/chinh-sach-bao-hanh", element: <WarrantyProduct /> }
 
 
   ],

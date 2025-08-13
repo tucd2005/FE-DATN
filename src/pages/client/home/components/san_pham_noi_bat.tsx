@@ -76,7 +76,7 @@ export default function SanPhamNoiBat({ products }: Props) {
                       )}
 
                     </div>
-                    
+
                   </div>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default function SanPhamNoiBat({ products }: Props) {
         </div>
         <div className="text-center mt-12">
           <Link to="/san-pham">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-md font-medium transition-colors">
+            <button className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-8 py-3 rounded-md font-medium">
               Xem tất cả sản phẩm
             </button>
           </Link>

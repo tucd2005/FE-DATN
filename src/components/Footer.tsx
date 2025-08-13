@@ -67,7 +67,7 @@ const Footer = () => {
                         <h3 className="font-semibold text-gray-900 mb-4">Hỗ trợ khách hàng</h3>
                         <ul className="space-y-2 text-gray-600">
                             <li>
-                                <a href="#" className="hover:text-blue-600 transition-colors">
+                                <a href="/trung-tam-tro-giup" className="hover:text-blue-600 transition-colors">
                                     Trung tâm trợ giúp
                                 </a>
                             </li>
@@ -82,7 +82,7 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="/bao-hanh-san-pham" className="hover:text-blue-600 transition-colors">
+                                <a href="/chinh-sach-bao-hanh" className="hover:text-blue-600 transition-colors">
                                     Bảo hành sản phẩm
                                 </a>
                             </li>
