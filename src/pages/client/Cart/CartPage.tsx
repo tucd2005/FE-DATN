@@ -42,10 +42,10 @@ const CartPage = () => {
   }, [cartItems]);
 
   const selectedCartItems = cartItems.filter((item) => selectedItems.includes(item.id));
-const subtotal = selectedCartItems.reduce(
-  (sum, item) => sum + (Number(item?.thanh_tien) || 0),
-  0
-);
+  const subtotal = selectedCartItems.reduce(
+    (sum, item) => sum + (Number(item?.thanh_tien) || 0),
+    0
+  );
 
   const shipping = 0;
   const total = subtotal + shipping;
@@ -53,7 +53,7 @@ const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + (Number(item?.so_luong) || 0),
     0
   );
-  
+
 
   const handleCheckout = () => {
     if (selectedCartItems.some(item => !!item.error_message)) {
@@ -69,41 +69,41 @@ const subtotal = selectedCartItems.reduce(
     });
   };
 
-const handleUpdateQuantity = (id: number, newQuantity: number, maxQuantity?: number) => {
-  if (newQuantity < 1) return;
+  const handleUpdateQuantity = (id: number, newQuantity: number, maxQuantity?: number) => {
+    if (newQuantity < 1) return;
 
-  // Giới hạn tối đa
-  if (maxQuantity && newQuantity > maxQuantity) {
-    toast.warning(`Số lượng tối đa cho sản phẩm này là ${maxQuantity}`);
-    return;
-  }
+    // Giới hạn tối đa
+    if (maxQuantity && newQuantity > maxQuantity) {
+      toast.warning(`Số lượng tối đa cho sản phẩm này là ${maxQuantity}`);
+      return;
+    }
 
-  // 1. Cập nhật UI ngay lập tức
-  useCartStore.setState((state) => ({
-    items: state.items.map(item =>
-      item.id === id ? { ...item, so_luong: newQuantity } : item
-    )
-  }));
-
-  // 2. Gọi API nền, nếu lỗi thì revert
-updateQuantity(id, newQuantity)
-  .catch((err) => {
-    const finalMessage =
-      err?.response?.data?.error || "Cập nhật số lượng thất bại!";
-      
-    toast.error(finalMessage);
-
-    // Gán lỗi vào item để CartItem hiển thị
+    // 1. Cập nhật UI ngay lập tức
     useCartStore.setState((state) => ({
       items: state.items.map(item =>
-        item.id === id ? { ...item, error_message: finalMessage } : item
+        item.id === id ? { ...item, so_luong: newQuantity } : item
       )
     }));
 
-    fetchCart();
-  });
+    // 2. Gọi API nền, nếu lỗi thì revert
+    updateQuantity(id, newQuantity)
+      .catch((err) => {
+        const finalMessage =
+          err?.response?.data?.error || "Cập nhật số lượng thất bại!";
 
-};
+        toast.error(finalMessage);
+
+        // Gán lỗi vào item để CartItem hiển thị
+        useCartStore.setState((state) => ({
+          items: state.items.map(item =>
+            item.id === id ? { ...item, error_message: finalMessage } : item
+          )
+        }));
+
+        fetchCart();
+      });
+
+  };
 
 
   const handleRemoveItem = (id: number) => {
@@ -164,7 +164,7 @@ updateQuantity(id, newQuantity)
               </p>
             )}
 
-          
+
 
             {cartItems.length === 0 && (
               <div className="text-center py-8 text-gray-600">
@@ -220,7 +220,7 @@ updateQuantity(id, newQuantity)
                   <span className="text-gray-600">Tạm tính:</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
-               
+
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Tổng cộng:</span>
@@ -231,14 +231,16 @@ updateQuantity(id, newQuantity)
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors font-medium mb-4"
+                className="w-full bg-gradient-to-r from-blue-600 to-green-600 text-white text-white py-3 rounded-md hover:bg-gray-800 transition-colors font-medium mb-4"
                 disabled={selectedItems.length === 0} // chỉ disable khi chưa chọn sản phẩm
               >
                 Tiến hành thanh toán
               </button>
 
+
+
               <div className="text-center">
-                <a href="/" className="text-blue-600 hover:text-blue-700 transition-colors text-sm">
+                <a href="/" className="text-blue-600 hover:text-blue-700 text-decoration-line: underline transition-colors text-sm">
                   Tiếp tục mua sắm
                 </a>
               </div>
