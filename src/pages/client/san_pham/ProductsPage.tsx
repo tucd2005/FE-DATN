@@ -8,7 +8,7 @@ import ProductGrid from "./components/ProductGrid";
 import Pagination from "./components/Pagination";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import instanceAxios from "../../../utils/axios";
-import { message } from "antd";
+import { message, Spin } from "antd";
 import type { IFavoriteProduct } from "../../../types/product.type";
 
 const ProductsPage = () => {
@@ -131,9 +131,7 @@ const ProductsPage = () => {
     setCurrentPage(page);
   };
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+
 
   if (error) {
     return (
@@ -172,20 +170,20 @@ const ProductsPage = () => {
               onSearchSubmit={handleSearchSubmit}
             />
 
-            <ProductGrid
+            {isLoading ? <div className="flex justify-center items-center min-h-[70dvh]"><Spin /></div> : <> <ProductGrid
               products={products}
               viewMode={viewMode}
               favorites={favoriteProducts}
               onToggleFavorite={toggleFavorite}
             />
 
-            {meta && meta.last_page > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                lastPage={meta.last_page}
-                onPageChange={handlePageChange}
-              />
-            )}
+              {meta && meta.last_page > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  lastPage={meta.last_page}
+                  onPageChange={handlePageChange}
+                />
+              )}</>}
           </div>
         </div>
       </div>
