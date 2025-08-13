@@ -1,5 +1,5 @@
 import React from "react"
-import { Link } from "react-router-dom"
+
 
 const PrivacyPolicy: React.FC = () => {
     return (
@@ -104,11 +104,7 @@ const PrivacyPolicy: React.FC = () => {
                     </section>
                 </div>
 
-                <p className="text-center text-sm text-gray-600 mt-8">
-                    <Link to="/login" className="text-blue-500 hover:text-blue-600 font-semibold transition-colors duration-200">
-                        &larr; Quay lại đăng nhập
-                    </Link>
-                </p>
+
             </div>
         </div>
     )
