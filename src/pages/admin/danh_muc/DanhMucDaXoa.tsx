@@ -113,7 +113,6 @@ const DanhMucDaXoa: React.FC = () => {
             {/* Header */}
             <div className="mb-6">
                 <Title level={2} className="flex items-center">
-                    <span className="mr-3">🗑️</span>
                     Danh mục đã xóa
                 </Title>
                 <Text className="text-gray-600">
@@ -131,7 +130,6 @@ const DanhMucDaXoa: React.FC = () => {
                                 {categories?.length || 0}
                             </div>
                         </div>
-                        <div className="text-red-400 text-4xl">🗑️</div>
                     </div>
                 </Card>
             </div>

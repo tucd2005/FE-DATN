@@ -47,7 +47,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearchKeyword(searchInput);
-      setCurrentPage(1); // Reset to page 1 when search changes
+      // setCurrentPage(1); // Reset to page 1 when search changes
     }, 500); // Wait 500ms after user stops typing
 
     return () => clearTimeout(timer);
@@ -102,7 +102,9 @@ const ProductsPage = () => {
 
   const handlePriceRangeChange = (range: [number, number]) => {
     setPriceRange(range);
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+    if (range[0] !== priceRange[0] || range[1] !== priceRange[1]) {
+      setCurrentPage(1)
+    }
   };
 
   const handleResetFilters = () => {
@@ -128,10 +130,9 @@ const ProductsPage = () => {
   };
 
   const handlePageChange = (page: number) => {
+    console.log('page change handle')
     setCurrentPage(page);
   };
-
-
 
   if (error) {
     return (

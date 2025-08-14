@@ -6,7 +6,6 @@ interface PaginationProps {
 
 const Pagination = ({ currentPage, lastPage, onPageChange }: PaginationProps) => {
     if (lastPage <= 1) return null;
-
     return (
         <div className="flex justify-end mt-10 px-4">
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow border border-gray-200">
