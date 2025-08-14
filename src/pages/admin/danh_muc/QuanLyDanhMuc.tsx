@@ -5,7 +5,7 @@ import {
   useDeleteCategory,
   useListCategory,
 } from "../../../hooks/useCategory";
-import { Category } from "../../../types/categories/category";
+import type { Category } from "../../../types/categories/category";
 
 export default function CategoryList() {
   const navigate = useNavigate();
