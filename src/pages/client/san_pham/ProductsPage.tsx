@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { ProductFilterParams } from "../../../services/productservice";
 import { useProductsClient } from "../../../hooks/useProductsClient";
-import LoadingSpinner from "./components/LoadingSpinner";
 import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
 import ProductGrid from "./components/ProductGrid";
@@ -130,7 +129,6 @@ const ProductsPage = () => {
   };
 
   const handlePageChange = (page: number) => {
-    console.log('page change handle')
     setCurrentPage(page);
   };
 
@@ -171,7 +169,11 @@ const ProductsPage = () => {
               onSearchSubmit={handleSearchSubmit}
             />
 
-            {isLoading ? <div className="flex justify-center items-center min-h-[70dvh]"><Spin /></div> : <> <ProductGrid
+            {isLoading ? 
+            <div className="flex justify-center items-center min-h-[70dvh]">
+              <Spin size="large" />
+              <p className="text-gray-600 text-lg font-medium">Đang tải sản phẩm...</p>
+              </div> : <> <ProductGrid
               products={products}
               viewMode={viewMode}
               favorites={favoriteProducts}
