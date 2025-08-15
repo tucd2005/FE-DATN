@@ -17,7 +17,7 @@ const DeletedListPage: React.FC = () => {
   if (error) return <div>Lỗi: {(error as any).message}</div>;
 
   return (
-    <div className="p-4 bg-white rounded shadow max-w-2xl mx-auto">
+    <div className="p-4 bg-white rounded shadow  mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Danh sách giá trị đã xoá mềm (attributeId: {attributeId})</h2>
         <Button

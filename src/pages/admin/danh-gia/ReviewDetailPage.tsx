@@ -44,7 +44,7 @@ const ReviewDetailPage: React.FC = () => {
   console.log("Review data:", review);
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
+    <div style={{  margin: "0 auto", padding: "24px" }}>
       <Button
         icon={<ArrowLeftOutlined />}
         onClick={() => navigate(-1)}

@@ -26,7 +26,7 @@ const AttributeValueListPage: React.FC = () => {
   if (error) return <div>Lỗi: {(error as any).message}</div>;
 
   return (
-    <div className="p-4 bg-white rounded shadow max-w-2xl mx-auto">
+    <div className="p-4 bg-white rounded shadow  mx-auto">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
           Giá trị thuộc tính:{" "}
