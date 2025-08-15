@@ -25,7 +25,7 @@ const AddAttributeValuePage: React.FC = () => {
   if (!attributeId) return <div>Thiếu tham số attributeId trên URL</div>;
 
   return (
-    <div className="p-4 bg-white rounded shadow max-w-md mx-auto">
+    <div className="p-4 bg-white rounded shadow  mx-auto">
       <h2 className="text-xl font-semibold mb-4">
         Thêm giá trị thuộc tính (ID: {attributeId})
       </h2>

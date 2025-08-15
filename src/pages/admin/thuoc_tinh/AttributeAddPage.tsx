@@ -16,7 +16,7 @@ const AttributeAddPage = () => {
   };
 
   return (
-    <Card title="Thêm thuộc tính" className="max-w-md mx-auto mt-6">
+    <Card title="Thêm thuộc tính" className=" mx-auto mt-6">
       <Form layout="vertical" onFinish={onFinish}>
         <Form.Item
           label="Tên thuộc tính"
