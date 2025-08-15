@@ -11,7 +11,7 @@ interface DiscountCode {
   ten: string;
   loai: string;
   gia_tri: number;
-  so_luong: number;
+  // so_luong: number;
   trang_thai: boolean;
   ngay_bat_dau: string;
   ngay_ket_thuc: string;
@@ -48,7 +48,7 @@ export default function DeletedDiscountCodeList() {
     return `${num.toLocaleString("vi-VN")}đ`;
   },
 },
-    { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
+    // { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
     {
       title: "Ngày bắt đầu",
       dataIndex: "ngay_bat_dau",

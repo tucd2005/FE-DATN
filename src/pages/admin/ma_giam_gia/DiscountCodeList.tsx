@@ -28,7 +28,7 @@ interface DiscountCode {
   ten: string;
   loai: string;
   gia_tri: number;
-  so_luong: number;
+  // so_luong: number;
   trang_thai: boolean;
   ngay_bat_dau: string;
   ngay_ket_thuc: string;
@@ -123,7 +123,7 @@ const handleSend = () => {
       render: (value, record) =>
         record.loai === "phan_tram" ? `${value}%` : `${value}đ`,
     },
-    { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
+    // { title: "Số lượng", dataIndex: "so_luong", key: "so_luong" },
     {
       title: "Ngày bắt đầu",
       dataIndex: "ngay_bat_dau",
@@ -168,14 +168,14 @@ const handleSend = () => {
             Sửa
           </Button>
       
-          <Button
+          {/* <Button
             size="small"
             type="primary"
             onClick={() => handleSendCode(record)}
             loading={isSending && selectedCode?.id === record.id}
           >
             Gửi mã 
-          </Button>
+          </Button> */}
       
           <Button
             size="small"

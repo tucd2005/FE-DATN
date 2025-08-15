@@ -10,7 +10,7 @@ interface CreateDiscountCodePayload {
   san_pham_id?: number | null;
   gia_tri: number;
   gia_tri_don_hang: number;
-  so_luong: number;
+  // so_luong: number;
   gioi_han: number;
   trang_thai: boolean;
   ngay_bat_dau: string;       // ISO format: "2025-07-01 00:00:00"
