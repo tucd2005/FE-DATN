@@ -8,6 +8,7 @@ import {
   Space,
   Card,
   message,
+  InputNumber,
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
@@ -194,39 +195,32 @@ const AddProduct: React.FC = () => {
               name={`variants.${variantIndex}.gia`}
               control={control}
               render={({ field }) => (
-                <Input
+                <InputNumber
                   {...field}
-                  type="number"
+                  style={{ width: "100%" }}
                   min={0}
                   placeholder="Nhập giá sản phẩm"
-                  value={field.value === 0 ? '' : field.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '' || Number(val) >= 0) {
-                      field.onChange(val);
-                    }
-                  }}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                  }
+                  parser={(value) => value?.replace(/\./g, "").replace("đ", "") as any}
                 />
               )}
             />
-
             <span>Giá khuyến mãi</span>
             <Controller
               name={`variants.${variantIndex}.gia_khuyen_mai`}
               control={control}
               render={({ field }) => (
-                <Input
+                <InputNumber
                   {...field}
-                  type="number"
+                  style={{ width: "100%" }}
                   min={0}
                   placeholder="Nhập giá khuyến mãi"
-                  value={field.value === 0 ? '' : field.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '' || Number(val) >= 0) {
-                      field.onChange(val);
-                    }
-                  }}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
+                  }
+                  parser={(value) => value?.replace(/\./g, "").replace("đ", "") as any}
                 />
               )}
             />
