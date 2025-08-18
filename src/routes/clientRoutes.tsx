@@ -8,8 +8,6 @@ import LoginClient from "../pages/client/authModal/LoginClient";
 import RegisterClient from "../pages/client/authModal/RegisterClient";
 import Component from "../pages/client/thành_cong";
 import PaymentResultPage from "../pages/client/oder-succsee";
-import ProfilePage from "../pages/client/profile/profile";
-import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
@@ -24,6 +22,8 @@ import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
 import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
 import WarrantyProduct from "../components/footer_Components/warrantyProducts";
 import HelpCenter from "../components/footer_Components/helpCenter";
+import ProfilePage from "../pages/client/profile/profile";
+import OrderTracking from "../pages/client/profile/component/components/OrderTracking";
 
 export const clientRouter = {
   path: "/",
