@@ -40,7 +40,11 @@ export default function DanhMuc() {
           {cate?.map((e, index) => (
             <div key={e.ten + index} className="px-3">
               <Link to={'/san-pham?danhmuc=' + e.id} className="flex items-center rounded-[16px] p-2 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
-                <img src={e.image} alt={e.ten} className="h-16 aspect-square object-cover rounded-lg" />
+                <img
+                  src={`http://localhost:8000/storage/${e.image}`}
+                  alt={e.ten}
+                  className="h-16 aspect-square object-cover rounded-lg"
+                />
                 <span className="font-semibold mx-auto"> {e.ten}</span>
               </Link>
             </div>
