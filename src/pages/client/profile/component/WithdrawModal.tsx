@@ -1,14 +1,13 @@
-import { useState } from "react"
-import { Modal, Form, Input, Button, Alert, Select } from "antd"
-import { useWalletWithdraw, useWalletBalance } from "../../../../hooks/useWalletClient"
-import { formatCurrency } from "../../../../utils/formatCurrency"
+import { Modal, Form, Input, Button, Alert, Select, InputNumber } from "antd";
+import { useWalletWithdraw, useWalletBalance } from "../../../../hooks/useWalletClient";
+import { formatCurrency } from "../../../../utils/formatCurrency";
 
-const { Option } = Select
+const { Option } = Select;
 
 interface WithdrawModalProps {
-    visible: boolean
-    onCancel: () => void
-    onSuccess: () => void
+    visible: boolean;
+    onCancel: () => void;
+    onSuccess: () => void;
 }
 
 const bankOptions = [
@@ -31,35 +30,69 @@ const bankOptions = [
     { value: "SCB", label: "SCB" },
     { value: "Eximbank", label: "Eximbank" },
     { value: "DongA Bank", label: "DongA Bank" },
-    { value: "Khác", label: "Ngân hàng khác" }
-]
+    { value: "Khác", label: "Ngân hàng khác" },
+];
 
 export default function WithdrawModal({ visible, onCancel, onSuccess }: WithdrawModalProps) {
-    const [form] = Form.useForm()
-    const { mutate: withdraw, isPending } = useWalletWithdraw()
-    const { data: walletBalance } = useWalletBalance()
-    const [amount, setAmount] = useState<number>(0)
+    const [form] = Form.useForm();
+    const { mutate: withdraw, isPending } = useWalletWithdraw();
+    const { data: walletBalance, isLoading: isBalanceLoading } = useWalletBalance();
+    const maxAmount = walletBalance?.balance || 0;
+    const amount = Form.useWatch("amount", form) || 50000;
 
     const handleSubmit = (values: {
-        amount: number
-        bank_name: string
-        bank_account: string
-        acc_name: string
+        amount: number;
+        bank_name: string;
+        bank_account: string;
+        acc_name: string;
     }) => {
         withdraw(values, {
             onSuccess: () => {
-                form.resetFields()
-                onSuccess()
-            }
-        })
-    }
+                form.resetFields();
+                onSuccess();
+            },
+        });
+    };
 
     const handleCancel = () => {
-        form.resetFields()
-        onCancel()
+        form.resetFields();
+        onCancel();
+    };
+
+    if (isBalanceLoading) {
+        return (
+            <Modal
+                title="Rút tiền từ ví"
+                open={visible}
+                onCancel={handleCancel}
+                footer={null}
+                width={600}
+                centered
+            >
+                <div>Đang tải số dư...</div>
+            </Modal>
+        );
     }
 
-    const maxAmount = walletBalance?.balance || 0
+    if (maxAmount < 50000) {
+        return (
+            <Modal
+                title="Rút tiền từ ví"
+                open={visible}
+                onCancel={handleCancel}
+                footer={null}
+                width={600}
+                centered
+            >
+                <Alert
+                    message="Số dư không đủ"
+                    description="Số dư ví của bạn không đủ để rút tối thiểu 50,000 VNĐ."
+                    type="error"
+                    showIcon
+                />
+            </Modal>
+        );
+    }
 
     return (
         <Modal
@@ -100,19 +133,23 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                             { type: "number", max: 500000000, message: "Số tiền tối đa là 500,000,000 VNĐ" },
                             {
                                 validator: (_, value) => {
-                                    if (value > maxAmount) {
-                                        return Promise.reject(new Error("Số tiền rút không được vượt quá số dư hiện tại"))
+                                    if (typeof value !== "number" || isNaN(value)) {
+                                        return Promise.reject(new Error("Vui lòng nhập số tiền hợp lệ"));
                                     }
-                                    return Promise.resolve()
-                                }
-                            }
+                                    if (value > maxAmount) {
+                                        return Promise.reject(new Error("Số tiền rút không được vượt quá số dư hiện tại"));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
                         ]}
                     >
-                        <Input
-                            type="number"
+                        <InputNumber
                             placeholder="Nhập số tiền cần rút"
-                            onChange={(e) => setAmount(Number(e.target.value) || 0)}
-                            className="text-lg font-medium"
+                            className="w-full text-lg font-medium"
+                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
+                            min={50000}
                         />
                     </Form.Item>
 
@@ -126,10 +163,10 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                             showSearch
                             filterOption={(input, option) => {
                                 const label = option?.label;
-                                return typeof label === 'string' && label.toLowerCase().includes(input.toLowerCase());
+                                return typeof label === "string" && label.toLowerCase().includes(input.toLowerCase());
                             }}
                         >
-                            {bankOptions.map(bank => (
+                            {bankOptions.map((bank) => (
                                 <Option key={bank.value} value={bank.value} label={bank.label}>
                                     {bank.label}
                                 </Option>
@@ -142,12 +179,18 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                         name="bank_account"
                         rules={[
                             { required: true, message: "Vui lòng nhập số tài khoản" },
-                            { pattern: /^\d+$/, message: "Số tài khoản chỉ được chứa số" }
+                            { pattern: /^\d+$/, message: "Số tài khoản chỉ được chứa số" },
+                            { min: 8, message: "Số tài khoản phải có ít nhất 8 chữ số" },
+                            { max: 20, message: "Số tài khoản không được vượt quá 20 chữ số" },
                         ]}
                     >
                         <Input
                             placeholder="Nhập số tài khoản ngân hàng"
                             className="text-lg"
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                form.setFieldsValue({ bank_account: value });
+                            }}
                         />
                     </Form.Item>
 
@@ -156,12 +199,24 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                         name="acc_name"
                         rules={[
                             { required: true, message: "Vui lòng nhập tên chủ tài khoản" },
-                            { min: 2, message: "Tên chủ tài khoản phải có ít nhất 2 ký tự" }
+                            { min: 2, message: "Tên chủ tài khoản phải có ít nhất 2 ký tự" },
+                            {
+                                pattern: /^[A-Z\s]+$/,
+                                message: "Tên chủ tài khoản chỉ được chứa chữ in hoa và khoảng trắng",
+                            },
                         ]}
                     >
                         <Input
                             placeholder="Nhập tên chủ tài khoản (viết hoa, không dấu)"
                             className="text-lg"
+                            onChange={(e) => {
+                                const value = e.target.value
+                                    .toUpperCase()
+                                    .normalize("NFD")
+                                    .replace(/[\u0300-\u036f]/g, "")
+                                    .replace(/[^A-Z\s]/g, "");
+                                form.setFieldsValue({ acc_name: value });
+                            }}
                         />
                     </Form.Item>
 
@@ -182,19 +237,14 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                     )}
 
                     <div className="flex space-x-3 pt-4">
-                        <Button
-                            type="default"
-                            onClick={handleCancel}
-                            className="flex-1"
-                            size="large"
-                        >
+                        <Button type="default" onClick={handleCancel} className="flex-1" size="large">
                             Hủy
                         </Button>
                         <Button
                             type="primary"
                             htmlType="submit"
                             loading={isPending}
-                            disabled={amount > maxAmount}
+                            disabled={amount > maxAmount || amount < 50000}
                             className="flex-1 bg-blue-500 hover:bg-blue-600 border-blue-500"
                             size="large"
                         >
@@ -204,5 +254,5 @@ export default function WithdrawModal({ visible, onCancel, onSuccess }: Withdraw
                 </Form>
             </div>
         </Modal>
-    )
-} 
+    );
+}
