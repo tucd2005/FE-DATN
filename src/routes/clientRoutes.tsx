@@ -23,7 +23,7 @@ import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
 import WarrantyProduct from "../components/footer_Components/warrantyProducts";
 import HelpCenter from "../components/footer_Components/helpCenter";
 import ProfilePage from "../pages/client/profile/profile";
-import OrderTracking from "../pages/client/profile/component/components/OrderTracking";
+import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 
 export const clientRouter = {
   path: "/",
