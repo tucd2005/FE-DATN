@@ -55,6 +55,7 @@ export default function OrderHistory() {
       default: return status
     }
   }
+
   const filteredOrders = orders
     .filter((order) => {
       const matchesStatus = selectedStatus === "all" || order.trang_thai_don_hang === selectedStatus
@@ -164,13 +165,13 @@ export default function OrderHistory() {
                           <div className="flex-1">
                             <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
                             <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {order.gia_tri_bien_the &&
-                                order.gia_tri_bien_the.split(",").map((val, i) => (
+                              {item.gia_tri_bien_the &&
+                                item.gia_tri_bien_the.map((val: string, i: number) => (
                                   <span
                                     key={i}
                                     className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
                                   >
-                                    {val.trim()}
+                                    {val}
                                   </span>
                                 ))}
                             </div>
@@ -190,9 +191,7 @@ export default function OrderHistory() {
                           >
                             Xem chi tiết
                           </button>
-
                         </div>
-
                       </div>
                     </div>
                   </div>

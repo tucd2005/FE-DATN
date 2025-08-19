@@ -715,14 +715,16 @@ export default function OrderTracking() {
                         <h4 className="font-semibold text-gray-900 text-lg mb-2">{productName}</h4>
                         <div className="flex gap-2 mb-3 flex-wrap">
                           {order.gia_tri_bien_the &&
-                            order.gia_tri_bien_the.split(",").map((val, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
-                              >
-                                {val.trim()}
-                              </span>
-                            ))}
+                            order.gia_tri_bien_the
+                              .find((gt: any) => gt.san_pham_id === item.san_pham_id)
+                              ?.gia_tri_bien_the.map((val: string, i: number) => (
+                                <span
+                                  key={i}
+                                  className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
+                                >
+                                  {val}
+                                </span>
+                              ))}
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
