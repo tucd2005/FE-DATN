@@ -1,9 +1,7 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-
 import { message } from 'antd';
 import OrderHeader from "./OrderHeader"
 import TrackingSteps from "./TrackingSteps"
@@ -121,7 +119,21 @@ export default function OrderTracking() {
   }
 
   const handleReviewFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReviewForm({ ...reviewForm, hinh_anh: e.target.files?.[0] || null })
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate kích thước file (tối đa 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        message.error('Kích thước ảnh không được vượt quá 2MB.')
+        return
+      }
+      // Validate định dạng file
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml']
+      if (!validTypes.includes(file.type)) {
+        message.error('Vui lòng chọn file ảnh (jpeg, png, jpg, gif, svg).')
+        return
+      }
+      setReviewForm({ ...reviewForm, hinh_anh: file })
+    }
   }
 
   const handleSubmitReview = (productId: number, variantId: number | undefined) => (e: React.FormEvent) => {
@@ -130,20 +142,36 @@ export default function OrderTracking() {
       message.error('Bạn cần đăng nhập để đánh giá!')
       return
     }
+    if (!variantId) {
+      message.error('Không thể gửi đánh giá vì thiếu thông tin biến thể sản phẩm.')
+      return
+    }
+    if (!reviewForm.noi_dung.trim()) {
+      message.error('Vui lòng nhập nội dung đánh giá.')
+      return
+    }
     const formData = new FormData()
-    formData.append('san_pham_id', String(productId))
-    formData.append('bien_the_id', variantId ? String(variantId) : '')
-    formData.append('so_sao', String(reviewForm.so_sao))
-    formData.append('noi_dung', reviewForm.noi_dung)
-    if (reviewForm.hinh_anh) formData.append('hinh_anh', reviewForm.hinh_anh)
+    // Bọc dữ liệu trong mảng reviews[0] để khớp với BE
+    formData.append('reviews[0][san_pham_id]', String(productId))
+    formData.append('reviews[0][bien_the_id]', String(variantId))
+    formData.append('reviews[0][so_sao]', String(reviewForm.so_sao))
+    formData.append('reviews[0][noi_dung]', reviewForm.noi_dung)
+    if (reviewForm.hinh_anh) {
+      formData.append('reviews[0][hinh_anh]', reviewForm.hinh_anh)
+    }
     submitReview.mutate(formData, {
-      onSuccess: () => {
-        setShowReviewForm(null)
-        setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null })
-        message.success('Đánh giá thành công!')
+      onSuccess: (response: any) => {
+        if (response.skipped?.length > 0) {
+          message.warning('Đánh giá không được gửi vì sản phẩm chưa mua hoặc đã được đánh giá.')
+        } else {
+          setShowReviewForm(null)
+          setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null })
+          message.success('Đánh giá thành công!')
+        }
       },
       onError: (err: any) => {
-        message.error(err.response?.data?.message || 'Có lỗi xảy ra')
+        const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.'
+        message.error(errorMessage)
       }
     })
   }

@@ -56,10 +56,18 @@ export const useSubmitReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: submitReview,
-    onSuccess: (_, variables) => {
-      // Lấy productId từ formData
-      const productId = variables.get("san_pham_id");
+    onSuccess: (response, variables) => {
+      const productId = variables.get("reviews[0][san_pham_id]");
       queryClient.invalidateQueries(["productReviews", Number(productId)]);
+      if (response.skipped?.length > 0) {
+        toast.warning('Đánh giá không được gửi vì sản phẩm chưa mua hoặc đã được đánh giá.');
+      } else {
+        toast.success('Đánh giá thành công!');
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.';
+      toast.error(errorMessage);
     },
   });
 };
