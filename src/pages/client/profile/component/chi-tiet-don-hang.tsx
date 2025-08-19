@@ -1,4 +1,3 @@
-"use client"
 
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -103,24 +102,38 @@ export default function OrderTracking() {
       message.error('Bạn cần đăng nhập để đánh giá!');
       return;
     }
+    if (!variantId) {
+      message.error('Không thể gửi đánh giá vì thiếu thông tin biến thể sản phẩm.');
+      return;
+    }
+    if (!reviewForm.noi_dung.trim()) {
+      message.error('Vui lòng nhập nội dung đánh giá.');
+      return;
+    }
     const formData = new FormData();
-    formData.append('san_pham_id', String(productId));
-    formData.append('bien_the_id', variantId ? String(variantId) : '');
-    formData.append('so_sao', String(reviewForm.so_sao));
-    formData.append('noi_dung', reviewForm.noi_dung);
-    if (reviewForm.hinh_anh) formData.append('hinh_anh', reviewForm.hinh_anh);
+    formData.append('reviews[0][san_pham_id]', String(productId));
+    formData.append('reviews[0][bien_the_id]', String(variantId));
+    formData.append('reviews[0][so_sao]', String(reviewForm.so_sao));
+    formData.append('reviews[0][noi_dung]', reviewForm.noi_dung);
+    if (reviewForm.hinh_anh) {
+      formData.append('reviews[0][hinh_anh]', reviewForm.hinh_anh);
+    }
     submitReview.mutate(formData, {
-      onSuccess: () => {
-        setShowReviewForm(null);
-        setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
-        message.success('Đánh giá thành công!');
+      onSuccess: (response: any) => {
+        if (response.skipped?.length > 0) {
+          message.warning('Đánh giá không được gửi vì sản phẩm chưa mua hoặc đã được đánh giá.');
+        } else {
+          setShowReviewForm(null);
+          setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
+          message.success('Đánh giá thành công!');
+        }
       },
       onError: (err: any) => {
-        message.error(err.response?.data?.message || 'Có lỗi xảy ra');
+        const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.';
+        message.error(errorMessage);
       }
     });
   };
-
   const trackingSteps = [
     { id: "cho_xac_nhan", title: "Chờ xác nhận", icon: Clock, color: "from-amber-400 to-orange-500" },
     { id: "dang_chuan_bi", title: "Đang chuẩn bị", icon: BadgeCheck, color: "from-blue-400 to-blue-600" },
@@ -818,7 +831,7 @@ export default function OrderTracking() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-20">
               <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
                 <h3 className="text-lg font-semibold text-white flex items-center">
                   <div className="w-2 h-2 bg-white/30 rounded-full mr-3"></div>
@@ -1080,5 +1093,3 @@ export default function OrderTracking() {
     </div>
   )
 }
-
-// * ok ae

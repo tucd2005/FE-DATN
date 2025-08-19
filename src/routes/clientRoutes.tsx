@@ -8,8 +8,6 @@ import LoginClient from "../pages/client/authModal/LoginClient";
 import RegisterClient from "../pages/client/authModal/RegisterClient";
 import Component from "../pages/client/thành_cong";
 import PaymentResultPage from "../pages/client/oder-succsee";
-import ProfilePage from "../pages/client/profile/profile";
-import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 import OrderHistory from "../pages/client/profile/component/list-don-hang";
 import EditProfilePage from "../pages/client/profile/EditProfilePage";
 import PaymentResultZaloPage from "../pages/client/thanh-cong-zalo";
@@ -22,6 +20,10 @@ import PaymentSuccessPage from "../pages/client/payment-success";
 import PaymentFailedPage from "../pages/client/payment-failed";
 import PrivacyPolicy from "../components/footer_Components/privacyPolicy";
 import WarrantyPolicy from "../components/footer_Components/warantyPolicy";
+import WarrantyProduct from "../components/footer_Components/warrantyProducts";
+import HelpCenter from "../components/footer_Components/helpCenter";
+import ProfilePage from "../pages/client/profile/profile";
+import OrderTracking from "../pages/client/profile/component/chi-tiet-don-hang";
 
 export const clientRouter = {
   path: "/",
@@ -54,8 +56,9 @@ export const clientRouter = {
     { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
 
     // phần nhỏ ở footer
-    { path: "/privacy-policy", element: <PrivacyPolicy /> },
-    { path: "/warranty-policy", element: <WarrantyPolicy /> }
+    { path: "/trung-tam-tro-giup", element: <HelpCenter /> },
+    { path: "/chinh-sach-bao-mat", element: <PrivacyPolicy /> },
+    { path: "/chinh-sach-bao-hanh", element: <WarrantyProduct /> }
 
 
   ],

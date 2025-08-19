@@ -107,7 +107,7 @@ export default function PaymentSuccessPage() {
     }, [searchParams, queryClient]);
 
     const handleGoToWallet = () => {
-        navigate('/profile?tab=wallet');
+        navigate('/thong-tin-khach-hang?tab=wallet');
     };
 
     const handleGoHome = () => {

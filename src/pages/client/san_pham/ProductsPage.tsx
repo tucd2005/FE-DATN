@@ -1,112 +1,96 @@
 import { useState, useEffect } from "react";
 import type { ProductFilterParams } from "../../../services/productservice";
 import { useProductsClient } from "../../../hooks/useProductsClient";
-import LoadingSpinner from "./components/LoadingSpinner";
 import ProductFilters from "./components/ProductFilters";
 import ProductHeader from "./components/ProductHeader";
 import ProductGrid from "./components/ProductGrid";
 import Pagination from "./components/Pagination";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import instanceAxios from "../../../utils/axios";
-import { message } from "antd";
+import { message, Spin } from "antd";
 import type { IFavoriteProduct } from "../../../types/product.type";
 
 const ProductsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(["Tất cả"]);
-  const [priceRange, setPriceRange] = useState([0, 4000000]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Tất cả");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 4000000]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [searchInput, setSearchInput] = useState(""); // Separate state for input value
+  const [searchInput, setSearchInput] = useState(""); // giá trị nhập tạm
 
   const queryClient = useQueryClient();
 
+  // Lấy danh sách yêu thích
   const { data: fav } = useQuery({
     queryKey: ["favorites"],
-    queryFn: () => instanceAxios.get("/wishlists").then(res => res.data),
-  })
+    queryFn: () => instanceAxios.get("/wishlists").then((res) => res.data),
+  });
 
   const { mutate: addFavorite } = useMutation({
-    mutationFn: (productId: number) => instanceAxios.post("/wishlists", { san_pham_id: productId }),
+    mutationFn: (productId: number) =>
+      instanceAxios.post("/wishlists", { san_pham_id: productId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      message.success('Đã thêm vào yêu thích!');
-    }
+      message.success("Đã thêm vào yêu thích!");
+    },
   });
 
   const { mutate: removeFavorite } = useMutation({
-    mutationFn: (productId: number) => instanceAxios.delete("/wishlists/" + productId),
+    mutationFn: (productId: number) =>
+      instanceAxios.delete("/wishlists/" + productId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      message.success('Đã xóa khỏi yêu thích!');
-    }
+      message.success("Đã xóa khỏi yêu thích!");
+    },
   });
-
 
   // Debounce search keyword
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearchKeyword(searchInput);
-      setCurrentPage(1); // Reset to page 1 when search changes
-    }, 500); // Wait 500ms after user stops typing
-
+    }, 500);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Định nghĩa params cho API, bao gồm các tham số lọc
+  // Params API
   const filterParams: ProductFilterParams = {
     page: currentPage,
     per_page: 12,
     keyword: searchKeyword || undefined,
-    danh_muc_id: selectedCategories.includes("Tất cả")
-      ? undefined
-      : selectedCategories.length > 0 && selectedCategories[0] !== "Tất cả"
-        ? parseInt(selectedCategories[0])
-        : undefined,
+    danh_muc_id: selectedCategory === "Tất cả" ? undefined : parseInt(selectedCategory),
     gia_min: priceRange[0],
     gia_max: priceRange[1],
   };
 
-  // Sử dụng TanStack Query
   const { data, isLoading, error } = useProductsClient(filterParams);
 
-  // Lấy dữ liệu từ response
   const rawProducts = data?.data || [];
   const meta = data?.meta;
   const products = rawProducts;
-  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id);
+  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id) || [];
 
-  const toggleFavorite = async (productId: number) => {
-    const check = favoriteProducts.includes(productId);
-    if (check) {
+  const toggleFavorite = (productId: number) => {
+    if (favoriteProducts.includes(productId)) {
       removeFavorite(productId);
-      return;
+    } else {
+      addFavorite(productId);
     }
-    addFavorite(productId);
   };
 
   const handleCategoryChange = (category: string) => {
-    if (category === "Tất cả") {
-      setSelectedCategories(["Tất cả"]);
-    } else {
-      const newCategories = selectedCategories.includes("Tất cả")
-        ? [category]
-        : selectedCategories.includes(category)
-          ? selectedCategories.filter((c) => c !== category)
-          : [...selectedCategories.filter((c) => c !== "Tất cả"), category];
-
-      setSelectedCategories(newCategories.length === 0 ? ["Tất cả"] : newCategories);
-    }
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+    setSelectedCategory(category);
+    setCurrentPage(1);
   };
 
   const handlePriceRangeChange = (range: [number, number]) => {
     setPriceRange(range);
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+    if (range[0] !== priceRange[0] || range[1] !== priceRange[1]) {
+      setCurrentPage(1);
+    }
   };
 
   const handleResetFilters = () => {
-    setSelectedCategories(["Tất cả"]);
+    setSelectedCategory("Tất cả");
     setPriceRange([0, 4000000]);
     setSearchKeyword("");
     setSearchInput("");
@@ -123,17 +107,13 @@ const ProductsPage = () => {
     setCurrentPage(1);
   };
 
-  const handleViewModeChange = (viewMode: "grid" | "list") => {
-    setViewMode(viewMode);
+  const handleViewModeChange = (view: "grid" | "list") => {
+    setViewMode(view);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   if (error) {
     return (
@@ -152,8 +132,8 @@ const ProductsPage = () => {
         <div className="flex gap-8">
           {/* Sidebar */}
           <ProductFilters
-            selectedCategories={selectedCategories}
-            priceRange={priceRange as [number, number]}
+            selectedCategory={selectedCategory}
+            priceRange={priceRange}
             onCategoryChange={handleCategoryChange}
             onPriceRangeChange={handlePriceRangeChange}
             onResetFilters={handleResetFilters}
@@ -165,26 +145,35 @@ const ProductsPage = () => {
               totalProducts={meta?.total || products.length}
               viewMode={viewMode}
               onViewModeChange={handleViewModeChange}
-              selectedCategories={selectedCategories}
-              priceRange={priceRange as [number, number]}
+              selectedCategory={selectedCategory}
+              priceRange={priceRange}
               searchKeyword={searchInput}
               onSearchChange={handleSearchChange}
               onSearchSubmit={handleSearchSubmit}
             />
 
-            <ProductGrid
-              products={products}
-              viewMode={viewMode}
-              favorites={favoriteProducts}
-              onToggleFavorite={toggleFavorite}
-            />
+            {isLoading ? (
+              <div className="flex flex-col gap-2 justify-center items-center min-h-[70dvh]">
+                <Spin size="large" />
+                <p className="text-gray-600 text-lg font-medium">Đang tải sản phẩm...</p>
+              </div>
+            ) : (
+              <>
+                <ProductGrid
+                  products={products}
+                  viewMode={viewMode}
+                  favorites={favoriteProducts}
+                  onToggleFavorite={toggleFavorite}
+                />
 
-            {meta && meta.last_page > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                lastPage={meta.last_page}
-                onPageChange={handlePageChange}
-              />
+                {meta && meta.last_page > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    lastPage={meta.last_page}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

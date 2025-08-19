@@ -34,7 +34,7 @@ const BannerAddForm: React.FC = () => {
     };
 
     return (
-        <div className="p-4 max-w-lg mx-auto">
+        <div className="p-4  mx-auto">
             <h2 className="text-xl font-semibold mb-4">Thêm Banner</h2>
             <Form
                 form={form}

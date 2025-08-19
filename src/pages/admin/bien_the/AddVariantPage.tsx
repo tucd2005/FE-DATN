@@ -52,8 +52,7 @@ const AddVariantPage: React.FC = () => {
       message.error("Vui lòng chọn đầy đủ giá trị cho tất cả thuộc tính.");
       return;
     }
-    console.log('Submit values:', values);
-    console.log('Selected attributes:', selectedAttributes);
+ 
     setLoading(true);
     try {
       const formData = new FormData();
@@ -66,7 +65,7 @@ const AddVariantPage: React.FC = () => {
       });
       // Log FormData
       for (let pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
+        console.log(pair[0] + ', ' + pair[1]);
       }
       fileList.forEach((fileObj: any) => {
         if (fileObj.originFileObj) {
@@ -108,8 +107,15 @@ const AddVariantPage: React.FC = () => {
             style={{ width: "100%" }}
             onPressEnter={e => e.currentTarget.blur()}
             onBlur={e => e.currentTarget.blur()}
+            formatter={(value) =>
+              value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : ""
+            }
+            parser={(value) =>
+              value ? value.replace(/\./g, "").replace("đ", "") : ""
+            }
           />
         </Form.Item>
+
         <Form.Item
           label="Giá khuyến mãi"
           name="gia_khuyen_mai"
@@ -121,8 +127,15 @@ const AddVariantPage: React.FC = () => {
             onPressEnter={e => e.currentTarget.blur()}
             onBlur={e => e.currentTarget.blur()}
             defaultValue={0}
+            formatter={(value) =>
+              value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ" : ""
+            }
+            parser={(value) =>
+              value ? value.replace(/\./g, "").replace("đ", "") : ""
+            }
           />
         </Form.Item>
+
         <Form.Item label="Ảnh (tối đa 1 ảnh)">
           <Upload
             listType="picture-card"
@@ -138,9 +151,9 @@ const AddVariantPage: React.FC = () => {
         <Form.Item label="Thuộc tính biến thể">
           <Space direction="vertical" style={{ width: "100%" }}>
             {attributes.map((attr) => (
-              <Form.Item key={attr.id} label={attr.ten} required name={`attr_${attr.id}`} rules={[{ required: true, message: `Chọn giá trị cho ${attr.ten}` }]}> 
+              <Form.Item key={attr.id} label={attr.ten} required name={`attr_${attr.id}`} rules={[{ required: true, message: `Chọn giá trị cho ${attr.ten}` }]}>
                 <Select
-                 
+
                   placeholder={`Chọn ${attr.ten}`}
                   value={selectedAttributes[attr.id] || undefined}
                   onChange={(val) => handleSelectAttributeValue(attr.id, val)}

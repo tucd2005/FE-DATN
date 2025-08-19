@@ -33,7 +33,7 @@ export default function AddDanhMuc() {
     };
 
     return (
-        <div className="p-4 bg-white max-w-xl mx-auto mt-8 rounded shadow">
+        <div className="p-4 bg-white  mx-auto mt-8 rounded shadow">
             <h2 className="text-xl font-semibold mb-4">Thêm danh mục</h2>
             <Form
                 form={form}

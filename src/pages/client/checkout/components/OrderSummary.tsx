@@ -258,17 +258,17 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         })();
 
         const notEnoughTotal = code.gia_tri_don_hang && subtotal < code.gia_tri_don_hang;
-        const outOfUses = code.so_luong !== undefined && code.so_luong <= 0;
+        // const outOfUses = code.so_luong !== undefined && code.so_luong <= 0;
         const now = new Date();
         const expired = code.ngay_ket_thuc && new Date(code.ngay_ket_thuc) < now;
         const notStarted = code.ngay_bat_dau && new Date(code.ngay_bat_dau) > now;
 
-        const disabled = notProductMatch || notEnoughTotal || outOfUses || expired || notStarted;
+        const disabled = notProductMatch || notEnoughTotal ||  expired || notStarted;
 
         let reason = "";
         if (notProductMatch) reason = "Không áp dụng cho sản phẩm này";
         else if (notEnoughTotal) reason = `Đơn tối thiểu ${formatPrice(code.gia_tri_don_hang)}`;
-        else if (outOfUses) reason = "Hết lượt sử dụng";
+        // else if (outOfUses) reason = "Hết lượt sử dụng";
         else if (expired) reason = "Đã hết hạn";
         else if (notStarted) reason = "Chưa đến ngày áp dụng";
 

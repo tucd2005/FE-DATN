@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
 import { useProducts } from '../../../hooks/useProduct';
 import XuHuongTheThao from "./components/xu_huong_the_thao";
 import DangKyNhanTin from "./components/dang_ky_nhan_tin";
@@ -10,7 +9,6 @@ import CamNhanKhachHang from "./components/danh_gia";
 import DanhMuc from "./components/danh_muc";
 import Hero from "./components/hero";
 import SanPhamNoiBat from "./components/san_pham_noi_bat";
-import ThietBiChuyenNghiep from "./components/thiet_bi_chuyen_nghiep";
 import ThuongHieuDongHanh from "./components/thuong_hieu_dong_hanh";
 import PendingPaymentNotice from "./components/PendingPaymentNotice";
 
@@ -28,23 +26,20 @@ export default function HomeClient() {
   }
 
   if (isError) {
-    return <div className="text-center py-12 text-red-500">Không thể tải sản phẩm. Vui lòng thử lại.</div>;
+    return <div className="text-2xl text-center py-12 text-red-500 flex justify-center">Hệ thống đang bảo trì, vui lòng thử lại sau!</div>;
   }
 
   return (
     <div className="min-h-screen bg-white">
       <Hero />
-      <DanhMuc /> 
-        
+      <DanhMuc />
+
       <SanPhamNoiBat products={products} />
- <ThuongHieuDongHanh />
+      <ThuongHieuDongHanh />
       <XuHuongTheThao />
       <DangKyNhanTin />
       <CamNhanKhachHang />
       <PendingPaymentNotice />
-      
-
-
     </div>
   );
 }

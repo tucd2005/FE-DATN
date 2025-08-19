@@ -41,7 +41,7 @@ const PostCreatePage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4  mx-auto">
       <Card title="Thêm bài viết mới" bordered={false} className="shadow rounded-xl">
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item

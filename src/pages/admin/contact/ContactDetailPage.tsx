@@ -81,7 +81,7 @@ export default function ContactDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto mt-6">
+    <div className=" mx-auto mt-6">
       {/* Nút quay lại */}
       <Button
         type="default"

@@ -1,4 +1,4 @@
-import { Card, Statistic, Typography, List, Avatar, Spin, Row, Col } from 'antd';
+import { Card, Statistic, Typography, List, Avatar, Spin, Row, Col, Progress } from 'antd';
 import { ShoppingCartOutlined, GiftOutlined } from '@ant-design/icons';
 import { useDashboard } from '../../../hooks/useDashboard';
 import { User } from 'lucide-react';
@@ -125,22 +125,42 @@ const TrangChuAdmin = () => {
 
       {/* Sản phẩm bán chạy */}
       <Card
-        title={<span style={{ fontWeight: 600 }}>Sản Phẩm Bán Chạy</span>}
-        className="rounded-xl shadow-sm"
-      >
-        <List
-          dataSource={data.san_pham_ban_chay}
-          renderItem={(item) => (
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Avatar icon={<GiftOutlined />} style={{ backgroundColor: '#EC4899' }} />}
-                title={<span style={{ fontWeight: 500 }}>{item.ten_san_pham}</span>}
-                description={`Đã bán: ${item.so_luong_da_ban} sản phẩm`}
+  title={<span style={{ fontWeight: 600 }}>🔥 Sản Phẩm Bán Chạy</span>}
+  className="rounded-xl shadow-md"
+>
+  <List
+    dataSource={data.san_pham_ban_chay}
+    renderItem={(item) => (
+      <List.Item className="hover:bg-gray-50 rounded-lg p-2 transition">
+        <List.Item.Meta
+          avatar={
+            <Avatar
+              icon={<GiftOutlined />}
+              style={{ backgroundColor: '#EC4899' }}
+            />
+          }
+          title={
+            <span className="font-medium">{item.ten_san_pham}</span>
+          }
+          description={
+            <div>
+              <div className="text-sm text-gray-500 mb-1">
+                Đã bán: {item.so_luong_da_ban} sản phẩm
+              </div>
+              <Progress
+                percent={Math.min(item.so_luong_da_ban, 100)} // ví dụ
+                size="small"
+                showInfo={false}
+                strokeColor="#EC4899"
               />
-            </List.Item>
-          )}
+            </div>
+          }
         />
-      </Card>
+      </List.Item>
+    )}
+  />
+</Card>
+
     </div>
   );
 };

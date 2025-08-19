@@ -107,9 +107,9 @@ const EditProduct: React.FC = () => {
         <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
       </Form.Item>
 
-      <Form.Item label="Tổng số lượng">
+      {/* <Form.Item label="Tổng số lượng">
         <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+      </Form.Item> */}
 
       <Form.Item label="Mô tả">
         <Controller name="mo_ta" control={control} render={({ field }) => <TextArea rows={4} {...field} />} />

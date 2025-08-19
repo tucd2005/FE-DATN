@@ -23,7 +23,7 @@ export default function NotFound() {
         <div className="mb-8 space-y-4">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Oops! Trang không tồn tại</h2>
           <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
-            Trang bạn đang tìm kiếm có thể đã được di chuyển, xóa hoặc không bao giờ tồn tại.
+            Trang bạn đang tìm kiếm có thể đã được di chuyển, xóa hoặc không tồn tại.
           </p>
         </div>
 

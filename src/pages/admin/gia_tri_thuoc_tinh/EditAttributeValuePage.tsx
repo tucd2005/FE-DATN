@@ -36,7 +36,7 @@ const EditAttributeValuePage: React.FC = () => {
   if (error) return <div>Lỗi: {(error as any).message}</div>;
 
   return (
-    <div className="p-4 bg-white rounded shadow max-w-md mx-auto">
+    <div className="p-4 bg-white rounded shadow  mx-auto">
       <h2 className="text-xl font-semibold mb-4">Chỉnh sửa giá trị thuộc tính (ID: {id})</h2>
       <div className="space-y-2">
         <Input

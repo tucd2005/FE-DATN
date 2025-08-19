@@ -135,9 +135,9 @@ export default function EditDiscountCodePage() {
           />
         </Form.Item>
 
-        <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>
+        {/* <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>
           <InputNumber min={1} style={{ width: "100%" }} />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item label="Giới hạn (mỗi user)" name="gioi_han" rules={[{ required: true }]}>
           <InputNumber min={1} style={{ width: "100%" }} />
