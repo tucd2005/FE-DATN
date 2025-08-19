@@ -134,6 +134,8 @@ const ProductDetailclientPage = () => {
         content: "Vui lòng đăng nhập để thêm vào giỏ hàng!",
         centered: true,
         okText: "Đăng nhập ngay",
+        closable: true, // ✅ thêm nút X
+        maskClosable: true, // ✅ click ra ngoài cũng đóng được
         onOk: () => navigate("/login"),
       });
       setIsLoadingAddToCart(false);
@@ -178,6 +180,8 @@ const ProductDetailclientPage = () => {
         content: "Vui lòng đăng nhập để mua hàng!",
         centered: true,
         okText: "Đăng nhập ngay",
+        closable: true, // ✅ thêm nút X
+        maskClosable: true, // ✅ click ra ngoài cũng đóng được
         onOk: () => navigate("/login"),
       });
       return;
