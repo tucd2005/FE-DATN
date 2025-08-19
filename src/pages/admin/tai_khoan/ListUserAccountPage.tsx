@@ -57,14 +57,14 @@ const { data, isLoading } = useAccountListuser(page, perPage);
       <h2 className="text-xl font-semibold mb-4">Danh sách tài khoản người dùng</h2>
       <Table
   columns={columns}
-  dataSource={data?.data || []}
+  dataSource={data?.users || []}
   rowKey="id"
   loading={isLoading}
   pagination={{
-    current: data?.current_page || page,
-    pageSize: perPage,
-    total: data?.total || 0,
-    onChange: (p) => setPage(p)
+    current: data?.pagination?.current_page || page,
+    pageSize: data?.pagination?.per_page || perPage,
+    total: data?.pagination?.total || 0,
+    onChange: (p) => setPage(p),
   }}
 />
     </div>

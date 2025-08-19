@@ -1,19 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin } from 'antd'
 import { Link } from 'react-router-dom'
 import { useDeleteProduct, useProductsAdmin } from '../../../hooks/useProduct'
 import { useListCategory } from '../../../hooks/useCategory'
 import type { Category } from '../../../types/categorys/category'
 
-const formatCurrency = (value?: string | number) => {
-  if (!value) return '0₫'
-  const num = typeof value === 'string' ? Number(value.replace(/,/g, '')) : value
-  return num.toLocaleString('vi-VN') + '₫'
-}
-
 const ProductList: React.FC = () => {
+  const [page, setPage] = useState(1) // 👈 thêm state page
   const deleteProduct = useDeleteProduct()
-  const { data: products, isLoading, isFetching } = useProductsAdmin()
+  const { data, isLoading, isFetching } = useProductsAdmin(page);
+
+  const products = data?.data || [];   // đây là mảng sản phẩm
+  const pagination = data?.meta;
   const { data: categories = [] } = useListCategory()
 
   const getCategoryName = (id: number): string => {
@@ -22,18 +20,8 @@ const ProductList: React.FC = () => {
   }
 
   const columns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      width: 60,
-      align: 'center' as const,
-    },
-    {
-      title: 'Tên sản phẩm',
-      dataIndex: 'ten',
-      width: 200,
-      className: 'font-semibold text-gray-800',
-    },
+    { title: 'ID', dataIndex: 'id', width: 60, align: 'center' as const },
+    { title: 'Tên sản phẩm', dataIndex: 'ten', width: 200, className: 'font-semibold text-gray-800' },
     {
       title: 'Ảnh',
       dataIndex: 'hinh_anh',
@@ -129,9 +117,14 @@ const ProductList: React.FC = () => {
         <Spin spinning={isFetching} tip="Đang cập nhật sản phẩm...">
           <div className="transition-opacity duration-500 opacity-100">
             <Table
-              dataSource={products ?? []}
+              dataSource={products}   // ✅ chỉ cần products
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{
+                current: pagination?.current_page,
+                pageSize: pagination?.per_page,
+                total: pagination?.total,
+                onChange: (p) => setPage(p),
+              }}
               scroll={{ x: '1000px' }}
               columns={columns}
             />

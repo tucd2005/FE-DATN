@@ -48,10 +48,12 @@ export const productService = {
 };
 
 export const productServiceAdmin = {
-  getAllAdmin: async (): Promise<Product[]> => {
-    const res = await instanceAxios.get("/admin/products");
-    return res.data?.data || [];
-  },
+
+    getAllAdmin: async (page: number): Promise<any> => {
+      const res = await instanceAxios.get(`/admin/products?page=${page}`);
+      return res.data; // giữ nguyên toàn bộ object { data, meta, status, message }
+    },
+ 
   getPaginated: async (
     params: Record<string, any> = {}
   ): Promise<{
