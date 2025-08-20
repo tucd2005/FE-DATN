@@ -258,7 +258,10 @@ export default function OrderTracking() {
   }
 
   const order = data.order
-  const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
+   const formatPrice = (value: number) => {
+  if (!value) return "0đ";
+  return value.toLocaleString("vi-VN") + "đ";
+};
   console.log("Order data:", order);
   console.log("Order data:", order.ly_do_huy);
 
@@ -342,7 +345,7 @@ export default function OrderTracking() {
                   {isPending ? "Đang xác nhận..." : "Xác nhận đã nhận hàng"}
                 </button>
               )}
-              {orderStatus === "da_nhan" && canReturnOrder() && (
+            {orderStatus === "da_nhan" && canReturnOrder() && (
                 <button
                   onClick={handleReturnOrder}
                   disabled={isReturning}

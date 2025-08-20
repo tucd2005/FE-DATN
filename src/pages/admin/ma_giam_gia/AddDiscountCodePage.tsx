@@ -173,40 +173,40 @@ export default function AddDiscountCodePage() {
           </Form.Item>
         )}
 
-<Form.Item
-  label="Giá trị"
-  name="gia_tri"
-  validateStatus={loai === "phan_tram" && form.getFieldValue("gia_tri") > 100 ? "error" : ""}
-  help={loai === "phan_tram" && form.getFieldValue("gia_tri") > 100 ? "Giá trị % không được vượt quá 100" : ""}
-  rules={[
-    { required: true, message: "Nhập giá trị" },
-  ]}
->
-  <InputNumber
-    min={0}
-    max={loai === "phan_tram" ? 100 : undefined}
-    style={{ width: "100%" }}
-    value={form.getFieldValue("gia_tri")}
-    onChange={(value) => {
-      if (loai === "phan_tram") {
-        if (value !== null && value > 100) {
-          // Set về 100 ngay để chặn nhập
-          form.setFieldsValue({ gia_tri: 100 });
-        } else {
-          form.setFieldsValue({ gia_tri: value });
-        }
-      } else {
-        form.setFieldsValue({ gia_tri: value });
-      }
-    }}
-    formatter={(value) =>
-      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-    }
-    parser={(value) =>
-      parseInt((value || "").replace(/[^\d]/g, ""), 10) || 0
-    }
-  />
-</Form.Item>
+        <Form.Item
+          label="Giá trị"
+          name="gia_tri"
+          validateStatus={loai === "phan_tram" && form.getFieldValue("gia_tri") > 100 ? "error" : ""}
+          help={loai === "phan_tram" && form.getFieldValue("gia_tri") > 100 ? "Giá trị % không được vượt quá 100" : ""}
+          rules={[
+            { required: true, message: "Nhập giá trị" },
+          ]}
+        >
+          <InputNumber
+            min={0}
+            max={loai === "phan_tram" ? 100 : undefined}
+            style={{ width: "100%" }}
+            value={form.getFieldValue("gia_tri")}
+            onChange={(value) => {
+              if (loai === "phan_tram") {
+                if (value !== null && value > 100) {
+                  // Set về 100 ngay để chặn nhập
+                  form.setFieldsValue({ gia_tri: 100 });
+                } else {
+                  form.setFieldsValue({ gia_tri: value });
+                }
+              } else {
+                form.setFieldsValue({ gia_tri: value });
+              }
+            }}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+            parser={(value) =>
+              parseInt((value || "").replace(/[^\d]/g, ""), 10) || 0
+            }
+          />
+        </Form.Item>
 
         <Form.Item
           label="Giá trị đơn hàng tối thiểu"
@@ -238,7 +238,11 @@ export default function AddDiscountCodePage() {
           name="ngay_bat_dau"
           rules={[{ required: true, message: "Chọn ngày bắt đầu" }]}
         >
-          <DatePicker showTime style={{ width: "100%" }} />
+          <DatePicker
+            showTime
+            style={{ width: "100%" }}
+            disabledDate={(current) => current && current < dayjs().startOf("day")}
+          />
         </Form.Item>
 
         <Form.Item
@@ -246,7 +250,11 @@ export default function AddDiscountCodePage() {
           name="ngay_ket_thuc"
           rules={[{ required: true, message: "Chọn ngày kết thúc" }]}
         >
-          <DatePicker showTime style={{ width: "100%" }} />
+          <DatePicker
+            showTime
+            style={{ width: "100%" }}
+            disabledDate={(current) => current && current < dayjs().startOf("day")}
+          />
         </Form.Item>
 
         <Form.Item
