@@ -71,6 +71,7 @@ const ProductTabs = ({
             },
         });
     };
+console.log("Review Data:", reviewData);
 
     const features = [
         "Công nghệ Dri-FIT thấm hút mồ hôi",

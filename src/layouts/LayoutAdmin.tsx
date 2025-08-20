@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import {
   MenuFoldOutlined,
@@ -11,26 +11,40 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   BgColorsOutlined,
-  BranchesOutlined,
   LogoutOutlined,
   WalletOutlined,
   StarOutlined,
   PhoneOutlined,
   CarOutlined,
-
   FileTextOutlined,
   MessageOutlined,
-
 } from '@ant-design/icons';
-import { Button, Menu } from 'antd';
+import { Button, Menu, Avatar } from 'antd';
+import instanceAxios from '../utils/axios';
+
 
 const { SubMenu } = Menu;
 
 export default function LayoutAdmin() {
   const [collapsed, setCollapsed] = useState(false);
+  const [profile, setProfile] = useState<{ email: string; anh_dai_dien?: string } | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
   const selectedKey = location.pathname;
+
+  // ✅ Lấy profile từ API
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await instanceAxios.get('/admin/profile');
+        setProfile(res.data);
+      } catch (err) {
+        console.error('Lỗi lấy profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
@@ -40,16 +54,41 @@ export default function LayoutAdmin() {
   };
 
   return (
-    // ✅ ĐÃ SỬA: thay min-h-screen bằng h-screen để giới hạn chiều cao
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside
-        className={`bg-slate-900 text-white transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'
-          } flex flex-col`}
+        className={`bg-slate-900 text-white transition-all duration-300 ${
+          collapsed ? 'w-16' : 'w-64'
+        } flex flex-col`}
       >
-        <div className="h-16 flex items-center justify-center font-bold text-xl border-b border-slate-700">
-          {collapsed ? 'A' : 'Admin Panel'}
+        {/* ✅ Header sidebar */}
+            <div className="h-32 flex flex-col items-center justify-center border-b border-slate-700">
+      {collapsed ? (
+        // Khi collapse thì chỉ hiện avatar nhỏ
+        <img
+          src={profile?.anh_dai_dien || "/placeholder.svg"}
+          alt="avatar"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      ) : (
+        // Khi mở rộng thì avatar ở trên, email ở dưới
+        <div className="flex flex-col items-center space-y-2">
+          <img
+            src={
+                  profile?.anh_dai_dien
+                    ? `http://localhost:8000/storage/${profile.anh_dai_dien}`
+                    : undefined
+                }
+            alt="avatar"
+            className="w-24 h-24 rounded-full object-cover border-2 border-slate-600"
+          />
+          <span className="text-sm font-medium text-center">
+            {profile?.email || "Loading..."}
+          </span>
         </div>
+      )}
+    </div>
+
 
         <Menu
           theme="dark"
@@ -59,26 +98,18 @@ export default function LayoutAdmin() {
           className="flex-1"
           style={{ fontSize: '16px' }}
         >
-          {/* 1. Dashboard */}
           <Menu.Item key="/admin" icon={<DashboardOutlined style={{ fontSize: 18 }} />}>
             Thống kê
           </Menu.Item>
-
-          {/* 2. Quản lý sản phẩm */}
           <Menu.Item key="/admin/danh-muc" icon={<AppstoreOutlined style={{ fontSize: 18 }} />}>
             Danh mục
           </Menu.Item>
           <Menu.Item key="/admin/san-pham" icon={<TagsOutlined style={{ fontSize: 18 }} />}>
             Sản phẩm
           </Menu.Item>
-          {/* <Menu.Item key="/admin/bien-the" icon={<BranchesOutlined style={{ fontSize: 18 }} />}>
-          Biến thể
-        </Menu.Item> */}
           <Menu.Item key="/admin/thuoc-tinh" icon={<BgColorsOutlined style={{ fontSize: 18 }} />}>
             Thuộc tính
           </Menu.Item>
-
-          {/* 3. Mã giảm giá & Banner */}
           <Menu.Item key="/admin/ma-giam-gia" icon={<GiftOutlined style={{ fontSize: 18 }} />}>
             Mã giảm giá
           </Menu.Item>
@@ -89,10 +120,8 @@ export default function LayoutAdmin() {
             Nhắn tin với khách hàng
           </Menu.Item>
           <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
-            vận chuyển
+            Vận chuyển
           </Menu.Item>
-
-          {/* 4. Quản lý đơn hàng & đánh giá */}
           <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>
             Đơn hàng
           </Menu.Item>
@@ -108,8 +137,6 @@ export default function LayoutAdmin() {
           <Menu.Item key="/admin/lien-he" icon={<PhoneOutlined style={{ fontSize: 18 }} />}>
             Liên hệ
           </Menu.Item>
-
-          {/* 5. Tài khoản */}
           <SubMenu
             key="account"
             icon={<UserOutlined style={{ fontSize: 18 }} />}
@@ -117,15 +144,12 @@ export default function LayoutAdmin() {
           >
             <Menu.Item key="/admin/account_admin">Admin</Menu.Item>
             <Menu.Item key="/admin/account_user">Khách hàng</Menu.Item>
-          
           </SubMenu>
         </Menu>
       </aside>
 
       {/* Main content */}
-      {/* ✅ ĐÃ SỬA: thêm overflow-hidden để chặn scroll ngoài */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <header className="h-16 bg-white shadow flex items-center px-4 flex-shrink-0">
           <Button
             type="text"
@@ -157,16 +181,12 @@ export default function LayoutAdmin() {
           </div>
         </header>
 
-        {/* Content */}
-        {/* ✅ ĐÃ SỬA: thêm overflow-auto và flex-1 để Outlet cuộn */}
         <main className="p-4 overflow-auto flex-1">
-          {/* ✅ ĐÃ SỬA: bỏ chiều cao tính toán không cần thiết, dùng min-h-full */}
           <div className="bg-white rounded-xl shadow p-6 min-h-full">
             <Outlet />
           </div>
         </main>
       </div>
-      {/* ✅ END */}
     </div>
   );
 }

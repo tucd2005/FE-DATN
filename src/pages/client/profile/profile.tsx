@@ -361,7 +361,7 @@ export default function ProfilePage() {
                           </div>
                           <p className="text-gray-900 font-medium">
                             {profile?.address
-                              ? `${profile.address.chiTiet}, ${profile.address.phuongXa}, ${profile.address.quanHuyen}, ${profile.address.tinhThanh}`
+                              ? `${profile.address.chiTiet}, ${profile.address.phuongXa}, ${profile.address.tinhThanh}`
                               : "Chưa cập nhật"}
                           </p>
                         </div>

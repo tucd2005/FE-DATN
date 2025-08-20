@@ -28,8 +28,6 @@ export default function ProfilePage() {
                 ngay_sinh: profileQuery.data.ngay_sinh
                     ? dayjs(profileQuery.data.ngay_sinh)
                     : null,
-                password: "",
-                password_confirmation: "",
             });
 
             if (profileQuery.data.anh_dai_dien) {
@@ -58,16 +56,13 @@ export default function ProfilePage() {
             "ngay_sinh",
             values.ngay_sinh ? values.ngay_sinh.format("YYYY-MM-DD") : ""
         );
-        formData.append("password", values.password ?? "");
-        formData.append("password_confirmation", values.password_confirmation ?? "");
-    
+
         if (fileList.length > 0 && fileList[0].originFileObj) {
             formData.append("anh_dai_dien", fileList[0].originFileObj);
         }
-    
+
         updateProfileMutation.mutate(formData);
     };
-    
 
     if (profileQuery.isLoading) {
         return (
@@ -92,7 +87,7 @@ export default function ProfilePage() {
                     showUploadList={false}
                     beforeUpload={(file) => {
                         setFileList([{ ...file, originFileObj: file }]);
-                        return false; // Không upload ngay, chỉ lưu vào state
+                        return false;
                     }}
                     accept="image/*"
                 >
@@ -143,17 +138,6 @@ export default function ProfilePage() {
 
                 <Form.Item label="Ngày sinh" name="ngay_sinh">
                     <DatePicker style={{ width: "100%" }} />
-                </Form.Item>
-
-                <Form.Item label="Mật khẩu mới" name="password">
-                    <Input.Password />
-                </Form.Item>
-
-                <Form.Item
-                    label="Xác nhận mật khẩu"
-                    name="password_confirmation"
-                >
-                    <Input.Password />
                 </Form.Item>
 
                 <Button
