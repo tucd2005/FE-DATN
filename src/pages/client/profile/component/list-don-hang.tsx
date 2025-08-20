@@ -165,17 +165,19 @@ export default function OrderHistory() {
                           <div className="flex-1">
                             <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
                             <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {item.thuoc_tinh_bien_the &&
-                                item.thuoc_tinh_bien_the.map(
-                                  (attr: { ten_thuoc_tinh: string; gia_tri: string }, i: number) => (
-                                    <span
-                                      key={i}
-                                      className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
-                                    >
-                                      {attr.ten_thuoc_tinh}: {attr.gia_tri}
-                                    </span>
-                                  )
-                                )}
+                              {order.gia_tri_bien_the &&
+                                order.gia_tri_bien_the
+                                  .filter((val: any) => val.bien_the_id === item.bien_the_id) // lấy đúng biến thể của item
+                                  .flatMap((val: any) =>
+                                    Object.entries(val.thuoc_tinh).map(([tenThuocTinh, giaTri], i) => (
+                                      <span
+                                        key={i}
+                                        className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
+                                      >
+                                        {tenThuocTinh}: {giaTri}
+                                      </span>
+                                    ))
+                                  )}
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900">{Number(item.don_gia).toLocaleString("vi-VN")}₫</div>
