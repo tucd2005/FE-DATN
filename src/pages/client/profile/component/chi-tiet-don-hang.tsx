@@ -260,6 +260,7 @@ export default function OrderTracking() {
   const order = data.order
   const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
   console.log("Order data:", order);
+  console.log("Order data:", order.ly_do_huy  );
 
   // Hàm lấy URL hình ảnh
   const getImageUrl = (hinh_anh: string | string[] | undefined): string => {
@@ -524,6 +525,7 @@ export default function OrderTracking() {
                     {order?.ly_do_huy && (
                       <p className="text-sm text-gray-600 text-center">
                         Lý do: {order.ly_do_huy}
+                        
                       </p>
                     )}
                   </div>
@@ -715,14 +717,20 @@ export default function OrderTracking() {
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900 text-lg mb-2">{productName}</h4>
                         <div className="flex gap-2 mb-3 flex-wrap">
-                          {item.variant?.thuoc_tinh_bien_the?.map((attr: any, i: number) => (
-                            <span
-                              key={i}
-                              className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
-                            >
-                              {attr.attribute_value?.gia_tri}
-                            </span>
-                          ))}
+                          {order.gia_tri_bien_the && order.gia_tri_bien_the
+                            .filter((bienThe: any) => bienThe.bien_the_id === item.bien_the_id)
+                            .map((bienThe: any, i: number) => (
+                              <div key={i} className="flex gap-2 mb-3 flex-wrap">
+                                {Object.entries(bienThe.thuoc_tinh || {}).map(([key, value], j) => (
+                                  <span
+                                    key={j}
+                                    className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
+                                  >
+                                    {key}: {value}
+                                  </span>
+                                ))}
+                              </div>
+                            ))}
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
@@ -1025,71 +1033,9 @@ export default function OrderTracking() {
           </div>
         </div>
       )}
-      {isRequestingCancel && orderStatus !== "da_huy" && (
-        <div className="flex justify-center my-6">
-          <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
-            Đang yêu cầu hủy hàng...
-          </div>
-        </div>
-      )}
-      {orderStatus === "da_huy" && (
-        <div className="flex justify-center my-6">
-          <div className="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
-            Đã hủy hàng
-          </div>
-        </div>
-      )}
-      {orderStatus === "yeu_cau_tra_hang" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-yellow-700 mb-2">Đã gửi yêu cầu trả hàng</p>
-            <p className="text-gray-600">Chờ xác nhận từ người bán</p>
-          </div>
-        </div>
-      )}
-
-      {orderStatus === "xac_nhan_tra_hang" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-blue-700 mb-2">Yêu cầu trả hàng đang chờ xác nhận...</p>
-          </div>
-        </div>
-      )}
-
-      {orderStatus === "tra_hang_thanh_cong" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-green-700 mb-2">Trả hàng thành công!</p>
-          </div>
-        </div>
-      )}
+    
+  
+      
     </div>
   )
 }

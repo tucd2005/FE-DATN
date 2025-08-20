@@ -76,58 +76,40 @@ const OrderDetailPage = () => {
     {
       title: "Biến thể",
       dataIndex: "thuoc_tinh_bien_the",
-      render: (json: string | null) => {
-        if (!json || json === "null") return "-";
-        try {
-          const attrs = JSON.parse(json);
-          if (!Array.isArray(attrs) || attrs.length === 0) return "-";
+      render: (val: any) => {
+        if (!val || typeof val !== "object") return "-";
     
-          return (
-            <Space wrap>
-              {attrs.map((attr: { thuoc_tinh: string; gia_tri: string }, idx: number) => {
-                let label = attr.thuoc_tinh;
-                const value = attr.gia_tri;
+        const attrs = val.thuoc_tinh || {};
+        if (Object.keys(attrs).length === 0) return "-";
     
-                // Tự động gán nhãn nếu "Không rõ"
-                if (label === "Không rõ") {
-                  if (["S", "M", "L", "XL", "XXL"].includes(value)) {
-                    label = "Size";
-                  } else if (
-                    ["Đỏ", "Xanh", "Vàng", "Đen", "Trắng"].includes(value)
-                  ) {
-                    label = "Màu sắc";
-                  }
-                }
+        return (
+          <Space wrap>
+            {Object.entries(attrs).map(([label, value], idx) => {
+              // Nếu là mã màu hex thì render ô màu
+              if (
+                typeof value === "string" &&
+                value.startsWith("#") &&
+                (value.length === 4 || value.length === 7)
+              ) {
+                return (
+                  <Tag
+                    key={idx}
+                    style={{
+                      backgroundColor: value,
+                      width: 24,
+                      height: 24,
+                      padding: 0,
+                      borderRadius: 4,
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                );
+              }
     
-                // Nếu là mã màu hex thì chỉ hiện ô màu, bỏ chữ
-                if (
-                  typeof value === "string" &&
-                  value.startsWith("#") &&
-                  (value.length === 4 || value.length === 7)
-                ) {
-                  return (
-                    <Tag
-                      key={idx}
-                      style={{
-                        backgroundColor: value,
-                        width: 24,
-                        height: 24,
-                        padding: 0,
-                        borderRadius: 4,
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                  );
-                }
-    
-                // Mặc định hiển thị label: value
-                return <Tag key={idx}>{`${label}: ${value}`}</Tag>;
-              })}
-            </Space>
-          );
-        } catch {
-          return "-";
-        }
+              return <Tag key={idx}>{`${label}: ${value}`}</Tag>;
+            })}
+          </Space>
+        );
       },
     },
 
@@ -145,6 +127,7 @@ const OrderDetailPage = () => {
   ];
 
   if (isLoading) return <Spin size="large" />;
+console.log(order);
 
 
 
@@ -188,7 +171,21 @@ const OrderDetailPage = () => {
 >
   <Descriptions.Item label="Mã đơn hàng">{order?.ma_don_hang}</Descriptions.Item>
   <Descriptions.Item label="Tên sản phẩm">{order?.ten_san_pham}</Descriptions.Item>
-  <Descriptions.Item label="Giá trị biến thể">{order?.gia_tri_bien_the}</Descriptions.Item>
+  <Descriptions.Item label="Giá trị biến thể">
+  {order?.gia_tri_bien_the?.length > 0 ? (
+    <Space direction="vertical">
+      {order.gia_tri_bien_the.map((item: any, idx: number) => (
+        <div key={idx}>
+          {Object.entries(item.thuoc_tinh).map(([label, value]) => (
+            <Tag key={label}>{`${label}: ${value}`}</Tag>
+          ))}
+        </div>
+      ))}
+    </Space>
+  ) : (
+    "-"
+  )}
+</Descriptions.Item>
   <Descriptions.Item label="Phí ship">
     {Number(order?.phi_ship).toLocaleString("vi-VN", {
       style: "currency",
@@ -202,6 +199,7 @@ const OrderDetailPage = () => {
     })}
   </Descriptions.Item>
 </Descriptions>
+
 
 <Descriptions
   bordered

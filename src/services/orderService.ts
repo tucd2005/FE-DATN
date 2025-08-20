@@ -34,9 +34,17 @@ export interface Pagination {
   current_page: number;
   last_page: number;
 }
-
+type Product = {
+  id: number
+  ten: string
+  so_luong: number
+  so_luong_da_ban: number
+  mo_ta: string
+  hinh_anh: string
+}
 export interface GetOrdersResponse {
   orders: Order[];
+  product: Product
   pagination: Pagination;
 }
 

@@ -107,8 +107,8 @@ export default function OrderHistory() {
                         setPage(1)
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${selectedStatus === option.value
-                          ? "bg-teal-50 text-teal-700 border border-teal-200"
-                          : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-teal-50 text-teal-700 border border-teal-200"
+                        : "text-gray-700 hover:bg-gray-50"
                         }`}
                     >
                       <span>{option.label}</span>
@@ -165,15 +165,19 @@ export default function OrderHistory() {
                           <div className="flex-1">
                             <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
                             <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {item.gia_tri_bien_the &&
-                                item.gia_tri_bien_the.map((val: string, i: number) => (
-                                  <span
-                                    key={i}
-                                    className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
-                                  >
-                                    {val}
-                                  </span>
-                                ))}
+                              {order.gia_tri_bien_the &&
+                                order.gia_tri_bien_the
+                                  .filter((val: any) => val.bien_the_id === item.bien_the_id) // lấy đúng biến thể của item
+                                  .flatMap((val: any) =>
+                                    Object.entries(val.thuoc_tinh).map(([tenThuocTinh, giaTri], i) => (
+                                      <span
+                                        key={i}
+                                        className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
+                                      >
+                                        {tenThuocTinh}: {giaTri}
+                                      </span>
+                                    ))
+                                  )}
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900">{Number(item.don_gia).toLocaleString("vi-VN")}₫</div>
