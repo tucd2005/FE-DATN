@@ -110,60 +110,82 @@ const AddProduct: React.FC = () => {
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className="bg-white p-6 rounded shadow">
       <h2 className="text-xl font-semibold mb-4">Thêm sản phẩm</h2>
 
-      <Form.Item label="Tên sản phẩm">
-        <Controller name="ten" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+    <Form.Item label="Tên sản phẩm" required>
+  <Controller
+    name="ten"
+    control={control}
+    rules={{
+      required: "Tên sản phẩm là bắt buộc",
+      minLength: { value: 3, message: "Tên phải có ít nhất 3 ký tự" }
+    }}
+    render={({ field, fieldState }) => (
+      <>
+        <Input {...field} />
+        {fieldState.error && <span className="text-red-500">{fieldState.error.message}</span>}
+      </>
+    )}
+  />
+</Form.Item>
 
-      {/* <Form.Item label="Giá">
-        <Controller name="gia" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+<Form.Item label="Mô tả">
+  <Controller
+    name="mo_ta"
+    control={control}
+    rules={{ minLength: { value: 10, message: "Mô tả tối thiểu 10 ký tự" } }}
+    render={({ field, fieldState }) => (
+      <>
+        <TextArea rows={4} {...field} />
+        {fieldState.error && <span className="text-red-500">{fieldState.error.message}</span>}
+      </>
+    )}
+  />
+</Form.Item>
 
-      <Form.Item label="Giá khuyến mãi">
-        <Controller name="gia_khuyen_mai" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item>
+<Form.Item label="Danh mục" required>
+  <Controller
+    name="danh_muc_id"
+    control={control}
+    rules={{ required: "Vui lòng chọn danh mục" }}
+    render={({ field, fieldState }) => (
+      <>
+        <Select {...field} placeholder="Chọn danh mục">
+          {categories.map((cat: Category) => (
+            <Select.Option key={cat.id} value={cat.id}>{cat.ten}</Select.Option>
+          ))}
+        </Select>
+        {fieldState.error && <span className="text-red-500">{fieldState.error.message}</span>}
+      </>
+    )}
+  />
+</Form.Item>
 
-      <Form.Item label="Tổng số lượng">
-        <Controller name="so_luong" control={control} render={({ field }) => <Input {...field} />} />
-      </Form.Item> */}
-
-      <Form.Item label="Mô tả">
-        <Controller name="mo_ta" control={control} render={({ field }) => <TextArea rows={4} {...field} />} />
-      </Form.Item>
-
-      <Form.Item label="Danh mục">
-        <Controller
-          name="danh_muc_id"
-          control={control}
-          render={({ field }) => (
-            <Select {...field} placeholder="Chọn danh mục">
-              {categories.map((cat: Category) => (
-                <Select.Option key={cat.id} value={cat.id}>{cat.ten}</Select.Option>
-              ))}
-            </Select>
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item label="Ảnh sản phẩm">
-        <Controller
-          control={control}
-          name="hinh_anh"
-          render={({ field }) => (
-            <Upload
-              listType="picture-card"
-              fileList={field.value as UploadFile[]}
-              beforeUpload={() => false}
-              onChange={({ fileList }) => field.onChange(fileList)}
-              multiple
-            >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 1 }}>Tải ảnh</div>
-              </div>
-            </Upload>
-          )}
-        />
-      </Form.Item>
+<Form.Item label="Ảnh sản phẩm" required>
+  <Controller
+    control={control}
+    name="hinh_anh"
+    rules={{
+      validate: (files) =>
+        files && files.length > 0 ? true : "Vui lòng tải ít nhất 1 ảnh"
+    }}
+    render={({ field, fieldState }) => (
+      <>
+        <Upload
+          listType="picture-card"
+          fileList={field.value as UploadFile[]}
+          beforeUpload={() => false}
+          onChange={({ fileList }) => field.onChange(fileList)}
+          multiple
+        >
+          <div>
+            <UploadOutlined />
+            <div style={{ marginTop: 1 }}>Tải ảnh</div>
+          </div>
+        </Upload>
+        {fieldState.error && <span className="text-red-500">{fieldState.error.message}</span>}
+      </>
+    )}
+  />
+</Form.Item>
 
       <Card
         title="Danh sách biến thể"

@@ -258,9 +258,12 @@ export default function OrderTracking() {
   }
 
   const order = data.order
-  const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
+   const formatPrice = (value: number) => {
+  if (!value) return "0đ";
+  return value.toLocaleString("vi-VN") + "đ";
+};
   console.log("Order data:", order);
-  console.log("Order data:", order.ly_do_huy  );
+  console.log("Order data:", order.ly_do_huy);
 
   // Hàm lấy URL hình ảnh
   const getImageUrl = (hinh_anh: string | string[] | undefined): string => {
@@ -342,7 +345,7 @@ export default function OrderTracking() {
                   {isPending ? "Đang xác nhận..." : "Xác nhận đã nhận hàng"}
                 </button>
               )}
-              {orderStatus === "da_nhan" && canReturnOrder() && (
+            {orderStatus === "da_nhan" && canReturnOrder() && (
                 <button
                   onClick={handleReturnOrder}
                   disabled={isReturning}
@@ -525,7 +528,7 @@ export default function OrderTracking() {
                     {order?.ly_do_huy && (
                       <p className="text-sm text-gray-600 text-center">
                         Lý do: {order.ly_do_huy}
-                        
+
                       </p>
                     )}
                   </div>
@@ -736,7 +739,7 @@ export default function OrderTracking() {
                           <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
                           <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
                         </div>
-                        {(orderStatus === "da_nhan" || orderStatus === "da_giao") && (
+                        {(orderStatus === "da_nhan" ) && (
                           <div className="mt-2">
                             <button
                               className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-blue-600"
@@ -1033,9 +1036,9 @@ export default function OrderTracking() {
           </div>
         </div>
       )}
-    
-  
-      
+
+
+
     </div>
   )
 }
