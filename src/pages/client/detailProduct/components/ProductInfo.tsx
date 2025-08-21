@@ -25,6 +25,8 @@ interface ProductInfoProps {
     giaKhuyenMai: string | undefined;
     safeLocaleString: (value: number | string | undefined | null) => string;
     isAllAttributesSelected: boolean;
+    reviewData?: { meta?: { trung_binh_sao?: number; tong_danh_gia?: number } };
+    reviewLoading: boolean;
 }
 
 const ProductInfo = ({
@@ -37,6 +39,8 @@ const ProductInfo = ({
     giaKhuyenMai,
     safeLocaleString,
     isAllAttributesSelected,
+    reviewData,
+    reviewLoading,
 }: ProductInfoProps) => {
     const StarIcon = ({ filled = true, className = "" }) => (
         <svg
@@ -59,14 +63,30 @@ const ProductInfo = ({
 
                 {/* Rating */}
                 <div className="flex items-center space-x-2 mb-4">
-                    <div className="flex">
-                        <StarIcon filled={true} />
-                        <StarIcon filled={true} />
-                        <StarIcon filled={true} />
-                        <StarIcon filled={true} />
-                        <StarIcon filled={false} />
-                    </div>
-                    <span className="text-gray-600">4.9 (234 đánh giá)</span>
+                    {reviewLoading ? (
+                        <div className="flex space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className="w-5 h-5 bg-gray-200 animate-pulse rounded" />
+                            ))}
+                        </div>
+                    ) : reviewData?.meta ? (
+                        <>
+                            <div className="flex">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <StarIcon
+                                        key={star}
+                                        filled={star <= Math.round(reviewData.meta.trung_binh_sao || 0)}
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-gray-600">
+                                {(reviewData.meta.trung_binh_sao || 0).toFixed(1)} (
+                                {reviewData.meta.tong_danh_gia || 0} đánh giá)
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-gray-600">Chưa có đánh giá</span>
+                    )}
                 </div>
             </div>
 
@@ -79,24 +99,17 @@ const ProductInfo = ({
                     Number(giaKhuyenMai) > 0 &&
                     Number(giaKhuyenMai) < Number(gia) ? (
                     <>
-                        {/* Giá khuyến mãi - in đậm, không gạch */}
                         <span className="text-3xl font-bold text-gray-900">
                             {safeLocaleString(Number(giaKhuyenMai))}đ
                         </span>
-
-                        {/* Giá gốc - bị gạch */}
                         <span className="text-xl text-blue-600 line-through">
                             {safeLocaleString(Number(gia))}đ
                         </span>
-
-                        {/* Phần trăm giảm giá */}
                         <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                            -
-                            {Math.round(((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100)}%
+                            -{Math.round(((Number(gia) - Number(giaKhuyenMai)) / Number(gia)) * 100)}%
                         </div>
                     </>
                 ) : (
-                    // Trường hợp không có khuyến mãi
                     <span className="text-3xl font-bold text-gray-900">
                         {selectedVariant
                             ? `${safeLocaleString(selectedVariant.gia)}đ`
@@ -112,8 +125,8 @@ const ProductInfo = ({
             {/* Description */}
             <p className="text-gray-600 leading-relaxed">{product.mo_ta}</p>
 
-            {/* Global Out of Stock Message
-            {!selectedVariant && product?.variants?.length && product.variants.every(v => v.so_luong === 0) && (
+            {/* Global Out of Stock Message */}
+            {/* {!selectedVariant && product?.variants?.length && product.variants.every(v => v.so_luong === 0) && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-red-700 font-medium">⚠️ Sản phẩm đã hết hàng</p>
                     <p className="text-red-600 text-sm">Tất cả các biến thể của sản phẩm này đều đã hết hàng</p>
@@ -187,4 +200,4 @@ const ProductInfo = ({
     );
 };
 
-export default ProductInfo; 
+export default ProductInfo;

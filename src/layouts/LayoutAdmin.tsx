@@ -88,9 +88,9 @@ export default function LayoutAdmin() {
           <Menu.Item key="/admin/chat-bot" icon={<MessageOutlined style={{ fontSize: 18 }} />}>
             Nhắn tin với khách hàng
           </Menu.Item>
-          <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
+          {/* <Menu.Item key="/admin/van_chuyen" icon={<CarOutlined style={{ fontSize: 18 }} />}>
             vận chuyển
-          </Menu.Item>
+          </Menu.Item> */}
 
           {/* 4. Quản lý đơn hàng & đánh giá */}
           <Menu.Item key="/admin/don-hang" icon={<ShoppingCartOutlined style={{ fontSize: 18 }} />}>

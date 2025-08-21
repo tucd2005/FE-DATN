@@ -133,7 +133,7 @@ const ProductDetailPage: React.FC = () => {
       extra={<Link to="/admin/san-pham"><Button>Quay lại</Button></Link>}
     >
       <Row gutter={24} className="mb-6">
-        <Col span={6}><Image width={200} height={450} src={getImage()} /></Col>
+        <Col span={6}><Image width={400} height={450} src={getImage()} /></Col>
         <Col span={18}>
           <Descriptions bordered column={1}>
             <Descriptions.Item label="Tên">{product.ten}</Descriptions.Item>

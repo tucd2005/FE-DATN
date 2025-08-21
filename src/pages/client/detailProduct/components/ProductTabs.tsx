@@ -14,8 +14,7 @@ const ProductTabs = ({
     productId,
     selectedVariant,
 }: ProductTabsProps) => {
-  const [activeTab, setActiveTab] = useState("reviews");
-
+    const [activeTab, setActiveTab] = useState("reviews");
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewForm, setReviewForm] = useState({
         so_sao: 5,
@@ -23,7 +22,7 @@ const ProductTabs = ({
         hinh_anh: null as File | null,
     });
 
-    const { data: reviewData, isLoading: loadingReviews } = useProductReviews(productId);
+    const { data: reviewData, isLoading: loadingReviews, error: reviewError } = useProductReviews(productId);
     const { data: profile } = useProfile();
     const submitReview = useSubmitReview();
     const navigate = useNavigate();
@@ -40,7 +39,13 @@ const ProductTabs = ({
 
     // Xử lý submit form đánh giá
     const handleReviewChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setReviewForm({ ...reviewForm, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "so_sao") {
+            const soSao = Math.max(1, Math.min(5, Number(value)));
+            setReviewForm({ ...reviewForm, [name]: soSao });
+        } else {
+            setReviewForm({ ...reviewForm, [name]: value });
+        }
     };
 
     const handleReviewFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,8 +90,7 @@ const ProductTabs = ({
             <div className="border-b border-gray-200">
                 <nav className="flex space-x-8">
                     {[
-                      
-                        { id: "reviews", label: "Đánh giá (234)" },
+                        { id: "reviews", label: `Đánh giá (${reviewData?.meta?.tong_danh_gia ?? 0})` },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -116,7 +120,6 @@ const ProductTabs = ({
                                 ))}
                             </ul>
                         </div>
-
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Mô tả chi tiết</h3>
                             <div className="text-gray-700 leading-relaxed space-y-4">
@@ -158,7 +161,6 @@ const ProductTabs = ({
                                 </div>
                             </div>
                         </div>
-
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Hướng dẫn bảo quản</h3>
                             <ul className="space-y-2 text-gray-700">
@@ -176,7 +178,7 @@ const ProductTabs = ({
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xl font-bold text-gray-900">Đánh giá khách hàng</h3>
-                          
+                            
                         </div>
                         {showReviewForm && (
                             <form className="space-y-4 border p-4 rounded-lg" onSubmit={handleSubmitReview}>
@@ -225,39 +227,88 @@ const ProductTabs = ({
                                 </div>
                             </form>
                         )}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="text-center">
-                                <div className="text-4xl font-bold text-blue-600 mb-2">{reviewData?.meta?.trung_binh_sao ?? 0}</div>
-                                <div className="flex justify-center mb-2">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                        <StarIcon key={i} filled={i < (reviewData?.meta?.trung_binh_sao ?? 0)} />
+                        {reviewError ? (
+                            <div className="text-red-600">
+                                Lỗi khi tải đánh giá: {reviewError.message || "Vui lòng thử lại sau."}
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="ml-2 text-blue-600 underline"
+                                >
+                                    Tải lại
+                                </button>
+                            </div>
+                        ) : loadingReviews ? (
+                            <div className="space-y-4">
+                                <div className="flex space-x-1 justify-center">
+                                    {[...Array(5)].map((_, i) => (
+                                        <div key={i} className="w-5 h-5 bg-gray-200 animate-pulse rounded" />
                                     ))}
                                 </div>
-                                <p className="text-gray-600">{reviewData?.meta?.tong_danh_gia ?? 0} đánh giá</p>
-                            </div>
-                            <div className="md:col-span-2 space-y-4">
-                                {[5, 4, 3, 2, 1].map((stars) => (
-                                    <div key={stars} className="flex items-center space-x-3">
-                                        <span className="text-sm text-gray-600 w-8">{stars} sao</span>
-                                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className="bg-yellow-400 h-2 rounded-full transition-all"
-                                                style={{
-                                                    width: `${((reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0) / (reviewData?.meta?.tong_danh_gia || 1)) * 100}%`,
-                                                }}
-                                            ></div>
+                                <div className="space-y-4">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={i} className="border-b border-gray-200 pb-6">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-10 h-10 bg-gray-200 animate-pulse rounded-full"></div>
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="h-4 bg-gray-200 animate-pulse rounded w-1/4"></div>
+                                                    <div className="h-3 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                                                </div>
+                                            </div>
+                                            <div className="h-4 bg-gray-200 animate-pulse rounded mt-2"></div>
                                         </div>
-                                        <span className="text-sm text-gray-600 w-8">{reviewData?.meta?.so_luong_theo_sao?.[stars] ?? 0}</span>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        ) : reviewData?.meta ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="text-center">
+                                    <div className="text-4xl font-bold text-blue-600 mb-2">{(reviewData.meta.trung_binh_sao || 0).toFixed(1)}</div>
+                                    <div className="flex justify-center mb-2">
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                            <StarIcon key={i} filled={i < Math.round(reviewData.meta.trung_binh_sao || 0)} />
+                                        ))}
+                                    </div>
+                                    <p className="text-gray-600">{reviewData.meta.tong_danh_gia || 0} đánh giá</p>
+                                </div>
+                                <div className="md:col-span-2 space-y-4">
+                                    {[5, 4, 3, 2, 1].map((stars) => (
+                                        <div key={stars} className="flex items-center space-x-3">
+                                            <span className="text-sm text-gray-600 w-8">{stars} sao</span>
+                                            <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                                <div
+                                                    className="bg-yellow-400 h-2 rounded-full transition-all"
+                                                    style={{
+                                                        width: `${((reviewData.meta.so_luong_theo_sao?.[stars] || 0) / (reviewData.meta.tong_danh_gia || 1)) * 100}%`,
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-sm text-gray-600 w-8">{reviewData.meta.so_luong_theo_sao?.[stars] || 0}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-gray-600">Chưa có thông tin đánh giá.</div>
+                        )}
                         {/* Danh sách đánh giá */}
                         <div className="space-y-6 mt-8">
                             {loadingReviews ? (
-                                <div>Đang tải đánh giá...</div>
-                            ) : reviewData?.data?.length ? (
-                                reviewData.data.map((review: unknown, index: number) => {
+                                <div className="space-y-4">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={i} className="border-b border-gray-200 pb-6">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-10 h-10 bg-gray-200 animate-pulse rounded-full"></div>
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="h-4 bg-gray-200 animate-pulse rounded w-1/4"></div>
+                                                    <div className="h-3 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                                                </div>
+                                            </div>
+                                            <div className="h-4 bg-gray-200 animate-pulse rounded mt-2"></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : reviewData?.reviews?.length ? (
+                                reviewData.reviews.map((review: unknown, index: number) => {
                                     const r = review as {
                                         id: number;
                                         user?: { name?: string; anh_dai_dien?: string };
@@ -278,14 +329,17 @@ const ProductTabs = ({
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-gray-900">{r.user?.name}</p>
+                                                        <p className="font-semibold text-gray-900">{r.user?.name || "Ẩn danh"}</p>
                                                         <div className="flex items-center space-x-2">
                                                             <div className="flex">
                                                                 {Array.from({ length: r.so_sao }).map((_, i) => (
                                                                     <StarIcon key={i} filled={true} className="w-4 h-4" />
                                                                 ))}
+                                                                {Array.from({ length: 5 - r.so_sao }).map((_, i) => (
+                                                                    <StarIcon key={i + r.so_sao} filled={false} className="w-4 h-4" />
+                                                                ))}
                                                             </div>
-                                                            <span className="text-sm text-gray-600">{r.created_at?.slice(0, 10)}</span>
+                                                            <span className="text-sm text-gray-600">{r.created_at?.slice(0, 10) || "N/A"}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -302,7 +356,7 @@ const ProductTabs = ({
                                     );
                                 })
                             ) : (
-                                <div>Chưa có đánh giá nào cho sản phẩm này.</div>
+                                <div className="text-gray-600">Chưa có đánh giá nào cho sản phẩm này.</div>
                             )}
                         </div>
                     </div>
