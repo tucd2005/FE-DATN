@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Table, Tag, Select, Space, Button, Modal, Descriptions, Badge } from "antd"
-import { useWalletTransactions } from "../../../../hooks/useWalletClient"
+import { useWalletTransactions, useCancelWithdraw } from "../../../../hooks/useWalletClient"
 import { formatCurrency } from "../../../../utils/formatCurrency"
 
 const { Option } = Select
@@ -11,6 +11,7 @@ interface TransactionHistoryProps {
 
 export default function TransactionHistory({ className = "" }: TransactionHistoryProps) {
     const { data: transactions, isLoading } = useWalletTransactions()
+    const { mutate: cancelWithdraw, isPending: isCancelPending } = useCancelWithdraw()
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
     const [detailModalVisible, setDetailModalVisible] = useState(false)
     const [filterType, setFilterType] = useState<string>("all")
@@ -79,7 +80,6 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
         }
     }
 
-
     const columns = [
         {
             title: "Mã giao dịch",
@@ -112,7 +112,6 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
                 <span className={`font-bold ${(record.type === "deposit" || record.type === "refund") ? "text-green-600" : "text-blue-600"}`}>
                     {(record.type === "deposit" || record.type === "refund") ? "+" : "-"}{formatCurrency(amount)}
                 </span>
-
             )
         },
         {
@@ -142,18 +141,31 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
         {
             title: "Thao tác",
             key: "action",
-            width: 100,
+            width: 150,
             render: (_: any, record: any) => (
-                <Button
-                    type="link"
-                    size="small"
-                    onClick={() => {
-                        setSelectedTransaction(record)
-                        setDetailModalVisible(true)
-                    }}
-                >
-                    Chi tiết
-                </Button>
+                <Space>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            setSelectedTransaction(record)
+                            setDetailModalVisible(true)
+                        }}
+                    >
+                        Chi tiết
+                    </Button>
+                    {record.type === "withdraw" && record.status === "pending" && (
+                        <Button
+                            type="link"
+                            size="small"
+                            danger
+                            onClick={() => cancelWithdraw(record.id)}
+                            disabled={isCancelPending}
+                        >
+                            {isCancelPending ? "Đang hủy..." : "Hủy"}
+                        </Button>
+                    )}
+                </Space>
             )
         }
     ]
@@ -280,4 +292,4 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
             </Modal>
         </div>
     )
-} 
+}
