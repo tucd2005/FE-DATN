@@ -39,7 +39,6 @@ const ProductActions = ({
     useEffect(() => {
         const getFavorites = async () => {
             const { data } = await instanceAxios.get("/wishlists");
-            console.log('Favorites data:', data);
             const favoriteProducts = data.data?.map((e: IFavoriteProduct) => e?.product.id);
             setFavorites(favoriteProducts || []);
         }
@@ -47,10 +46,10 @@ const ProductActions = ({
     }, [])
 
     const addFavorite = async (product_id: number) => {
-        setFavorites([...favorites, product_id]);
-        message.success("Đã thêm vào yêu thích!");
         try {
             await instanceAxios.post("/wishlists", { san_pham_id: product_id });
+            setFavorites([...favorites, product_id]);
+            message.success("Đã thêm vào yêu thích!");
         } catch (error) {
             if (favorites.includes(product_id)) {
                 setFavorites((prev) => prev.filter((id) => id !== product_id));
@@ -61,14 +60,11 @@ const ProductActions = ({
     }
 
     const removeFavorite = async (product_id: number) => {
-        setFavorites((prev) => prev.filter((id) => id !== product_id));
-        message.success("Đã xóa khỏi yêu thích!");
         try {
             await instanceAxios.delete("/wishlists/" + product_id);
+            setFavorites((prev) => prev.filter((id) => id !== product_id));
+            message.success("Đã xóa khỏi yêu thích!");
         } catch (error) {
-            if (!favorites.includes(product_id)) {
-                setFavorites((prev) => [...prev, product_id]);
-            }
             console.error("Error adding favorite:", error);
             message.error("Không thể xóa khỏi yêu thích. Vui lòng thử lại sau.");
         }
