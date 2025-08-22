@@ -26,7 +26,7 @@ const ProductFilters = ({
   useEffect(() => {
     setLocalPriceRange(priceRange);
   }, [priceRange]);
-  
+
 
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const ProductFilters = ({
               style={{ display: "flex", flexDirection: "column", gap: 8 }}
             >
               <Radio value="Tất cả">Tất cả</Radio>
-              {categories?.map((category: any) => (
+              {Array.isArray(categories) && categories?.map((category: any) => (
                 <Radio key={category.id} value={category.id.toString()}>
                   {category.ten}
                 </Radio>

@@ -2,22 +2,14 @@ import React, { useState } from 'react'
 import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin } from 'antd'
 import { Link } from 'react-router-dom'
 import { useDeleteProduct, useProductsAdmin } from '../../../hooks/useProduct'
-import { useListCategory } from '../../../hooks/useCategory'
-import type { Category } from '../../../types/categorys/category'
 
 const ProductList: React.FC = () => {
-  const [page, setPage] = useState(1) // 👈 thêm state page
+  const [page, setPage] = useState(1)
   const deleteProduct = useDeleteProduct()
-  const { data, isLoading, isFetching } = useProductsAdmin(page);
+  const { data, isLoading, isFetching } = useProductsAdmin(page)
 
-  const products = data?.data || [];   // đây là mảng sản phẩm
-  const pagination = data?.meta;
-  const { data: categories = [] } = useListCategory()
-
-  const getCategoryName = (id: number): string => {
-    const found = categories.find((cat: Category) => cat.id === id)
-    return found?.ten || 'Chưa phân loại'
-  }
+  const products = data?.data || []
+  const pagination = data?.meta
 
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60, align: 'center' as const },
@@ -58,10 +50,10 @@ const ProductList: React.FC = () => {
     },
     {
       title: 'Danh mục',
-      dataIndex: 'danh_muc_id',
-      width: 130,
-      render: (id: number) => (
-        <Tag color="blue">{getCategoryName(id)}</Tag>
+      dataIndex: 'ten_danh_muc',
+      width: 150,
+      render: (name: string) => (
+        <Tag color="blue">{name || 'Chưa phân loại'}</Tag>
       ),
     },
     {
@@ -117,7 +109,7 @@ const ProductList: React.FC = () => {
         <Spin spinning={isFetching} tip="Đang cập nhật sản phẩm...">
           <div className="transition-opacity duration-500 opacity-100">
             <Table
-              dataSource={products}   // ✅ chỉ cần products
+              dataSource={products}
               rowKey="id"
               pagination={{
                 current: pagination?.current_page,

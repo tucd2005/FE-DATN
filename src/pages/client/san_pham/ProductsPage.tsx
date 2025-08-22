@@ -67,7 +67,7 @@ const ProductsPage = () => {
   const rawProducts = data?.data || [];
   const meta = data?.meta;
   const products = rawProducts;
-  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id) || [];
+  const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e?.product?.id);
 
   const toggleFavorite = (productId: number) => {
     if (favoriteProducts.includes(productId)) {
@@ -152,19 +152,16 @@ const ProductsPage = () => {
               onSearchSubmit={handleSearchSubmit}
             />
 
-            {isLoading ? (
-              <div className="flex flex-col gap-2 justify-center items-center min-h-[70dvh]">
+            {isLoading ?
+              <div className="flex justify-center items-center min-h-[70dvh]">
                 <Spin size="large" />
                 <p className="text-gray-600 text-lg font-medium">Đang tải sản phẩm...</p>
-              </div>
-            ) : (
-              <>
-                <ProductGrid
-                  products={products}
-                  viewMode={viewMode}
-                  favorites={favoriteProducts}
-                  onToggleFavorite={toggleFavorite}
-                />
+              </div> : <> <ProductGrid
+                products={products}
+                viewMode={viewMode}
+                favorites={favoriteProducts}
+                onToggleFavorite={toggleFavorite}
+              />
 
                 {meta && meta.last_page > 1 && (
                   <Pagination
@@ -172,9 +169,7 @@ const ProductsPage = () => {
                     lastPage={meta.last_page}
                     onPageChange={handlePageChange}
                   />
-                )}
-              </>
-            )}
+                )}</>}
           </div>
         </div>
       </div>

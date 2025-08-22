@@ -13,15 +13,14 @@ interface OrderListParams {
 }
 
 // Lấy danh sách đơn hàng
-export const useOrderList = (params: OrderListParams = {}) => {
-  const { page = 1, search, status, paymentStatus, dateFrom, dateTo } = params;
-  
+export const useOrderList = (page: number = 1, filters: any = {}) => {
   return useQuery({
-    queryKey: ["orders", page, search, status, paymentStatus, dateFrom, dateTo],
+    queryKey: ["orders", page, filters],
     queryFn: () =>
-      orderService.getAllOrders(page, { search, status, paymentStatus, dateFrom, dateTo }).then((res) => res.data), 
+      orderService.getAllOrders(page, filters).then((res) => res.data),
   });
 };
+
 
 export const useOrderDetail = (id: number) => {
     return useQuery({
