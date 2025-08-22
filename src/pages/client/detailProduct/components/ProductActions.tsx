@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { IFavoriteProduct, Variant } from "../../../../types/product.type";
 import instanceAxios from "../../../../utils/axios";
 import { message } from "antd";
+import { useEffect, useState } from "react";
 
 interface ProductActionsProps {
     quantity: number;
@@ -34,35 +34,47 @@ const ProductActions = ({
     handleBuyNow,
     isLoadingAddToCart,
 }: ProductActionsProps) => {
-    const queryClient = useQueryClient();
+    const [favorites, setFavorites] = useState<number[]>([]);
 
+    useEffect(() => {
+        const getFavorites = async () => {
+            const { data } = await instanceAxios.get("/wishlists");
+            console.log('Favorites data:', data);
+            const favoriteProducts = data.data?.map((e: IFavoriteProduct) => e?.product.id);
+            setFavorites(favoriteProducts || []);
+        }
+        getFavorites();
+    }, [])
 
-    // Lấy danh sách yêu thích
-    const { data: fav } = useQuery({
-        queryKey: ["favorites"],
-        queryFn: () => instanceAxios.get("/wishlists").then((res) => res.data),
-    });
+    const addFavorite = async (product_id: number) => {
+        setFavorites([...favorites, product_id]);
+        message.success("Đã thêm vào yêu thích!");
+        try {
+            await instanceAxios.post("/wishlists", { san_pham_id: product_id });
+        } catch (error) {
+            if (favorites.includes(product_id)) {
+                setFavorites((prev) => prev.filter((id) => id !== product_id));
+            }
+            console.error("Error adding favorite:", error);
+            message.error("Không thể thêm vào yêu thích. Vui lòng thử lại sau.");
+        }
+    }
 
-    const { mutate: addFavorite } = useMutation({
-        mutationFn: (productId: number) =>
-            instanceAxios.post("/wishlists", { san_pham_id: productId }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["favorites"] });
-            message.success("Đã thêm vào yêu thích!");
-        },
-    });
+    const removeFavorite = async (product_id: number) => {
+        setFavorites((prev) => prev.filter((id) => id !== product_id));
+        message.success("Đã xóa khỏi yêu thích!");
+        try {
+            await instanceAxios.delete("/wishlists/" + product_id);
+        } catch (error) {
+            if (!favorites.includes(product_id)) {
+                setFavorites((prev) => [...prev, product_id]);
+            }
+            console.error("Error adding favorite:", error);
+            message.error("Không thể xóa khỏi yêu thích. Vui lòng thử lại sau.");
+        }
+    }
 
-    const { mutate: removeFavorite } = useMutation({
-        mutationFn: (productId: number) =>
-            instanceAxios.delete("/wishlists/" + productId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["favorites"] });
-            message.success("Đã xóa khỏi yêu thích!");
-        },
-    });
-
-    const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e?.product.id);
-    const checkIsFavorite = favoriteProducts.includes(product.id)
+    const checkIsFavorite = favorites.includes(product.id)
 
     const toggleFavorite = () => {
         if (checkIsFavorite) {
