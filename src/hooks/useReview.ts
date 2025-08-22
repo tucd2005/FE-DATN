@@ -42,16 +42,17 @@ export const useHideReview = () => {
 
 // Lấy danh sách đánh giá sản phẩm (client)
 export const useProductReviews = (productId: number) => {
+  const token = localStorage.getItem('token')
   return useQuery({
     queryKey: ["productReviews", productId],
     queryFn: () => getProductReviews(productId),
-    enabled: !!productId,
+    enabled: !!productId && !!token,
     select: (data) => {
       return {
         reviews: data.data, // danh sách đánh giá
         meta: data.meta,    // tổng quan: trung_binh_sao, tong_danh_gia, phân bổ
       };
-    }
+    } 
   });
 };
 
