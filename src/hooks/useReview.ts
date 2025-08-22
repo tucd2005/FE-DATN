@@ -42,11 +42,11 @@ export const useHideReview = () => {
 
 // Lấy danh sách đánh giá sản phẩm (client)
 export const useProductReviews = (productId: number) => {
-  const token = localStorage.getItem('token')
+  // const token = localStorage.getItem('accessToken')
   return useQuery({
     queryKey: ["productReviews", productId],
     queryFn: () => getProductReviews(productId),
-    enabled: !!productId && !!token,
+    enabled: !!productId,
     select: (data) => {
       return {
         reviews: data.data, // danh sách đánh giá
