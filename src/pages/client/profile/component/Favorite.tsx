@@ -12,8 +12,6 @@ const Favorite = () => {
         queryFn: () => instanceAxios.get("/wishlists").then(res => res.data),
     })
 
-    console.log(fav);
-
     const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e?.product.id);
     const products = fav?.data?.map((e: IFavoriteProduct) => e?.product);
 
