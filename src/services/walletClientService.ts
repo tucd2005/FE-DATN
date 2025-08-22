@@ -87,4 +87,8 @@ export const walletClientService = {
   // Kiểm tra giao dịch đang chờ
   checkPendingTransaction: () =>
     instanceAxios.get<PendingTransactionResponse>("/wallet/check-pending"),
+
+  // Hủy yêu cầu rút tiền
+  cancelWithdraw: (transactionId: number) =>
+    instanceAxios.post<WalletTransactionClient>(`/wallet/withdraw/${transactionId}/cancel`),
 };

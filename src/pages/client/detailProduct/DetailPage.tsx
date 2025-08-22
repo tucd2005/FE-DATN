@@ -4,29 +4,24 @@ import { useProductDetail } from "../../../hooks/useProduct"
 import type { Variant } from "../../../types/product.type"
 import { message, Modal } from "antd"
 import { useCartStore } from "../../../stores/cart.store"
-import {
-  ProductImages,
-  ProductInfo,
-  ProductActions,
-  ServiceInfo,
-  ProductTabs,
-  RelatedProducts,
-  VariantNotification
-} from './components';
+import { ProductImages, ProductInfo, ProductActions, ServiceInfo, ProductTabs, RelatedProducts, VariantNotification } from './components';
+import { useProductReviews } from "../../../hooks/useReview"
 
 const ProductDetailclientPage = () => {
   const { id } = useParams<{ id: string }>();
   const productId = Number(id);
   const navigate = useNavigate();
-
+  
+  
   const { data: product, isLoading } = useProductDetail(Number(id));
   const { addToCart } = useCartStore();
-
+  
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
   const [isLoadingAddToCart, setIsLoadingAddToCart] = useState(false); // Thêm trạng thái isLoadingAddToCart
-
+  
+  const { data: reviewData, isLoading: reviewLoading } = useProductReviews(product?.id);
   // Hàm chuẩn hóa đường dẫn ảnh
   const getImageUrl = (img: string) => {
     if (!img) return "/placeholder.svg?height=600&width=600";
@@ -237,6 +232,9 @@ const ProductDetailclientPage = () => {
     return <div className="min-h-screen flex items-center justify-center text-red-500">Không tìm thấy sản phẩm.</div>
   }
 
+
+
+
   return (
     <div className="min-h-screen bg-white">
       {/* Variant Notification */}
@@ -284,11 +282,13 @@ const ProductDetailclientPage = () => {
               selectedAttributes={selectedAttributes}
               setSelectedAttributes={setSelectedAttributes}
               attributeNames={attributeNames}
-              selectedVariant={selectedVariant || null}
+              selectedVariant={selectedVariant}
               gia={gia}
               giaKhuyenMai={giaKhuyenMai}
               safeLocaleString={safeLocaleString}
               isAllAttributesSelected={isAllAttributesSelected}
+              reviewData={reviewData}
+              reviewLoading={reviewLoading}
             />
 
             <ProductActions

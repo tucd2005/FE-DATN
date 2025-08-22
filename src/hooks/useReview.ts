@@ -2,11 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewDetail,
   getReviews,
-  getReviewss,
   hideReview,
   getProductReviews,
   submitReview,
-  getReviewsByProduct,
   getLatestFiveStarReviews,
 } from "../services/reviewService";
 import { toast } from "react-toastify";
@@ -44,10 +42,17 @@ export const useHideReview = () => {
 
 // Lấy danh sách đánh giá sản phẩm (client)
 export const useProductReviews = (productId: number) => {
+  // const token = localStorage.getItem('accessToken')
   return useQuery({
     queryKey: ["productReviews", productId],
     queryFn: () => getProductReviews(productId),
     enabled: !!productId,
+    select: (data) => {
+      return {
+        reviews: data.data, // danh sách đánh giá
+        meta: data.meta,    // tổng quan: trung_binh_sao, tong_danh_gia, phân bổ
+      };
+    } 
   });
 };
 
@@ -62,7 +67,7 @@ export const useSubmitReview = () => {
       if (response.skipped?.length > 0) {
         toast.warning('Đánh giá không được gửi vì sản phẩm chưa mua hoặc đã được đánh giá.');
       } else {
-        toast.success('Đánh giá thành công!');
+        // toast.success('Đánh giá thành công!');
       }
     },
     onError: (error: any) => {

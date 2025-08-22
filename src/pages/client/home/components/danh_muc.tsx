@@ -21,13 +21,15 @@ export default function DanhMuc() {
       try {
         const { data } = await instanceAxios.get("/categories");
         console.log("Fetched categories:", data);
-        setCate(data?.data.data);
+        setCate(data?.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     }
     getCates()
   }, []);
+
+
 
   return (
     <section data-aos="fade-up" className="py-16">

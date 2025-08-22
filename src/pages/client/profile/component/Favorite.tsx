@@ -12,8 +12,10 @@ const Favorite = () => {
         queryFn: () => instanceAxios.get("/wishlists").then(res => res.data),
     })
 
-    const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id);
-    const products = fav?.data?.map((e: IFavoriteProduct) => e.product);
+    console.log(fav);
+
+    const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e?.product.id);
+    const products = fav?.data?.map((e: IFavoriteProduct) => e?.product);
 
 
     const { mutate: removeFavorite } = useMutation({

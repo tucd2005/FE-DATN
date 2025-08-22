@@ -102,3 +102,25 @@ export const useRefreshWalletBalance = () => {
     queryClient.invalidateQueries({ queryKey: ["wallet-balance"] });
   };
 };
+
+// Hook hủy yêu cầu rút tiền
+export const useCancelWithdraw = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (transactionId: number) =>
+      walletClientService.cancelWithdraw(transactionId).then((res) => res.data),
+    onSuccess: () => {
+      message.success("Hủy yêu cầu rút tiền thành công");
+      // Invalidate các query để cập nhật dữ liệu
+      queryClient.invalidateQueries({ queryKey: ["wallet-balance"] });
+      queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["wallet-pending-transaction"] });
+    },
+    onError: (error: any) => {
+      message.error(
+        error?.response?.data?.message || "Có lỗi xảy ra khi hủy rút tiền"
+      );
+    },
+  });
+};

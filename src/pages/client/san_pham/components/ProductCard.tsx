@@ -26,12 +26,12 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
         return 0;
     };
 
-    const variant = product.variants?.[0];
+    const variant = product?.variants?.[0];
     const originalPrice = variant?.gia;
     const salePrice = variant?.gia_khuyen_mai;
     const discount = calculateDiscount(originalPrice || "0", salePrice || "0");
 
-    const imgPath = Array.isArray(product.hinh_anh) ? product.hinh_anh[0] : product.hinh_anh;
+    const imgPath = Array.isArray(product?.hinh_anh) ? product?.hinh_anh[0] : product?.hinh_anh;
     const src = imgPath?.startsWith("http")
         ? imgPath
         : imgPath
@@ -40,13 +40,13 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
 
     return (
         <div
-            onClick={() => navigate(`/san-pham/${product.id}`)}
+            onClick={() => navigate(`/san-pham/${product?.id}`)}
             className="cursor-pointer bg-white border border-gray-200 rounded-2xl overflow-hidden shadow hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
         >
             <div className="relative overflow-hidden">
                 <img
                     src={src}
-                    alt={product.ten}
+                    alt={product?.ten}
                     className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
@@ -61,7 +61,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        onToggleFavorite(product.id);
+                        onToggleFavorite(product?.id);
                     }}
                     className={`absolute top-4 right-4 p-2 rounded-full shadow-sm transition-colors duration-200 ${isFavorite
                         ? "bg-red-500 text-white"
@@ -74,15 +74,15 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }: ProductCardProps
 
             <div className="p-6">
                 <div className="flex items-center gap-2 mb-2">
-                    {product.ten_danh_muc && (
+                    {product?.ten_danh_muc && (
                         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                            {product.ten_danh_muc}
+                            {product?.ten_danh_muc}
                         </span>
                     )}
                 </div>
-                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800 capitalize">{product.ten}</h3>
+                <h3 className="text-lg font-bold mb-2 line-clamp-2 text-gray-800 capitalize">{product?.ten}</h3>
 
-                <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product.mo_ta}</p>
+                <p className="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed">{product?.mo_ta}</p>
 
                 {/* Rating */}
 
