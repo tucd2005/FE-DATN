@@ -70,7 +70,7 @@ const ProductFilters = ({
               style={{ display: "flex", flexDirection: "column", gap: 8 }}
             >
               <Radio value="Tất cả">Tất cả</Radio>
-              {categories?.data.map((category: any) => (
+              {categories?.map((category: any) => (
                 <Radio key={category.id} value={category.id.toString()}>
                   {category.ten}
                 </Radio>
