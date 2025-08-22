@@ -430,7 +430,7 @@ const CheckoutPage = () => {
           }
         } else {
           // COD → điều hướng sang trang cảm ơn
-          toast.success("Đặt hàng thành công!");
+          // toast.success("Đặt hàng thành công!");
           // Chỉ xóa các sản phẩm đã đặt nếu nguồn là giỏ hàng
           if (cartItems && cartItems.length > 0) {
             for (const item of cartItems) {
