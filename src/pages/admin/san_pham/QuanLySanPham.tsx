@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
-import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin } from 'antd'
+import { Button, Table, Popconfirm, Space, Image, Tag, Tooltip, Spin, Input } from 'antd'
 import { Link } from 'react-router-dom'
 import { useDeleteProduct, useProductsAdmin } from '../../../hooks/useProduct'
 
+const { Search } = Input
+
 const ProductList: React.FC = () => {
   const [page, setPage] = useState(1)
+  const [filters, setFilters] = useState<{ keyword?: string }>({})
+
   const deleteProduct = useDeleteProduct()
-  const { data, isLoading, isFetching } = useProductsAdmin(page)
+  const { data, isLoading, isFetching } = useProductsAdmin(page, filters)
 
   const products = data?.data || []
   const pagination = data?.meta
@@ -87,6 +91,12 @@ const ProductList: React.FC = () => {
     },
   ]
 
+  // 🔎 Reset filters
+  const resetFilters = () => {
+    setFilters({})
+    setPage(1)
+  }
+
   return (
     <div className="bg-white p-4 rounded shadow">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -99,6 +109,20 @@ const ProductList: React.FC = () => {
             <Button type="default" danger className="font-semibold">Thùng rác</Button>
           </Link>
         </div>
+      </div>
+
+      {/* 🔎 Thanh tìm kiếm */}
+      <div className="mb-4 flex gap-2">
+        <Search
+          placeholder="Tìm theo tên sản phẩm..."
+          allowClear
+          onChange={(e) => {
+            setFilters({ keyword: e.target.value })
+            setPage(1)
+          }}
+          style={{ width: 300 }}
+        />
+        
       </div>
 
       {isLoading ? (

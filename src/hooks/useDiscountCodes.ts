@@ -7,15 +7,30 @@ import instanceAxios from "../utils/axios";
 
 
 // hook gọi API lấy danh sách mã giảm giá
-export const useDiscountCodes = (page = 1) => {
+export const useDiscountCodes = (
+  page: number = 1,
+  filters?: { keyword?: string; status?: string | null }
+) => {
   return useQuery({
-    queryKey: ["discountCodes", page],
+    queryKey: ["discountCodes", page, filters],
     queryFn: async () => {
-      const res = await instanceAxios.get(`/admin/discount-codes?page=${page}`);
+      const params: any = { page };
+
+      if (filters?.keyword) {
+        params.keyword = filters.keyword;
+      }
+      if (filters?.status !== null && filters?.status !== undefined) {
+        params.status = filters.status;
+      }
+
+      const res = await instanceAxios.get("/admin/discount-codes", {
+        params,
+      });
       return res.data; // Giữ nguyên { data, meta, links }
-    }
+    },
   });
 };
+
 
 export const useCreateDiscountCode = () => {
   const queryClient = useQueryClient();

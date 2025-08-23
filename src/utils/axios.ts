@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const instanceAxios = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -8,10 +9,8 @@ const instanceAxios = axios.create({
 instanceAxios.interceptors.request.use(
   function (config) {
     const token = localStorage.getItem("accessToken");
-    if (token) {
-      if (config.headers) {
-        config.headers["Authorization"] = `Bearer ${token }`;
-      }
+    if (token && config.headers) {
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -25,33 +24,82 @@ instanceAxios.interceptors.response.use(
     return response;
   },
   async function (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || "";
+    const requestUrl = error?.config?.url || "";
+    const isAuthEndpoint = requestUrl.includes("/auth/");
+    const isOnLoginPage =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/login");
+    const hasToken = !!localStorage.getItem("accessToken");
+
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+
+    // === Case 1: Token hết hạn => Refresh token ===
+    if (status === 401 && hasToken && !originalRequest._retry) {
       originalRequest._retry = true;
-      const newToken = await refreshToken();
-      instanceAxios.defaults.headers.common["Authorization"] =
-        "Bearer " + newToken  ;
-      return instanceAxios(originalRequest);
+      try {
+        const newToken = await refreshToken();
+        if (newToken) {
+          localStorage.setItem("accessToken", newToken);
+          instanceAxios.defaults.headers.common["Authorization"] =
+            "Bearer " + newToken;
+          return instanceAxios(originalRequest);
+        }
+      } catch (e) {
+        console.error("Refresh token failed:", e);
+      }
     }
-    // message.error(error.response?.data?.message);
+
+    // === Case 2: User bị block / không có quyền => Logout luôn ===
+    if (status === 403 || status === 419 || (status === 401 && hasToken)) {
+      try {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+
+        // Lưu thông tin block (nếu có) để hiển thị bên login
+        const data = error?.response?.data || {};
+        const blockInfo = {
+          message: data?.message || "",
+          ly_do_block: data?.ly_do_block || "",
+          block_den_ngay: data?.block_den_ngay || "",
+        };
+        sessionStorage.setItem("blockedInfo", JSON.stringify(blockInfo));
+
+        // Hiển thị thông báo block
+        if (status === 403 || message.toLowerCase().includes("khóa")) {
+          toast.error("Tài khoản của bạn đã bị khóa. Vui lòng đăng nhập lại.");
+        } else {
+          toast.error("Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại.");
+        }
+      } catch (e) {}
+
+      if (typeof window !== "undefined" && !isOnLoginPage && !isAuthEndpoint) {
+        const reason =
+          status === 403 || message.toLowerCase().includes("khóa")
+            ? "blocked"
+            : "unauthorized";
+        window.location.href = `/login?reason=${reason}`;
+      }
+    }
+
     return Promise.reject(error);
   }
 );
 
+// === Hàm refresh token ===
 const refreshToken = async () => {
   const user = localStorage.getItem("user");
-
   if (user) {
     const { _id } = JSON.parse(user);
     try {
       const response = await instanceAxios.post("/token/refresh", { _id });
-      const newToken = response.data.accessToken;
-      localStorage.setItem("token", newToken);
-      return newToken;
+      return response.data.accessToken;
     } catch (error) {
       console.error("Lỗi khi làm mới token:", error);
+      throw error;
     }
   }
+  return null;
 };
 
 export default instanceAxios;
