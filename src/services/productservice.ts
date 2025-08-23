@@ -49,10 +49,17 @@ export const productService = {
 
 export const productServiceAdmin = {
 
-    getAllAdmin: async (page: number): Promise<any> => {
-      const res = await instanceAxios.get(`/admin/products?page=${page}`);
-      return res.data; // giữ nguyên toàn bộ object { data, meta, status, message }
-    },
+  getAllAdmin: async (page: number, filters?: { keyword?: string; ten_danh_muc?: string; gia_tu?: number; gia_den?: number }): Promise<any> => {
+    const params = new URLSearchParams({ page: String(page) });
+  
+    if (filters?.keyword) params.append("keyword", filters.keyword);
+    if (filters?.ten_danh_muc) params.append("ten_danh_muc", filters.ten_danh_muc);
+    if (filters?.gia_tu !== undefined) params.append("gia_tu", String(filters.gia_tu));
+    if (filters?.gia_den !== undefined) params.append("gia_den", String(filters.gia_den));
+  
+    const res = await instanceAxios.get(`/admin/products?${params.toString()}`);
+    return res.data; // { data, meta, status, message }
+  },
  
   getPaginated: async (
     params: Record<string, any> = {}

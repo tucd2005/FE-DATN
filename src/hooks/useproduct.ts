@@ -20,13 +20,17 @@ export const useProducts = () => {
     initialData: [],
   });
 };
-export const useProductsAdmin = (page: number) => {
+export const useProductsAdmin = (
+  page: number,
+  filters: { keyword?: string; ten_danh_muc?: string; gia_tu?: number; gia_den?: number }
+) => {
   return useQuery({
-    queryKey: ["products", page],
-    queryFn: () => productServiceAdmin.getAllAdmin(page), // truyền page
-    placeholderData: keepPreviousData, // giữ data cũ khi đổi trang
+    queryKey: ["products", page, filters], // thêm filters vào key để refetch khi thay đổi
+    queryFn: () => productServiceAdmin.getAllAdmin(page, filters),
+    placeholderData: keepPreviousData,
   });
 };
+
 export const useProductsadmin = () => {
   return useQuery<Product[]>({
     queryKey: ["products"],
