@@ -76,17 +76,17 @@ const ProductDetailPage: React.FC = () => {
     },
     ...dynamicAttributeColumns,
     {
-  title: 'Giá',
-  dataIndex: 'gia',
-  render: (gia: number) =>
-    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
-},
-{
-  title: 'Giá khuyến mãi',
-  dataIndex: 'gia_khuyen_mai',
-  render: (gia: number) =>
-    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
-},
+      title: 'Giá',
+      dataIndex: 'gia',
+      render: (gia: number) =>
+        gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+    },
+    {
+      title: 'Giá khuyến mãi',
+      dataIndex: 'gia_khuyen_mai',
+      render: (gia: number) =>
+        gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+    },
     { title: 'Số lượng', dataIndex: 'so_luong', render: (sl: number) => sl?.toLocaleString() ?? '-' },
 
     {
@@ -133,8 +133,14 @@ const ProductDetailPage: React.FC = () => {
       extra={<Link to="/admin/san-pham"><Button>Quay lại</Button></Link>}
     >
       <Row gutter={24} className="mb-6">
-        <Col span={6}><Image width={400} height={450} src={getImage()} /></Col>
-        <Col span={18}>
+        <Col span={6}>
+          <Image
+            src={getImage()}
+            width="100%"   // ăn theo cột
+            height="auto" // giữ tỉ lệ
+          />
+        </Col>
+        <Col span={17}>
           <Descriptions bordered column={1}>
             <Descriptions.Item label="Tên">{product.ten}</Descriptions.Item>
             <Descriptions.Item label="Mô tả">{product.mo_ta}</Descriptions.Item>

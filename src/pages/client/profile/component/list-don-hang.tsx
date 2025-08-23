@@ -155,34 +155,46 @@ export default function OrderHistory() {
 
                     {/* Order Items */}
                     <div className="px-6 py-4 space-y-3">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="flex items-start space-x-4">
-                          <img
-                            src={`http://localhost:8000/storage/${item.hinh_anh}`}
-                            alt={item.ten_san_pham}
-                            className="w-16 h-16 rounded-md object-cover border border-gray-200"
-                          />
-                          <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-900">{item.ten_san_pham}</h4>
-                            <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
-                              {order.gia_tri_bien_the &&
-                                order.gia_tri_bien_the
-                                  .filter((val: any) => val.bien_the_id === item.bien_the_id) // lấy đúng biến thể của item
-                                  .flatMap((val: any) =>
-                                    Object.entries(val.thuoc_tinh).map(([tenThuocTinh, giaTri], i) => (
-                                      <span
-                                        key={i}
-                                        className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
-                                      >
-                                        {tenThuocTinh}: {giaTri}
-                                      </span>
-                                    ))
-                                  )}
+                      {order.items.map((item, index) => {
+                        // Lấy ra biến thể khớp với item
+                        const bienThe = order.gia_tri_bien_the?.find(
+                          (val: any) => val.bien_the_id === item.bien_the_id
+                        );
+
+                        // Ảnh của biến thể (ưu tiên ảnh biến thể, nếu không có fallback sang ảnh item)
+                        const imgSrc =
+                          bienThe?.hinh_anh?.[0] ||
+                          (Array.isArray(item.hinh_anh) ? item.hinh_anh[0] : item.hinh_anh) ||
+                          "/placeholder.png";
+
+                        return (
+                          <div key={index} className="flex items-start space-x-4">
+                            <img
+                              src={`http://localhost:8000/storage/${imgSrc}`}
+                              alt={item.ten_san_pham}
+                              className="w-16 h-16 rounded-md object-cover border border-gray-200"
+                            />
+                            <div className="flex-1">
+                              <h4 className="text-sm font-medium text-gray-900">{order.ten_san_pham}</h4>
+                              <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
+                                {bienThe &&
+                                  Object.entries(bienThe.thuoc_tinh).map(([tenThuocTinh, giaTri], i) => (
+                                    <span
+                                      key={i}
+                                      className="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-700"
+                                    >
+                                      {tenThuocTinh}: {giaTri}
+                                    </span>
+                                  ))}
+                              </div>
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {Number(item.don_gia).toLocaleString("vi-VN")}₫
                             </div>
                           </div>
-                          <div className="text-sm font-medium text-gray-900">{Number(item.don_gia).toLocaleString("vi-VN")}₫</div>
-                        </div>
-                      ))}
+                        );
+                      })}
+
                     </div>
 
                     {/* Order Actions */}

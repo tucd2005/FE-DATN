@@ -2,7 +2,6 @@ import {
   Button,
   Card,
   Form,
-  Input,
   InputNumber,
   Select,
   Upload,
@@ -24,36 +23,51 @@ const EditVariantPage = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const validId = id && !isNaN(Number(id));
-  const { data: variantDetail, isLoading: isLoadingDetail } = useVariantById(validId ? Number(id) : 0);
+
+  const { data: variantDetail, isLoading: isLoadingDetail } = useVariantById(
+    validId ? Number(id) : 0
+  );
+
   const { data: attributes = [] } = useList();
-  const { mutate, isPending } = useUpdateVariant(validId ? Number(id) : 0, variantDetail?.san_pham_id || 0);
+  const { mutate, isPending } = useUpdateVariant(
+    validId ? Number(id) : 0,
+    variantDetail?.san_pham_id || 0
+  );
+
   const attributeIds = attributes.map((a: { id: number }) => a.id);
   const attributeValuesList = useAllAttributeValues(attributeIds);
 
   useEffect(() => {
     if (variantDetail && attributes.length > 0) {
-      const { gia, gia_khuyen_mai, so_luong, hinh_anh, thuoc_tinh } = variantDetail;
+      const { gia, gia_khuyen_mai, so_luong, hinh_anh, thuoc_tinh } =
+        variantDetail;
+
+      // Chuẩn hóa ảnh mặc định
       const defaultImages = Array.isArray(hinh_anh)
         ? hinh_anh.map((url: string, idx: number) => ({
-          uid: String(-idx - 1),
-          name: url.split('/').pop() || `image-${idx}`,
-          url: url.startsWith('http') ? url : `http://127.0.0.1:8000/storage/${url}`,
-          status: "done",
-        }))
+            uid: String(-idx - 1),
+            name: url.split("/").pop() || `image-${idx}`,
+            url: url.startsWith("http")
+              ? url
+              : `http://127.0.0.1:8000/storage/${url}`,
+            status: "done",
+          }))
         : [];
+
+      // Map thuộc tính
       const attrObj: Record<number, string> = {};
       if (Array.isArray(thuoc_tinh)) {
         thuoc_tinh.forEach((item: any) => {
-          const found = attributes.find((a: any) =>
-            a.ten.trim().toLowerCase() === item.ten.trim().toLowerCase()
+          const found = attributes.find(
+            (a: any) =>
+              a.ten.trim().toLowerCase() === item.ten.trim().toLowerCase()
           );
           if (found && found.id) {
             attrObj[found.id] = item.gia_tri;
           }
         });
       }
-      console.log('attributes:', attributes);
-      console.log('attrObj:', attrObj);
+
       form.setFieldsValue({
         gia,
         gia_khuyen_mai,
@@ -70,32 +84,46 @@ const EditVariantPage = () => {
 
   const onFinish = async (values: any) => {
     const formData = new FormData();
+
     formData.append("gia", String(values.gia));
     formData.append("so_luong", String(values.so_luong));
-    if (values.gia_khuyen_mai !== undefined && values.gia_khuyen_mai !== null) {
+
+    // Giá khuyến mãi: nếu trống thì vẫn gửi rỗng => BE sẽ set null
+    if (
+      values.gia_khuyen_mai === undefined ||
+      values.gia_khuyen_mai === null ||
+      values.gia_khuyen_mai === ""
+    ) {
+      formData.append("gia_khuyen_mai", "");
+    } else {
       formData.append("gia_khuyen_mai", String(values.gia_khuyen_mai));
     }
+
     // Ảnh
     const images = values.hinh_anh || [];
     for (const file of images) {
       if (file.originFileObj) {
         formData.append("images[]", file.originFileObj);
       }
-      // Không fetch lại file.url (ảnh cũ)
     }
+
     // Thuộc tính
     if (values.attributes) {
-      // Lọc ra các cặp id và giá trị hợp lệ
-      const validAttrs = Object.entries(values.attributes)
-        .filter(([attrId, gia_tri]) => attrId && attrId !== "0" && gia_tri !== undefined && gia_tri !== "");
+      const validAttrs = Object.entries(values.attributes).filter(
+        ([attrId, gia_tri]) =>
+          attrId && attrId !== "0" && gia_tri !== undefined && gia_tri !== ""
+      );
       validAttrs.forEach(([attrId, gia_tri], idx) => {
         formData.append(`attributes[${idx}][thuoc_tinh_id]`, attrId);
         formData.append(`attributes[${idx}][gia_tri]`, gia_tri as string);
       });
     }
+
+    // Debug
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
+
     mutate(formData as any, {
       onSuccess: () => {
         message.success("Cập nhật biến thể thành công!");
@@ -128,27 +156,19 @@ const EditVariantPage = () => {
         <Form.Item label="Giá" name="gia" rules={[{ required: true }]}>
           <InputNumber min={0} className="w-full" />
         </Form.Item>
+
         <Form.Item
           label="Giá khuyến mãi"
           name="gia_khuyen_mai"
-          rules={[
-            { required: true, message: "Vui lòng nhập giá khuyến mãi" },
-            {
-              validator: (_, value) => {
-                const gia = form.getFieldValue("gia");
-                if (value >= gia) {
-                  return Promise.reject("Giá khuyến mãi phải nhỏ hơn giá gốc");
-                }
-                return Promise.resolve();
-              },
-            },
-          ]}
+          getValueFromEvent={(value) => value ?? null}
         >
           <InputNumber min={0} className="w-full" />
         </Form.Item>
+
         <Form.Item label="Số lượng" name="so_luong" rules={[{ required: true }]}>
           <InputNumber min={0} className="w-full" />
         </Form.Item>
+
         <Form.Item
           label="Hình ảnh"
           name="hinh_anh"
@@ -156,9 +176,7 @@ const EditVariantPage = () => {
           getValueFromEvent={(e) => {
             if (Array.isArray(e)) return e;
             return e?.fileList?.map((file) => {
-              // Trả lại nguyên file nếu là ảnh mới (có originFileObj)
               if (file.originFileObj) return file;
-              // Nếu là ảnh cũ (chỉ có URL), vẫn giữ lại
               return {
                 ...file,
                 status: "done",
@@ -168,7 +186,6 @@ const EditVariantPage = () => {
               };
             });
           }}
-
         >
           <Upload
             listType="picture"
@@ -179,6 +196,7 @@ const EditVariantPage = () => {
             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
           </Upload>
         </Form.Item>
+
         {attributes.map((attr: { id: number; ten: string }, idx: number) => {
           const values = attributeValuesList[idx]?.data || [];
           return (
@@ -198,6 +216,7 @@ const EditVariantPage = () => {
             </Form.Item>
           );
         })}
+
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={isPending}>
             Cập nhật
