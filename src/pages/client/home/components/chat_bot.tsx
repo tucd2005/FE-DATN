@@ -319,16 +319,7 @@ export default function ChatBot() {
             </div>
             <div className="flex items-center space-x-2 relative z-10">
               {/* Demo Mode Toggle */}
-              <button
-                onClick={toggleDemoMode}
-                className={`p-2 rounded-full transition-all duration-300 ${isDemoMode
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-white/20 hover:bg-white/30"
-                  }`}
-                title={isDemoMode ? "Tắt Demo Mode" : "Bật Demo Mode"}
-              >
-                <Settings size={16} />
-              </button>
+              
               <button
                 onClick={() => setIsOpen(false)}
                 className="hover:bg-white/20 rounded-full p-2 transition-all duration-300 transform hover:scale-110"

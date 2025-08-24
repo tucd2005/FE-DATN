@@ -687,11 +687,21 @@ export default function OrderTracking() {
                   );
 
                   // Ảnh: ưu tiên ảnh trong gia_tri_bien_the, fallback sang item.variant hoặc product
-                  const imgSrc = bienThe?.hinh_anh?.[0]
-                    ? `http://localhost:8000/storage/${bienThe.hinh_anh[0]}`
-                    : getImageUrl(item.variant?.hinh_anh) !== "/placeholder.svg"
-                      ? getImageUrl(item.variant?.hinh_anh)
-                      : getImageUrl(item.product?.hinh_anh);
+                  // Ảnh: ưu tiên ảnh trong gia_tri_bien_the, fallback sang item.variant hoặc product
+                  let imgSrc = "/placeholder.svg";
+
+                  if (bienThe?.hinh_anh) {
+                    if (Array.isArray(bienThe.hinh_anh)) {
+                      imgSrc = `http://localhost:8000/storage/${bienThe.hinh_anh[0]}`;
+                    } else {
+                      imgSrc = `http://localhost:8000/storage/${bienThe.hinh_anh}`;
+                    }
+                  } else if (getImageUrl(item.variant?.hinh_anh) !== "/placeholder.svg") {
+                    imgSrc = getImageUrl(item.variant?.hinh_anh);
+                  } else {
+                    imgSrc = getImageUrl(item.product?.hinh_anh);
+                  }
+
 
                   // Lấy tên sản phẩm từ order hoặc fallback
                   const productName = order.ten_san_pham || "Sản phẩm không xác định";

@@ -163,10 +163,10 @@ export default function OrderHistory() {
 
                         // Ảnh của biến thể (ưu tiên ảnh biến thể, nếu không có fallback sang ảnh item)
                         const imgSrc =
-                          bienThe?.hinh_anh?.[0] ||
-                          (Array.isArray(item.hinh_anh) ? item.hinh_anh[0] : item.hinh_anh) ||
+                          (bienThe?.hinh_anh
+                            ? (Array.isArray(bienThe.hinh_anh) ? bienThe.hinh_anh[0] : bienThe.hinh_anh)
+                            : (Array.isArray(item.hinh_anh) ? item.hinh_anh[0] : item.hinh_anh)) ||
                           "/placeholder.png";
-
                         return (
                           <div key={index} className="flex items-start space-x-4">
                             <img
