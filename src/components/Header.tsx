@@ -154,8 +154,14 @@ const Header = () => {
               Liên hệ
             </a>
             <div className="flex items-center space-x-2">
-              <Link
-                to="/gio-hang"
+              <button
+                onClick={() => {
+                  if (isLoggedIn) {
+                    navigate("/gio-hang");
+                  } else {
+                    navigate("/login");
+                  }
+                }}
                 className="relative p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors"
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -164,7 +170,7 @@ const Header = () => {
                     {totalQuantity}
                   </span>
                 )}
-              </Link>
+              </button>
               <div className="relative group">
                 {isLoggedIn ? (
                   <div className="flex items-center space-x-2 cursor-pointer group">
