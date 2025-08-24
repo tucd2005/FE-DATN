@@ -18,6 +18,7 @@ const RelatedProducts = () => {
 
   if (isLoading) return <div className="mt-8 text-center text-gray-500">Đang tải sản phẩm liên quan...</div>;
   if (!relatedProducts || relatedProducts.length === 0) return null;
+console.log(relatedProducts);
 
   return (
     <div className="mt-16">
@@ -26,7 +27,7 @@ const RelatedProducts = () => {
         {relatedProducts.map((product) => {
           const firstVariant = product.variants?.[0];
           const image = firstVariant?.hinh_anh?.[0]
-            ? `http://localhost:8000/storage/${firstVariant.hinh_anh[0]}`
+            ? `http://localhost:8000/storage/${firstVariant.hinh_anh}`
             : "/placeholder.svg";
           const price = firstVariant?.gia_khuyen_mai || firstVariant?.gia || "0";
           const originalPrice = firstVariant?.gia_khuyen_mai ? firstVariant?.gia : null;
