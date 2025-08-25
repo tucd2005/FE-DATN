@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Slider from "react-slick";
 import instanceAxios from "../../../../utils/axios";
+import { Link } from "react-router-dom";
 
 type TBanner = {
   id: number;
@@ -54,9 +55,24 @@ export default function Hero() {
                     <span data-aos="fade-right" data-aos-delay="200">{slide.tieu_de}</span><br />
                   </h1>
                   <div className="flex space-x-4">
-                    <button data-aos="zoom-in" data-aos-delay="600" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-md font-medium transition-colors">Mua sắm ngay</button>
-                    <button data-aos="zoom-in" data-aos-delay="700" className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-md font-medium transition-colors">Xem bộ sưu tập</button>
-                  </div>
+  <Link
+    to="/san-pham"
+    data-aos="zoom-in"
+    data-aos-delay="600"
+    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-md font-medium transition-colors"
+  >
+    Mua sắm ngay
+  </Link>
+
+  <Link
+    to="/san-pham"
+    data-aos="zoom-in"
+    data-aos-delay="700"
+    className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-md font-medium transition-colors"
+  >
+    Xem bộ sưu tập
+  </Link>
+</div>
                 </div>
                 <div className="flex-1 flex justify-end">
                   <div className="relative">

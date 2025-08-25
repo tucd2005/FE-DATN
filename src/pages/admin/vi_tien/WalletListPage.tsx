@@ -167,6 +167,23 @@ const WalletListPage: React.FC = () => {
       },
     },
     {
+      title: "Ảnh chứng minh",
+      dataIndex: "transfer_image",
+      render: (transfer_image: string) => {
+        if (!transfer_image) return "-";
+        const baseUrl = "http://localhost:8000"; // Thay bằng URL backend thực tế
+        const imageUrl = `${baseUrl}/storage/${transfer_image}`;
+        return (
+          <img
+            src={imageUrl}
+            alt="Ảnh chứng minh"
+            style={{ width: 50, height: 50, objectFit: "contain" }}
+            onClick={() => window.open(imageUrl, "_blank")} // Nhấp để mở ảnh trong tab mới
+          />
+        );
+      },
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       render: (status: string) => {

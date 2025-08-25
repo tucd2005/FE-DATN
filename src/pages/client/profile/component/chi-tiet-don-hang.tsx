@@ -63,6 +63,8 @@ export default function OrderTracking() {
   const [showReviewForm, setShowReviewForm] = useState<number | null>(null);
   const [returnImages, setReturnImages] = useState<File[]>([]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false); // Thêm trạng thái loading
+
   const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
     da_thanh_toan: { color: "green", label: "Đã thanh toán" },
     cho_xu_ly: { color: "orange", label: "Chờ xử lý" },
@@ -111,6 +113,9 @@ export default function OrderTracking() {
       message.error('Vui lòng nhập nội dung đánh giá.');
       return;
     }
+
+    setIsSubmitting(true); // Bật trạng thái loading
+
     const formData = new FormData();
     formData.append('reviews[0][san_pham_id]', String(productId));
     formData.append('reviews[0][bien_the_id]', String(variantId));
@@ -128,10 +133,12 @@ export default function OrderTracking() {
           setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
           message.success('Đánh giá thành công!');
         }
+        setIsSubmitting(false); // Tắt trạng thái loading
       },
       onError: (err: any) => {
         const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.';
         message.error(errorMessage);
+        setIsSubmitting(false); // Tắt trạng thái loading
       }
     });
   };
@@ -849,11 +856,18 @@ export default function OrderTracking() {
                                           Hủy
                                         </button>
                                         <button
-                                          type="submit"
-                                          className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition"
-                                        >
-                                          Gửi đánh giá
-                                        </button>
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      >
+                        {isSubmitting && (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                        )}
+                        {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
+                      </button>
                                       </div>
                                     </form>
                                   </div>
