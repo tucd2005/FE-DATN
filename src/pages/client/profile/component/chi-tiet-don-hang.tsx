@@ -703,9 +703,8 @@ export default function OrderTracking() {
                   }
 
 
-                  // Lấy tên sản phẩm từ order hoặc fallback
-                  const productName = order.ten_san_pham || "Sản phẩm không xác định";
-
+               // Lấy tên sản phẩm từ biến thể đầu tiên hoặc fallback
+  const productName = bienThe?.ten_san_pham || "Sản phẩm không xác định";
                   // Parse thuộc tính biến thể (nếu dạng string)
                   let attributes: { thuoc_tinh: string; gia_tri: string }[] = [];
                   if (typeof item.thuoc_tinh_bien_the === "string") {
@@ -772,7 +771,7 @@ export default function OrderTracking() {
                         </div>
 
                         {/* Giữ nguyên phần review của anh */}
-                        {(orderStatus === "da_nhan" ) && (
+                        {(orderStatus === "da_nhan") && (
                           <div className="mt-2">
                             <button
                               className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-blue-600"
@@ -1016,11 +1015,12 @@ export default function OrderTracking() {
                 )}
               </div>
               <div>
-                <label className="block text-gray-700 mb-2 font-medium">Hình ảnh minh họa (nếu có)</label>
+                <label className="block text-gray-700 mb-2 font-medium">Hình ảnh minh họa</label>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
+                  required
                   onChange={handleReturnImagesChange}
                   className="w-full"
                 />

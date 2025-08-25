@@ -170,22 +170,6 @@ console.log(order);
   className="mb-4"
 >
   <Descriptions.Item label="Mã đơn hàng">{order?.ma_don_hang}</Descriptions.Item>
-  <Descriptions.Item label="Tên sản phẩm">{order?.ten_san_pham}</Descriptions.Item>
-  <Descriptions.Item label="Giá trị biến thể">
-  {order?.gia_tri_bien_the?.length > 0 ? (
-    <Space direction="vertical">
-      {order.gia_tri_bien_the.map((item: any, idx: number) => (
-        <div key={idx}>
-          {Object.entries(item.thuoc_tinh).map(([label, value]) => (
-            <Tag key={label}>{`${label}: ${value}`}</Tag>
-          ))}
-        </div>
-      ))}
-    </Space>
-  ) : (
-    "-"
-  )}
-</Descriptions.Item>
   <Descriptions.Item label="Phí ship">
     {Number(order?.phi_ship).toLocaleString("vi-VN", {
       style: "currency",

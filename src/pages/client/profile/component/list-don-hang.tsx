@@ -175,7 +175,10 @@ export default function OrderHistory() {
                               className="w-16 h-16 rounded-md object-cover border border-gray-200"
                             />
                             <div className="flex-1">
-                              <h4 className="text-sm font-medium text-gray-900">{order.ten_san_pham}</h4>
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {bienThe?.ten_san_pham || "Sản phẩm không xác định"}
+                              </h4>
+
                               <div className="text-xs text-gray-500 flex flex-wrap gap-1 mt-0.5">
                                 {bienThe &&
                                   Object.entries(bienThe.thuoc_tinh).map(([tenThuocTinh, giaTri], i) => (
