@@ -11,8 +11,14 @@ export const useAccountList = () => {
 export const useAccountListuser = (page: number, perPage: number) => {
   return useQuery({
     queryKey: ['accounts', page, perPage],
-    queryFn: () => accountService.getAlluser(page, perPage),
-    placeholderData: (prev) => prev // để giữ data khi chuyển trang
+    queryFn: async () => {
+      const res = await accountService.getAlluser(page, perPage);
+      return {
+        users: res.data,             // danh sách user
+        pagination: res.pagination,  // thông tin phân trang
+      };
+    },
+    placeholderData: (prev) => prev
   });
 };
 

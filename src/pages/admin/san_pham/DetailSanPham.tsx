@@ -57,36 +57,49 @@ const ProductDetailPage: React.FC = () => {
       dataIndex: 'hinh_anh',
       width: 100,
       align: 'center',
-      render: (img: string | null) => {
+      render: (imgs: string[] | string | null) => {
         let src = '/placeholder.png';
-        if (img) {
-          try {
-            const arr = JSON.parse(img);
-            if (Array.isArray(arr) && arr.length > 0) {
-              src = getImageUrl(arr[0]);
+    
+        try {
+          if (Array.isArray(imgs) && imgs.length > 0) {
+            // Nếu hinh_anh là array
+            src = `http://127.0.0.1:8000/storage/${imgs[0]}`;
+          } else if (typeof imgs === 'string') {
+            // Trường hợp chuỗi chứa JSON array
+            if (imgs.startsWith('[')) {
+              const parsed = JSON.parse(imgs);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                src = `http://127.0.0.1:8000/storage/${parsed[0]}`;
+              }
+            } else {
+              // Chuỗi bình thường
+              src = imgs.startsWith('http')
+                ? imgs
+                : `http://127.0.0.1:8000/storage/${imgs}`;
             }
-          } catch {
-            src = typeof img === 'string' && img.startsWith('http')
-              ? img
-              : `http://127.0.0.1:8000/storage/${img}`;
           }
+        } catch (e) {
+          console.error('Lỗi parse hinh_anh:', imgs, e);
         }
+    
         return <Image src={src} width={60} height={60} />;
       },
-    },
+    }
+    
+,    
     ...dynamicAttributeColumns,
     {
-  title: 'Giá',
-  dataIndex: 'gia',
-  render: (gia: number) =>
-    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
-},
-{
-  title: 'Giá khuyến mãi',
-  dataIndex: 'gia_khuyen_mai',
-  render: (gia: number) =>
-    gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
-},
+      title: 'Giá',
+      dataIndex: 'gia',
+      render: (gia: number) =>
+        gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+    },
+    {
+      title: 'Giá khuyến mãi',
+      dataIndex: 'gia_khuyen_mai',
+      render: (gia: number) =>
+        gia ? Number(gia).toLocaleString('vi-VN') + '₫' : '-',
+    },
     { title: 'Số lượng', dataIndex: 'so_luong', render: (sl: number) => sl?.toLocaleString() ?? '-' },
 
     {
@@ -133,8 +146,14 @@ const ProductDetailPage: React.FC = () => {
       extra={<Link to="/admin/san-pham"><Button>Quay lại</Button></Link>}
     >
       <Row gutter={24} className="mb-6">
-        <Col span={6}><Image width={200} height={450} src={getImage()} /></Col>
-        <Col span={18}>
+        <Col span={6}>
+          <Image
+            src={getImage()}
+            width="100%"   // ăn theo cột
+            height="auto" // giữ tỉ lệ
+          />
+        </Col>
+        <Col span={17}>
           <Descriptions bordered column={1}>
             <Descriptions.Item label="Tên">{product.ten}</Descriptions.Item>
             <Descriptions.Item label="Mô tả">{product.mo_ta}</Descriptions.Item>

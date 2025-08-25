@@ -18,6 +18,7 @@ import { useShippingFee } from "../../../hooks/useship";
 
 // Định nghĩa kiểu cho cartItems, productOrder, item
 interface CartItem {
+  id?: number;
   san_pham_id: number;
   bien_the?: {
     id: number;
@@ -73,7 +74,7 @@ interface VietnamProvinceResponse {
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const clearCart = useCartStore((state) => state.clearCart);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
 
   // Hooks must be called at the top level
   const checkoutMutation = useCheckout();
@@ -312,7 +313,6 @@ const CheckoutPage = () => {
 
     checkoutMutation.mutate(payload, {
       onSuccess: async (data) => {
-        await clearCart();
         console.log("selectedPayment:", selectedPayment, data);
         if (selectedPayment === "zalopay") {
           try {
@@ -409,6 +409,14 @@ const CheckoutPage = () => {
             }
             const payRes = await walletMutation.mutateAsync(data.order.id);
             toast.success(payRes?.message || "Thanh toán bằng ví thành công!");
+            // Chỉ xóa các sản phẩm đã đặt nếu nguồn là giỏ hàng
+            if (cartItems && cartItems.length > 0) {
+              for (const item of cartItems) {
+                if (typeof item.id === "number") {
+                  try { await removeFromCart(item.id); } catch (e) { console.error("removeFromCart failed", item.id, e); }
+                }
+              }
+            }
             navigate("/cam-on", {
               state: { orderCode: data.order.ma_don_hang }
             });
@@ -422,7 +430,15 @@ const CheckoutPage = () => {
           }
         } else {
           // COD → điều hướng sang trang cảm ơn
-          toast.success("Đặt hàng thành công!");
+          // toast.success("Đặt hàng thành công!");
+          // Chỉ xóa các sản phẩm đã đặt nếu nguồn là giỏ hàng
+          if (cartItems && cartItems.length > 0) {
+            for (const item of cartItems) {
+              if (typeof item.id === "number") {
+                try { await removeFromCart(item.id); } catch (e) { console.error("removeFromCart failed", item.id, e); }
+              }
+            }
+          }
           navigate("/cam-on", {
             state: { orderCode: data.ma_don_hang }
           });

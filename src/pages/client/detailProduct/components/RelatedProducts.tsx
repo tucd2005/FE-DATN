@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useRelatedProducts } from "../../../../hooks/useProduct";
 
 const RelatedProducts = () => {
   const { id } = useParams<{ id: string }>();
   const productId = Number(id);
   const { data: relatedProducts, isLoading } = useRelatedProducts(productId);
-console.log("Related products:", relatedProducts);
+
   const StarIcon = ({ filled = true, className = "" }) => (
     <svg
       className={`w-4 h-4 ${filled ? "text-yellow-400 fill-current" : "text-gray-300"} ${className}`}
@@ -18,6 +18,7 @@ console.log("Related products:", relatedProducts);
 
   if (isLoading) return <div className="mt-8 text-center text-gray-500">Đang tải sản phẩm liên quan...</div>;
   if (!relatedProducts || relatedProducts.length === 0) return null;
+console.log(relatedProducts);
 
   return (
     <div className="mt-16">
@@ -26,7 +27,7 @@ console.log("Related products:", relatedProducts);
         {relatedProducts.map((product) => {
           const firstVariant = product.variants?.[0];
           const image = firstVariant?.hinh_anh?.[0]
-            ? `http://localhost:8000/storage/${firstVariant.hinh_anh[0]}`
+            ? `http://localhost:8000/storage/${firstVariant.hinh_anh}`
             : "/placeholder.svg";
           const price = firstVariant?.gia_khuyen_mai || firstVariant?.gia || "0";
           const originalPrice = firstVariant?.gia_khuyen_mai ? firstVariant?.gia : null;
@@ -39,15 +40,16 @@ console.log("Related products:", relatedProducts);
               : null;
 
           return (
-            <div
+            <Link
+              to={`/san-pham/${product.id}`}
               key={product.id}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow group"
+              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow group block"
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <img
                   src={image}
                   alt={product.ten}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 {discount && (
                   <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
@@ -69,15 +71,11 @@ console.log("Related products:", relatedProducts);
                     )}
                   </div>
                   <div className="flex">
-                    <StarIcon />
-                    <StarIcon />
-                    <StarIcon />
-                    <StarIcon />
-                    <StarIcon />
+                    
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

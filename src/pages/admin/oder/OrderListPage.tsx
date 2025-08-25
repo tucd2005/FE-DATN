@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   Tag,
@@ -11,8 +11,9 @@ import {
   Modal,
   Input,
   Form,
+  DatePicker,
 } from "antd";
-import { ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
+import { ExclamationCircleOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import {
   useCancelOrderadmin,
@@ -20,6 +21,7 @@ import {
   useUpdateOrderStatus,
 } from "../../../hooks/useOrder";
 import { useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -97,7 +99,14 @@ const OrderListPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pendingId, setPendingId] = useState<number | null>(null);
 
-  const { data, isLoading } = useOrderList(page);
+  // thêm state filters
+  const [filters, setFilters] = useState<{
+    search?: string;
+    trang_thai?: string;
+    date?: string;
+  }>({});
+
+  const { data, isLoading } = useOrderList(page, filters);
   const updateStatusMutation = useUpdateOrderStatus();
   const cancelOrderMutation = useCancelOrderadmin();
   const queryClient = useQueryClient();
@@ -135,9 +144,8 @@ const OrderListPage: React.FC = () => {
           await cancelOrderMutation.mutateAsync({ id: record.id, ly_do_huy });
 
           message.success("Huỷ đơn hàng thành công");
-          queryClient.invalidateQueries({ queryKey: ["orders", page] });
+          queryClient.invalidateQueries({ queryKey: ["orders", page, filters] });
         } catch (err) {
-          // nếu validate lỗi, AntD tự show; nếu lỗi từ API thì show message
           if ((err as any)?.response?.data?.message) {
             message.error((err as any).response.data.message);
           }
@@ -154,7 +162,6 @@ const OrderListPage: React.FC = () => {
     const requiresReason = ["huy_hang", "tu_choi_tra_hang"].includes(value);
 
     if (requiresReason) {
-      // nếu là "huy_hang" -> call cancel endpoint (vì backend có logic refund ...)
       if (value === "huy_hang") {
         formCancel.resetFields();
 
@@ -184,7 +191,7 @@ const OrderListPage: React.FC = () => {
               await cancelOrderMutation.mutateAsync({ id, ly_do_huy });
 
               message.success("Huỷ đơn hàng thành công");
-              queryClient.invalidateQueries({ queryKey: ["orders", page] });
+              queryClient.invalidateQueries({ queryKey: ["orders", page, filters] });
             } catch (err) {
               if ((err as any)?.response?.data?.message) {
                 message.error((err as any).response.data.message);
@@ -200,7 +207,6 @@ const OrderListPage: React.FC = () => {
         return;
       }
 
-      // trường hợp "tu_choi_tra_hang": dùng updateStatus (PUT) với lý do tu choi tra hang
       formReason.resetFields();
       Modal.confirm({
         title: "Lý do từ chối trả hàng",
@@ -230,7 +236,7 @@ const OrderListPage: React.FC = () => {
             await updateStatusMutation.mutateAsync(payload);
 
             message.success("Cập nhật trạng thái thành công");
-            queryClient.invalidateQueries({ queryKey: ["orders", page] });
+            queryClient.invalidateQueries({ queryKey: ["orders", page, filters] });
           } catch (err) {
             if ((err as any)?.response?.data?.message) {
               message.error((err as any).response.data.message);
@@ -243,14 +249,13 @@ const OrderListPage: React.FC = () => {
         },
       });
     } else {
-      // Không cần nhập lý do -> gọi update status (PUT)
       setPendingId(id);
       updateStatusMutation.mutate(
         { id, trang_thai_don_hang: value },
         {
           onSuccess: () => {
             message.success("Cập nhật trạng thái thành công");
-            queryClient.invalidateQueries({ queryKey: ["orders", page] });
+            queryClient.invalidateQueries({ queryKey: ["orders", page, filters] });
           },
           onError: (error: any) =>
             message.error(error?.response?.data?.message || "Cập nhật thất bại"),
@@ -323,23 +328,15 @@ const OrderListPage: React.FC = () => {
             onChange={(value) => handleChangeStatus(record.id, value)}
             disabled={pendingId !== null}
           >
-            {ORDER_STATUS_OPTIONS
-              .filter(
-                (opt) =>
-                  !(
-                    (currentStatus === "cho_xac_nhan" || currentStatus === "dang_chuan_bi") &&
-                    opt.value === "da_huy"
-                  )
-              )
-              .map((opt) => (
-                <Option
-                  key={opt.value}
-                  value={opt.value}
-                  disabled={!allowedNextStatuses.includes(opt.value) && opt.value !== currentStatus}
-                >
-                  {opt.label}
-                </Option>
-              ))}
+            {ORDER_STATUS_OPTIONS.map((opt) => (
+              <Option
+                key={opt.value}
+                value={opt.value}
+                disabled={!allowedNextStatuses.includes(opt.value) && opt.value !== currentStatus}
+              >
+                {opt.label}
+              </Option>
+            ))}
           </Select>
         );
       },
@@ -382,6 +379,49 @@ const OrderListPage: React.FC = () => {
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h2>
+
+      {/* Bộ lọc */}
+      <div className="mb-4 flex gap-3 flex-wrap">
+        <Input.Search
+          placeholder="Tìm kiếm đơn hàng..."
+          allowClear
+          enterButton={<SearchOutlined />}
+          onSearch={(value) => {
+            setFilters((prev) => ({ ...prev, search: value || undefined }));
+            setPage(1);
+          }}
+          style={{ width: 250 }}
+        />
+
+        <Select
+          allowClear
+          placeholder="Trạng thái đơn hàng"
+          style={{ width: 200 }}
+          onChange={(value) => {
+            setFilters((prev) => ({ ...prev, trang_thai: value || undefined }));
+            setPage(1);
+          }}
+        >
+          {ORDER_STATUS_OPTIONS.map((opt) => (
+            <Option key={opt.value} value={opt.value}>
+              {opt.label}
+            </Option>
+          ))}
+        </Select>
+
+        <DatePicker
+          placeholder="Chọn ngày tạo"
+          format="YYYY-MM-DD"
+          onChange={(date) => {
+            setFilters((prev) => ({
+              ...prev,
+              date: date ? dayjs(date).format("YYYY-MM-DD") : undefined,
+            }));
+            setPage(1);
+          }}
+        />
+      </div>
+
       {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <Spin size="large" />

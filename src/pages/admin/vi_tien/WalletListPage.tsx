@@ -13,7 +13,7 @@ import {
   Upload,
   Card,
 } from "antd";
-import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
+import { UploadOutlined, InboxOutlined, SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { UploadProps, UploadFile } from "antd/es/upload/interface";
 import {
   useUpdateWalletStatus,
@@ -71,11 +71,11 @@ const WalletListPage: React.FC = () => {
         message.error('Chỉ được phép tải lên file ảnh!');
         return false;
       }
-      return false; // Ngăn không cho file được tải lên ngay lập tức
+      return false;
     },
     onChange: (info) => {
       if (info.file.status !== 'uploading') {
-        setFileList(info.fileList.slice(-1)); // Chỉ giữ lại file cuối cùng
+        setFileList(info.fileList.slice(-1));
       }
     },
   };
@@ -90,15 +90,12 @@ const WalletListPage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      // Thay vì dùng FormData, chuyển sang object thông thường
       const data: { status: string; rejection_reason?: string; transfer_image?: File } = {
         status: currentAction === "approve" ? "success" : "rejected"
       };
   
       if (currentAction === "approve") {
         if (fileList[0]?.originFileObj) {
-          // Nếu cần gửi file, phải dùng FormData
-          
           const formData = new FormData();
           formData.append("_method", "PATCH"); 
           formData.append("status", data.status);
@@ -114,25 +111,23 @@ const WalletListPage: React.FC = () => {
         await updateStatus({ id: selectedTransactionId!, data });
       }
   
-      
       setIsModalOpen(false);
       setFileList([]);
-    } catch (error) {
+    } catch (error: any) {
       message.error(error?.response?.data?.message || "Có lỗi xảy ra");
     }
   };
-  
-  
 
+  
   const columns = [
     { title: "ID", dataIndex: "id" },
     {
-      title: "Người dùng (ID ví)",
+      title: "Người dùng ",
       dataIndex: "user",
       render: (user: any, record: any) => {
         const name = user?.name ?? "Không rõ";
-        const walletId = record?.wallet_id;
-        return `${name} (ID ví: ${walletId})`;
+       
+        return `${name} `;
       },
     },
     {
@@ -166,7 +161,27 @@ const WalletListPage: React.FC = () => {
     {
       title: "Số tiền",
       dataIndex: "amount",
-      render: (amount: number) => amount.toLocaleString() + " ₫",
+      render: (amount: string) => {
+        const value = Number(amount); // ép string thành number
+        return value.toLocaleString("vi-VN", { minimumFractionDigits: 0 }) + "đ";
+      },
+    },
+    {
+      title: "Ảnh chứng minh",
+      dataIndex: "transfer_image",
+      render: (transfer_image: string) => {
+        if (!transfer_image) return "-";
+        const baseUrl = "http://localhost:8000"; // Thay bằng URL backend thực tế
+        const imageUrl = `${baseUrl}/storage/${transfer_image}`;
+        return (
+          <img
+            src={imageUrl}
+            alt="Ảnh chứng minh"
+            style={{ width: 50, height: 50, objectFit: "contain" }}
+            onClick={() => window.open(imageUrl, "_blank")} // Nhấp để mở ảnh trong tab mới
+          />
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -235,6 +250,50 @@ const WalletListPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <Title level={4} className="mb-4">Quản lý giao dịch ví</Title>
 
+      {/* Bộ lọc */}
+      <Space style={{ marginBottom: 16 }} wrap>
+        <Input
+          placeholder="Tìm theo tên, email, số điện thoại"
+          prefix={<SearchOutlined />}
+          allowClear
+          style={{ width: 250 }}
+          value={filters.keyword}
+          onChange={(e) => setFilters((f) => ({ ...f, keyword: e.target.value, page: 1 }))}
+        />
+
+        <Select
+          placeholder="Chọn loại giao dịch"
+          style={{ width: 160 }}
+          allowClear
+          value={filters.type || undefined}
+          onChange={(val) => setFilters((f) => ({ ...f, type: val || "", page: 1 }))}
+        >
+          <Option value="deposit">Nạp</Option>
+          <Option value="withdraw">Rút</Option>
+          <Option value="payment">Thanh toán</Option>
+          <Option value="refund">Hoàn tiền</Option>
+        </Select>
+
+        <Select
+          placeholder="Chọn trạng thái"
+          style={{ width: 160 }}
+          allowClear
+          value={filters.status || undefined}
+          onChange={(val) => setFilters((f) => ({ ...f, status: val || "", page: 1 }))}
+        >
+          <Option value="pending">Chờ xử lý</Option>
+          <Option value="success">Thành công</Option>
+          <Option value="rejected">Từ chối</Option>
+        </Select>
+
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={() => setFilters({ keyword: "", type: "", status: "", page: 1 })}
+        >
+          Làm mới
+        </Button>
+      </Space>
+
       <Table
         rowKey="id"
         loading={isLoading}
@@ -250,6 +309,7 @@ const WalletListPage: React.FC = () => {
         bordered
       />
 
+      {/* Modal duyệt / từ chối */}
       <Modal
         title={
           <Typography.Title level={4}>
@@ -301,10 +361,7 @@ const WalletListPage: React.FC = () => {
               name="reason"
               label="Lý do từ chối"
               rules={[
-                { 
-                  required: true, 
-                  message: 'Vui lòng nhập lý do từ chối' 
-                }
+                { required: true, message: 'Vui lòng nhập lý do từ chối' }
               ]}
             >
               <Input.TextArea 

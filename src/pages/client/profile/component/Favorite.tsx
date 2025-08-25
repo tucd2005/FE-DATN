@@ -7,14 +7,13 @@ import type { IFavoriteProduct } from "../../../../types/product.type";
 const Favorite = () => {
     const queryClient = useQueryClient();
 
-    const { data: fav } = useQuery({
+    const { data: fav, isLoading } = useQuery({
         queryKey: ["favorites"],
         queryFn: () => instanceAxios.get("/wishlists").then(res => res.data),
     })
 
-    const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e.product.id);
-    const products = fav?.data?.map((e: IFavoriteProduct) => e.product);
-
+    const favoriteProducts = fav?.data?.map((e: IFavoriteProduct) => e?.product.id);
+    const products = fav?.data?.map((e: IFavoriteProduct) => e?.product);
 
     const { mutate: removeFavorite } = useMutation({
         mutationFn: (productId: number) => instanceAxios.delete("/wishlists/" + productId),
@@ -26,12 +25,18 @@ const Favorite = () => {
 
     const toggleFavorite = (productId: number) => removeFavorite(productId);
     return (
-        <ProductGrid
-            products={products}
-            viewMode={'grid'}
-            favorites={favoriteProducts}
-            onToggleFavorite={toggleFavorite}
-        />
+        <>
+            {isLoading ? <div className="text-center h-96 flex justify-center items-center bg-white w-full rounded-xl text-gray-500">Đang tải ...</div> :
+                products && products.length > 0 ?
+                    <ProductGrid
+                        products={products}
+                        viewMode={'grid'}
+                        favorites={favoriteProducts}
+                        onToggleFavorite={toggleFavorite}
+                    />
+                    : <div className="text-center h-96 flex justify-center items-center bg-white w-full rounded-xl text-gray-500">Không có sản phẩm yêu thích nào.</div>
+            }
+        </>
     )
 }
 

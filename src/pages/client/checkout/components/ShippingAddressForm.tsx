@@ -80,7 +80,7 @@ note,
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label htmlFor="tenNguoiDat" className="block text-sm font-medium text-gray-700">
-              Họ và tên người đặt *
+              Họ và tên người đặt <span className="text-red-500">*</span>
             </label>
             <input
               id="tenNguoiDat"
@@ -96,7 +96,7 @@ note,
           </div>
           <div className="space-y-2">
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Số điện thoại *
+              Số điện thoại <span className="text-red-500">*</span>
             </label>
             <input
               id="phone"
@@ -113,7 +113,7 @@ note,
         </div>
         <div className="space-y-2">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email *
+            Email <span className="text-red-500">*</span>
           </label>
           <input
             id="email"
@@ -129,7 +129,7 @@ note,
         </div>
         <div className="space-y-2">
           <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-            Địa chỉ cụ thể *
+            Địa chỉ cụ thể <span className="text-red-500">*</span>
           </label>
           <input
             id="address"
@@ -145,7 +145,7 @@ note,
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Tỉnh/Thành phố *</label>
+            <label className="block text-sm font-medium text-gray-700">Tỉnh/Thành phố <span className="text-red-500"><span className="text-red-500">*</span></span></label>
             <div className="relative">
               <select
                 value={selectedProvince}
@@ -170,7 +170,7 @@ note,
             )}
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Phường/Xã *</label>
+            <label className="block text-sm font-medium text-gray-700">Phường/Xã <span className="text-red-500">*</span></label>
             <div className="relative">
               <select
                 value={selectedWard}

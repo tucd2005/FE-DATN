@@ -37,6 +37,7 @@ interface OrderItem {
     so_luong: number
     hinh_anh: string
     so_luong_da_ban: number
+    thuoc_tinh_bien_the: string
     gia: string
     gia_khuyen_mai: string
     created_at: string
@@ -61,6 +62,8 @@ export default function OrderTracking() {
   const [isRequestingCancel, setIsRequestingCancel] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState<number | null>(null);
   const [returnImages, setReturnImages] = useState<File[]>([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false); // Thêm trạng thái loading
 
   const PAYMENT_STATUS_MAP: Record<string, { color: string; label: string }> = {
     da_thanh_toan: { color: "green", label: "Đã thanh toán" },
@@ -110,6 +113,9 @@ export default function OrderTracking() {
       message.error('Vui lòng nhập nội dung đánh giá.');
       return;
     }
+
+    setIsSubmitting(true); // Bật trạng thái loading
+
     const formData = new FormData();
     formData.append('reviews[0][san_pham_id]', String(productId));
     formData.append('reviews[0][bien_the_id]', String(variantId));
@@ -127,10 +133,12 @@ export default function OrderTracking() {
           setReviewForm({ so_sao: 5, noi_dung: '', hinh_anh: null });
           message.success('Đánh giá thành công!');
         }
+        setIsSubmitting(false); // Tắt trạng thái loading
       },
       onError: (err: any) => {
         const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.';
         message.error(errorMessage);
+        setIsSubmitting(false); // Tắt trạng thái loading
       }
     });
   };
@@ -257,8 +265,12 @@ export default function OrderTracking() {
   }
 
   const order = data.order
-  const formatPrice = (price: number | string) => Number(price).toLocaleString("vi-VN") + "đ"
+  const formatPrice = (value: number) => {
+    if (!value) return "0đ";
+    return value.toLocaleString("vi-VN") + "đ";
+  };
   console.log("Order data:", order);
+  console.log("Order data:", order.ly_do_huy);
 
   // Hàm lấy URL hình ảnh
   const getImageUrl = (hinh_anh: string | string[] | undefined): string => {
@@ -523,6 +535,7 @@ export default function OrderTracking() {
                     {order?.ly_do_huy && (
                       <p className="text-sm text-gray-600 text-center">
                         Lý do: {order.ly_do_huy}
+
                       </p>
                     )}
                   </div>
@@ -675,60 +688,98 @@ export default function OrderTracking() {
               </div>
               <div className="p-6">
                 {order.items.map((item: OrderItem, idx: number) => {
-                  // Lấy hình ảnh từ variant hoặc product
-                  const variantImage = getImageUrl(item.variant?.hinh_anh);
-                  const productImage = getImageUrl(item.product?.hinh_anh);
-                  const imgSrc = variantImage !== "/placeholder.svg" ? variantImage : productImage;
+                  // Tìm biến thể trong order.gia_tri_bien_the
+                  const bienThe = order.gia_tri_bien_the?.find(
+                    (val: any) => val.bien_the_id === item.bien_the_id
+                  );
 
-                  // Lấy tên sản phẩm từ product hoặc order
-                  const productName = item.product?.ten || order.ten_san_pham || "Sản phẩm không xác định";
+                  // Ảnh: ưu tiên ảnh trong gia_tri_bien_the, fallback sang item.variant hoặc product
+                  // Ảnh: ưu tiên ảnh trong gia_tri_bien_the, fallback sang item.variant hoặc product
+                  let imgSrc = "/placeholder.svg";
 
-                  // Parse thuộc tính biến thể
+                  if (bienThe?.hinh_anh) {
+                    if (Array.isArray(bienThe.hinh_anh)) {
+                      imgSrc = `http://localhost:8000/storage/${bienThe.hinh_anh[0]}`;
+                    } else {
+                      imgSrc = `http://localhost:8000/storage/${bienThe.hinh_anh}`;
+                    }
+                  } else if (getImageUrl(item.variant?.hinh_anh) !== "/placeholder.svg") {
+                    imgSrc = getImageUrl(item.variant?.hinh_anh);
+                  } else {
+                    imgSrc = getImageUrl(item.product?.hinh_anh);
+                  }
+
+
+                  // Lấy tên sản phẩm từ order hoặc fallback
+                  const productName = order.ten_san_pham || "Sản phẩm không xác định";
+
+                  // Parse thuộc tính biến thể (nếu dạng string)
                   let attributes: { thuoc_tinh: string; gia_tri: string }[] = [];
                   if (typeof item.thuoc_tinh_bien_the === "string") {
                     try {
                       attributes = JSON.parse(item.thuoc_tinh_bien_the);
                     } catch {
-                      // Không parse được, bỏ qua
+                      // ignore
                     }
                   }
 
                   return (
-                    <div key={idx} className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4">
+                    <div
+                      key={idx}
+                      className="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 mb-4"
+                    >
                       <div className="relative">
                         <img
                           src={imgSrc}
                           alt={productName}
                           className="w-24 h-24 rounded-xl object-cover shadow-lg ring-4 ring-white"
-                          onError={e => {
+                          onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            if (!target.src.endsWith('/placeholder.svg')) {
-                              target.src = '/placeholder.svg';
+                            if (!target.src.endsWith("/placeholder.svg")) {
+                              target.src = "/placeholder.svg";
                             }
                           }}
                         />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">{item.so_luong}</span>
+                          <span className="text-xs font-bold text-white">
+                            {item.so_luong}
+                          </span>
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 text-lg mb-2">{productName}</h4>
+                        <h4 className="font-semibold text-gray-900 text-lg mb-2">
+                          {productName}
+                        </h4>
                         <div className="flex gap-2 mb-3 flex-wrap">
                           {order.gia_tri_bien_the &&
-                            order.gia_tri_bien_the.split(",").map((val, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
-                              >
-                                {val.trim()}
-                              </span>
-                            ))}
+                            order.gia_tri_bien_the
+                              .filter((bienThe: any) => bienThe.bien_the_id === item.bien_the_id)
+                              .map((bienThe: any, i: number) => (
+                                <div key={i} className="flex gap-2 mb-3 flex-wrap">
+                                  {Object.entries(bienThe.thuoc_tinh || {}).map(
+                                    ([key, value], j) => (
+                                      <span
+                                        key={j}
+                                        className="px-3 py-1 bg-white border border-gray-300 text-sm rounded-full font-medium text-gray-700"
+                                      >
+                                        {key}: {value}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              ))}
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Số lượng: {item.so_luong}</span>
-                          <span className="text-lg font-bold text-teal-600">{formatPrice(item.don_gia)}</span>
+                          <span className="text-sm text-gray-600">
+                            Số lượng: {item.so_luong}
+                          </span>
+                          <span className="text-lg font-bold text-teal-600">
+                            {formatPrice(item.don_gia)}
+                          </span>
                         </div>
-                        {(orderStatus === "da_nhan" || orderStatus === "da_giao") && (
+
+                        {/* Giữ nguyên phần review của anh */}
+                        {(orderStatus === "da_nhan" ) && (
                           <div className="mt-2">
                             <button
                               className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-blue-600"
@@ -806,11 +857,18 @@ export default function OrderTracking() {
                                           Hủy
                                         </button>
                                         <button
-                                          type="submit"
-                                          className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition"
-                                        >
-                                          Gửi đánh giá
-                                        </button>
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      >
+                        {isSubmitting && (
+                          <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                        )}
+                        {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
+                      </button>
                                       </div>
                                     </form>
                                   </div>
@@ -826,6 +884,7 @@ export default function OrderTracking() {
                   );
                 })}
               </div>
+
             </div>
           </div>
 
@@ -1025,71 +1084,9 @@ export default function OrderTracking() {
           </div>
         </div>
       )}
-      {isRequestingCancel && orderStatus !== "da_huy" && (
-        <div className="flex justify-center my-6">
-          <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
-            Đang yêu cầu hủy hàng...
-          </div>
-        </div>
-      )}
-      {orderStatus === "da_huy" && (
-        <div className="flex justify-center my-6">
-          <div className="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
-            Đã hủy hàng
-          </div>
-        </div>
-      )}
-      {orderStatus === "yeu_cau_tra_hang" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-yellow-700 mb-2">Đã gửi yêu cầu trả hàng</p>
-            <p className="text-gray-600">Chờ xác nhận từ người bán</p>
-          </div>
-        </div>
-      )}
 
-      {orderStatus === "xac_nhan_tra_hang" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 7v4H5V7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M7 11V5a2 2 0 012-2h6a2 2 0 012 2v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M3 17h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 21h8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-blue-700 mb-2">Yêu cầu trả hàng đang chờ xác nhận...</p>
-          </div>
-        </div>
-      )}
 
-      {orderStatus === "tra_hang_thanh_cong" && (
-        <div className="flex flex-col items-center justify-center my-12">
-          <div className="flex items-center">
-            <div className="w-16 h-16 flex items-center justify-center rounded-full border-4 bg-gradient-to-r from-green-400 to-green-600 text-white border-white shadow-2xl scale-110 animate-pulse">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M5 13l4 4L19 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-lg font-semibold text-green-700 mb-2">Trả hàng thành công!</p>
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }

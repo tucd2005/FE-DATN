@@ -9,7 +9,7 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, viewMode, favorites, onToggleFavorite }: ProductGridProps) => {
-    if (products.length === 0) {
+    if (products?.length === 0) {
         return (
             <div className="min-h-[600px] flex items-center justify-center">
                 <div className="text-center">
@@ -29,9 +29,9 @@ const ProductGrid = ({ products, viewMode, favorites, onToggleFavorite }: Produc
         <div className={`grid gap-6 min-h-[600px] ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
             {products?.map((product) => (
                 <ProductCard
-                    key={product.id}
+                    key={product?.id}
                     product={product}
-                    isFavorite={favorites?.includes(product.id)}
+                    isFavorite={favorites?.includes(product?.id)}
                     onToggleFavorite={onToggleFavorite}
                 />
             ))}

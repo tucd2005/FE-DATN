@@ -1,4 +1,5 @@
 import instanceAxios from "../utils/axios";
+
 export interface ThuocTinhBienThe {
   thuoc_tinh_id: number;
   ten_thuoc_tinh: string;
@@ -34,9 +35,17 @@ export interface Pagination {
   current_page: number;
   last_page: number;
 }
-
+type Product = {
+  id: number
+  ten: string
+  so_luong: number
+  so_luong_da_ban: number
+  mo_ta: string
+  hinh_anh: string
+}
 export interface GetOrdersResponse {
   orders: Order[];
+  product: Product
   pagination: Pagination;
 }
 
@@ -48,10 +57,11 @@ export interface PayWithWalletResponse {
 }
 
 export const orderService = {
-  // Lấy danh sách đơn hàng
-  // getAllOrders: () => instanceAxios.get("/admin/orders"), // trả về { data: [...] }
-  getAllOrders: (page = 1) => {
-    return instanceAxios.get(`admin/orders?page=${page}`);
+
+  getAllOrders: (page = 1, params: any = {}) => {
+    return instanceAxios.get(`admin/orders`, {
+      params: { page, ...params }, // <-- truyền page + filters thành query string
+    });
   },
 
   // Cập nhật trạng thái đơn hàng

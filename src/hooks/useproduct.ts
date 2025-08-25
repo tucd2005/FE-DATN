@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   productService,
   productadd,
@@ -20,13 +20,17 @@ export const useProducts = () => {
     initialData: [],
   });
 };
-export const useProductsAdmin = () => {
-  return useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: productServiceAdmin.getAllAdmin,
-    initialData: [],
+export const useProductsAdmin = (
+  page: number,
+  filters: { keyword?: string; ten_danh_muc?: string; gia_tu?: number; gia_den?: number }
+) => {
+  return useQuery({
+    queryKey: ["products", page, filters], // thêm filters vào key để refetch khi thay đổi
+    queryFn: () => productServiceAdmin.getAllAdmin(page, filters),
+    placeholderData: keepPreviousData,
   });
 };
+
 export const useProductsadmin = () => {
   return useQuery<Product[]>({
     queryKey: ["products"],
