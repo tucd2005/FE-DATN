@@ -27,104 +27,113 @@ const OrderDetailPage = () => {
 
  
   
-  const columns = [
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "product",
-      render: (product: Product | undefined) => product?.ten || "Không rõ",
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "variant",
-      render: (_: Variant | undefined, record: OrderDetailRow) => {
-        const variantImage = record.variant?.hinh_anh;
-        const productImage = record.product?.hinh_anh;
-        let img: string | undefined = variantImage || productImage || "no-image.png";
-    
-        // Nếu backend trả object thay vì string, lấy trường 'url'
-        if (typeof img === "object" && img !== null && Object.prototype.hasOwnProperty.call(img, 'url')) {
-          img = (img as { url: string }).url;
-        }
-    
-        // Nếu img là chuỗi JSON mảng => parse và lấy phần tử đầu
-        if (typeof img === "string" && img.startsWith("[")) {
-          try {
-            const arr = JSON.parse(img);
-            img = arr[0] ?? "no-image.png";
-          } catch {
-            img = "no-image.png";
-          }
-        }
-    
-        // ép img thành string, rồi mới gọi startsWith
-        const safeImg = String(img ?? "");
-    
-        const fullUrl = safeImg.startsWith("http")
-          ? safeImg
-          : `http://localhost:8000/storage/${safeImg}`;
-    
-        return (
-          <Image
-            width={60}
-            src={fullUrl}
-            alt={record.product?.ten || "Ảnh sản phẩm"}
-            fallback="/no-image.png"
-          />
-        );
-      },
-    },
-    {
-      title: "Biến thể",
-      dataIndex: "thuoc_tinh_bien_the",
-      render: (val: any) => {
-        if (!val || typeof val !== "object") return "-";
-    
-        const attrs = val.thuoc_tinh || {};
-        if (Object.keys(attrs).length === 0) return "-";
-    
-        return (
-          <Space wrap>
-            {Object.entries(attrs).map(([label, value], idx) => {
-              // Nếu là mã màu hex thì render ô màu
-              if (
-                typeof value === "string" &&
-                value.startsWith("#") &&
-                (value.length === 4 || value.length === 7)
-              ) {
-                return (
-                  <Tag
-                    key={idx}
-                    style={{
-                      backgroundColor: value,
-                      width: 24,
-                      height: 24,
-                      padding: 0,
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                );
-              }
-    
-              return <Tag key={idx}>{`${label}: ${value}`}</Tag>;
-            })}
-          </Space>
-        );
-      },
-    },
+ const columns = [
+  {
+    title: "Tên sản phẩm",
+    dataIndex: "product",
+    render: (_: Product | undefined, record: OrderDetailRow) => {
+      // Tìm biến thể tương ứng trong order.gia_tri_bien_the
+      const bienThe = order?.gia_tri_bien_the?.find(
+        (val: any) => val.bien_the_id === record.bien_the_id
+      );
 
-    {
-      title: "Số lượng",
-      dataIndex: "so_luong",
+      return bienThe?.ten_san_pham || record.product?.ten || "Không rõ";
     },
-    {
-      title: "Đơn giá",
-      dataIndex: "don_gia",
-      render: (val: string) =>
-        Number(val).toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+  },
+  {
+    title: "Hình ảnh",
+    dataIndex: "variant",
+    render: (_: Variant | undefined, record: OrderDetailRow) => {
+      // Lấy ảnh từ gia_tri_bien_the thay vì order_detail
+      const bienThe = order?.gia_tri_bien_the?.find(
+        (val: any) => val.bien_the_id === record.bien_the_id
+      );
+
+      let img: string | undefined = bienThe?.hinh_anh || "no-image.png";
+
+      // Nếu backend trả object thay vì string, lấy trường 'url'
+      if (typeof img === "object" && img !== null && Object.prototype.hasOwnProperty.call(img, "url")) {
+        img = (img as { url: string }).url;
+      }
+
+      // Nếu img là chuỗi JSON mảng => parse và lấy phần tử đầu
+      if (typeof img === "string" && img.startsWith("[")) {
+        try {
+          const arr = JSON.parse(img);
+          img = arr[0] ?? "no-image.png";
+        } catch {
+          img = "no-image.png";
+        }
+      }
+
+      const safeImg = String(img ?? "");
+
+      const fullUrl = safeImg.startsWith("http")
+        ? safeImg
+        : `http://localhost:8000/storage/${safeImg}`;
+
+      return (
+        <Image
+          width={60}
+          src={fullUrl}
+          alt={bienThe?.ten_san_pham || record.product?.ten || "Ảnh sản phẩm"}
+          fallback="/no-image.png"
+        />
+      );
     },
-   
-  ];
+  },
+  {
+    title: "Biến thể",
+    dataIndex: "thuoc_tinh_bien_the",
+    render: (_: any, record: OrderDetailRow) => {
+      // Lấy thuộc tính biến thể từ gia_tri_bien_the
+      const bienThe = order?.gia_tri_bien_the?.find(
+        (val: any) => val.bien_the_id === record.bien_the_id
+      );
+
+      const attrs = bienThe?.thuoc_tinh || {};
+      if (Object.keys(attrs).length === 0) return "-";
+
+      return (
+        <Space wrap>
+          {Object.entries(attrs).map(([label, value], idx) => {
+            if (
+              typeof value === "string" &&
+              value.startsWith("#") &&
+              (value.length === 4 || value.length === 7)
+            ) {
+              return (
+                <Tag
+                  key={idx}
+                  style={{
+                    backgroundColor: value,
+                    width: 24,
+                    height: 24,
+                    padding: 0,
+                    borderRadius: 4,
+                    border: "1px solid #ccc",
+                  }}
+                />
+              );
+            }
+
+            return <Tag key={idx}>{`${label}: ${value}`}</Tag>;
+          })}
+        </Space>
+      );
+    },
+  },
+  {
+    title: "Số lượng",
+    dataIndex: "so_luong",
+  },
+  {
+    title: "Đơn giá",
+    dataIndex: "don_gia",
+    render: (val: string) =>
+      Number(val).toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+  },
+];
 
   if (isLoading) return <Spin size="large" />;
 console.log(order);
