@@ -60,19 +60,32 @@ const ProductDetailPage: React.FC = () => {
       render: (imgs: string[] | string | null) => {
         let src = '/placeholder.png';
     
-        if (Array.isArray(imgs) && imgs.length > 0) {
-          // Nếu hinh_anh là array
-          src = `http://127.0.0.1:8000/storage/${imgs[0]}`;
-        } else if (typeof imgs === 'string') {
-          // Nếu lỡ backend trả về string
-          src = imgs.startsWith('http')
-            ? imgs
-            : `http://127.0.0.1:8000/storage/${imgs}`;
+        try {
+          if (Array.isArray(imgs) && imgs.length > 0) {
+            // Nếu hinh_anh là array
+            src = `http://127.0.0.1:8000/storage/${imgs[0]}`;
+          } else if (typeof imgs === 'string') {
+            // Trường hợp chuỗi chứa JSON array
+            if (imgs.startsWith('[')) {
+              const parsed = JSON.parse(imgs);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                src = `http://127.0.0.1:8000/storage/${parsed[0]}`;
+              }
+            } else {
+              // Chuỗi bình thường
+              src = imgs.startsWith('http')
+                ? imgs
+                : `http://127.0.0.1:8000/storage/${imgs}`;
+            }
+          }
+        } catch (e) {
+          console.error('Lỗi parse hinh_anh:', imgs, e);
         }
     
         return <Image src={src} width={60} height={60} />;
       },
     }
+    
 ,    
     ...dynamicAttributeColumns,
     {

@@ -117,6 +117,7 @@ const WalletListPage: React.FC = () => {
       message.error(error?.response?.data?.message || "Có lỗi xảy ra");
     }
   };
+
   
   const columns = [
     { title: "ID", dataIndex: "id" },
@@ -160,7 +161,10 @@ const WalletListPage: React.FC = () => {
     {
       title: "Số tiền",
       dataIndex: "amount",
-      render: (amount: number) => amount.toLocaleString() + " ₫",
+      render: (amount: string) => {
+        const value = Number(amount); // ép string thành number
+        return value.toLocaleString("vi-VN", { minimumFractionDigits: 0 }) + "đ";
+      },
     },
     {
       title: "Ảnh chứng minh",

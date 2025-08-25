@@ -62,32 +62,37 @@ export default function LayoutAdmin() {
         } flex flex-col`}
       >
         {/* ✅ Header sidebar */}
-            <div className="h-32 flex flex-col items-center justify-center border-b border-slate-700">
-      {collapsed ? (
-        // Khi collapse thì chỉ hiện avatar nhỏ
-        <img
-          src={profile?.anh_dai_dien || "/placeholder.svg"}
-          alt="avatar"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-      ) : (
-        // Khi mở rộng thì avatar ở trên, email ở dưới
-        <div className="flex flex-col items-center space-y-2">
-          <img
-            src={
-                  profile?.anh_dai_dien
-                    ? `http://localhost:8000/storage/${profile.anh_dai_dien}`
-                    : undefined
-                }
-            alt="avatar"
-            className="w-24 h-24 rounded-full object-cover border-2 border-slate-600"
-          />
-          <span className="text-sm font-medium text-center">
-            {profile?.email || "Loading..."}
-          </span>
-        </div>
-      )}
+        <div className="h-32 flex flex-col items-center justify-center border-b border-slate-700">
+  {collapsed ? (
+    // Khi collapse thì chỉ hiện avatar nhỏ
+    <img
+      src={
+        profile?.anh_dai_dien
+          ? `http://localhost:8000/storage/${profile.anh_dai_dien}`
+          : "https://phunugioi.com/wp-content/uploads/2021/10/Hinh-anh-hacker-Anonymous-chat.jpg"
+      }
+      alt="avatar"
+      className="w-10 h-10 rounded-full object-cover"
+    />
+  ) : (
+    // Khi mở rộng thì avatar ở trên, email ở dưới
+    <div className="flex flex-col items-center space-y-2">
+      <img
+        src={
+          profile?.anh_dai_dien
+            ? `http://localhost:8000/storage/${profile.anh_dai_dien}`
+            : "https://phunugioi.com/wp-content/uploads/2021/10/Hinh-anh-hacker-Anonymous-chat.jpg"
+        }
+        alt="avatar"
+        className="w-24 h-24 rounded-full object-cover border-2 border-slate-600"
+      />
+      <span className="text-sm font-medium text-center">
+        {profile?.email || "Loading..."}
+      </span>
     </div>
+  )}
+</div>
+
 
 
         <Menu
