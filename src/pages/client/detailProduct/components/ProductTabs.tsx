@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../../../hooks/useProfile";
 import { useProductReviews, useSubmitReview } from "../../../../hooks/useReview";
-import { message } from "antd";
+import { Image, message } from "antd";
 import type { Variant } from "../../../../types/product.type";
 
 interface ProductTabsProps {
@@ -76,7 +76,7 @@ const ProductTabs = ({
             },
         });
     };
-console.log("Review Data:", reviewData);
+    console.log("Review Data:", reviewData);
 
     const features = [
         "Công nghệ Dri-FIT thấm hút mồ hôi",
@@ -179,7 +179,7 @@ console.log("Review Data:", reviewData);
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xl font-bold text-gray-900">Đánh giá khách hàng</h3>
-                            
+
                         </div>
                         {showReviewForm && (
                             <form className="space-y-4 border p-4 rounded-lg" onSubmit={handleSubmitReview}>
@@ -320,39 +320,62 @@ console.log("Review Data:", reviewData);
                                     };
                                     return (
                                         <div key={r.id || index} className="border-b border-gray-200 pb-6">
-                                            <div className="flex items-center justify-between mb-2">
+                                            <div className="mb-2">
+                                                {/* Thông tin user + sao */}
                                                 <div className="flex items-center space-x-3">
                                                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
                                                         {r.user?.anh_dai_dien ? (
-                                                            <img src={r.user.anh_dai_dien} alt="avatar" className="w-10 h-10 object-cover" />
+                                                            <img
+                                                                src={r.user.anh_dai_dien}
+                                                                alt="avatar"
+                                                                className="w-10 h-10 object-cover"
+                                                            />
                                                         ) : (
-                                                            <span className="text-sm font-semibold">{r.user?.name?.charAt(0) || "?"}</span>
+                                                            <span className="text-sm font-semibold">
+                                                                {r.user?.name?.charAt(0) || "?"}
+                                                            </span>
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-gray-900">{r.user?.name || "Ẩn danh"}</p>
+                                                        <p className="font-semibold text-gray-900">
+                                                            {r.user?.name || "Ẩn danh"}
+                                                        </p>
                                                         <div className="flex items-center space-x-2">
                                                             <div className="flex">
                                                                 {Array.from({ length: r.so_sao }).map((_, i) => (
                                                                     <StarIcon key={i} filled={true} className="w-4 h-4" />
                                                                 ))}
                                                                 {Array.from({ length: 5 - r.so_sao }).map((_, i) => (
-                                                                    <StarIcon key={i + r.so_sao} filled={false} className="w-4 h-4" />
+                                                                    <StarIcon
+                                                                        key={i + r.so_sao}
+                                                                        filled={false}
+                                                                        className="w-4 h-4"
+                                                                    />
                                                                 ))}
                                                             </div>
-                                                            <span className="text-sm text-gray-600">{r.created_at?.slice(0, 10) || "N/A"}</span>
+                                                            <span className="text-sm text-gray-600">
+                                                                {r.created_at?.slice(0, 10) || "N/A"}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <p className="text-gray-700">{r.noi_dung}</p>
+                                                {/* Ảnh review để xuống dưới */}
                                                 {r.hinh_anh && (
-                                                    <img
-                                                        src={`http://localhost:8000/storage/${r.hinh_anh}`}
-                                                        alt="review-img"
-                                                        className="w-16 h-16 object-cover rounded"
-                                                    />
+                                                    <div className="mt-2">
+                                                        <Image
+                                                            src={`http://localhost:8000/storage/${r.hinh_anh}`}
+                                                            alt="review-img"
+                                                            width={100} // px
+                                                            className="object-cover rounded"
+                                                        />
+
+
+                                                    </div>
                                                 )}
                                             </div>
-                                            <p className="text-gray-700">{r.noi_dung}</p>
+
+
                                         </div>
                                     );
                                 })
