@@ -209,8 +209,8 @@ export default function TransactionHistory({ className = "" }: TransactionHistor
                     rowKey="id"
                     pagination={{
                         pageSize: 10,
-                        showSizeChanger: true,
-                        showQuickJumper: true,
+                        // showSizeChanger: true,
+                        // showQuickJumper: true,
                         showTotal: (total, range) =>
                             `${range[0]}-${range[1]} của ${total} giao dịch`,
                         pageSizeOptions: ["10", "20", "50"],
